@@ -1,0 +1,538 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}
+
+model User {
+  id            String   @id @default(uuid())
+  email         String   @unique
+  password      String
+  firstName     String
+  lastName      String
+  phone         String?
+  role          Role     @default(CITIZEN)
+  kepVerified   Boolean  @default(false)
+  kepId         String?  @unique
+  totpEnabled   Boolean  @default(false)
+  totpSecret    String?
+  emailVerified            Boolean   @default(false)
+  emailVerificationToken   String?   @unique
+  emailVerificationExpiry  DateTime?
+  passwordResetToken       String?   @unique
+  passwordResetExpiry      DateTime?
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+  
+  reports       Report[]
+  comments      Comment[]
+  passkeys      PasskeyCredential[]
+  authChallenges AuthChallenge[]
+  generatedDispatchBatches InstitutionDispatchBatch[] @relation("batch_generated_by")
+  uploadedDispatchDocuments DispatchDocument[] @relation("document_uploaded_by")
+  vehicles      Vehicle[]
+  vehicleIncidents VehicleIncident[]
+  dispatcherVerifications DispatcherVerification[] @relation("dispatcher_verifications")
+  
+  @@map("users")
+}
+
+model Report {
+  id          String       @id @default(uuid())
+  title       String
+  description String
+  isPublic    Boolean      @default(false)
+  categoryId  String
+  category    ReportCategory @relation(fields: [categoryId], references: [id])
+  taxonomyCategory    String?
+  taxonomySubcategory String?
+  taxonomySituation   String?
+  customSubcategory   String?
+  customSituation     String?
+  priority    Priority     @default(MEDIUM)
+  status      ReportStatus @default(PENDING)
+  latitude    Float
+  longitude   Float
+  address     String?
+  district    String?
+  images      String[]
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
+  
+  userId      String
+  user        User         @relation(fields: [userId], references: [id])
+  
+  assignedToId String?
+  assignedTo   ResponsiblePerson? @relation(fields: [assignedToId], references: [id])
+  
+  comments    Comment[]
+  history     ReportHistory[]
+  routingTargets ReportRoutingTarget[]
+  dispatchItems DispatchBatchItem[]
+  adHocInstitutions AdHocInstitution[]
+  recipientCustomizations ReportRecipientCustomization[]
+  
+  @@map("reports")
+  @@index([status])
+  @@index([categoryId])
+  @@index([createdAt])
+  @@index([district])
+  @@index([isPublic])
+}
+
+model Comment {
+  id        String   @id @default(uuid())
+  content   String
+  createdAt DateTime @default(now())
+  
+  reportId  String
+  report    Report   @relation(fields: [reportId], references: [id], onDelete: Cascade)
+  
+  userId    String
+  user      User     @relation(fields: [userId], references: [id])
+  
+  @@map("comments")
+}
+
+model ReportHistory {
+  id          String       @id @default(uuid())
+  action      String
+  oldStatus   ReportStatus?
+  newStatus   ReportStatus?
+  description String?
+  createdAt   DateTime     @default(now())
+  
+  reportId    String
+  report      Report       @relation(fields: [reportId], references: [id], onDelete: Cascade)
+  
+  @@map("report_history")
+}
+
+enum Role {
+  CITIZEN
+  ADMIN
+  MUNICIPAL_COUNCILOR
+  SUPER_ADMIN
+}
+
+model ReportCategory {
+  id          String   @id @default(uuid())
+  name        String
+  nameEn      String
+  nameBg      String
+  description String?
+  icon        String?
+  color       String?
+  active      Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  
+  reports     Report[]
+  responsiblePersons ResponsiblePerson[]
+  responsiblePersonSubcategories ResponsiblePersonSubcategory[]
+  institutionMappings CategoryInstitution[]
+  
+  @@map("report_categories")
+}
+
+model ResponsiblePerson {
+  id          String   @id @default(uuid())
+  firstName   String
+  lastName    String
+  email       String
+  phone       String
+  position    String?
+  district    String
+  active      Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  
+  categoryId  String
+  category    ReportCategory @relation(fields: [categoryId], references: [id])
+  subcategoryAssignments ResponsiblePersonSubcategory[]
+  
+  assignedReports Report[]
+  
+  @@map("responsible_persons")
+  @@index([district])
+  @@index([categoryId])
+}
+
+model ResponsiblePersonSubcategory {
+  id                  String   @id @default(uuid())
+  createdAt           DateTime @default(now())
+
+  responsiblePersonId String
+  responsiblePerson   ResponsiblePerson @relation(fields: [responsiblePersonId], references: [id], onDelete: Cascade)
+
+  categoryId          String
+  category            ReportCategory @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+
+  subcategoryName     String
+
+  @@unique([responsiblePersonId, categoryId, subcategoryName])
+  @@index([categoryId, subcategoryName])
+  @@index([responsiblePersonId])
+  @@map("responsible_person_subcategories")
+}
+
+model Institution {
+  id            String   @id @default(uuid())
+  name          String   @unique
+  email         String?
+  phone         String?
+  notes         String?
+  active        Boolean  @default(true)
+  latitude      Float?
+  longitude     Float?
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  categoryMappings CategoryInstitution[]
+  reportTargets    ReportRoutingTarget[]
+  dispatchBatches  InstitutionDispatchBatch[]
+
+  @@map("institutions")
+}
+
+model CategoryInstitution {
+  id            String   @id @default(uuid())
+  createdAt     DateTime @default(now())
+
+  categoryId    String
+  category      ReportCategory @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+
+  institutionId String
+  institution   Institution @relation(fields: [institutionId], references: [id], onDelete: Cascade)
+
+  @@unique([categoryId, institutionId])
+  @@map("category_institutions")
+}
+
+model ReportRoutingTarget {
+  id            String   @id @default(uuid())
+  source        RoutingSource @default(CATEGORY_DEFAULT)
+  recommendation RecommendationSource @default(SITUATION)
+  included      Boolean  @default(true)
+  notes         String?
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  reportId      String
+  report        Report   @relation(fields: [reportId], references: [id], onDelete: Cascade)
+
+  institutionId String?
+  institution   Institution? @relation(fields: [institutionId], references: [id], onDelete: Cascade)
+
+  adHocInstitutionId String?
+  adHocInstitution   AdHocInstitution? @relation(fields: [adHocInstitutionId], references: [id], onDelete: Cascade)
+
+  dispatchItems DispatchBatchItem[]
+  customizations ReportRecipientCustomization[]
+
+  @@index([reportId])
+  @@index([institutionId])
+  @@index([adHocInstitutionId])
+  @@index([included])
+  @@index([recommendation])
+  @@map("report_routing_targets")
+}
+
+model AdHocInstitution {
+  id            String   @id @default(uuid())
+  name          String
+  email         String?
+  phone         String?
+  contactPerson String?
+  address       String?
+  notes         String?
+  createdAt     DateTime @default(now())
+
+  reportId      String
+  report        Report   @relation(fields: [reportId], references: [id], onDelete: Cascade)
+
+  routingTargets ReportRoutingTarget[]
+
+  @@index([reportId])
+  @@map("ad_hoc_institutions")
+}
+
+model ReportRecipientCustomization {
+  id            String   @id @default(uuid())
+  customName    String?
+  customEmail   String?
+  customPhone   String?
+  customNotes   String?
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  reportId      String
+  report        Report   @relation(fields: [reportId], references: [id], onDelete: Cascade)
+
+  routingTargetId String
+  routingTarget   ReportRoutingTarget @relation(fields: [routingTargetId], references: [id], onDelete: Cascade)
+
+  @@unique([reportId, routingTargetId])
+  @@index([reportId])
+  @@map("report_recipient_customizations")
+}
+
+enum RecommendationSource {
+  SITUATION
+  SUBCATEGORY
+  CATEGORY
+  OTHER
+}
+
+model InstitutionDispatchBatch {
+  id            String   @id @default(uuid())
+  status        DispatchBatchStatus @default(DRAFT)
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+  sentAt        DateTime?
+
+  institutionId String
+  institution   Institution @relation(fields: [institutionId], references: [id], onDelete: Cascade)
+
+  generatedById String?
+  generatedBy   User?    @relation("batch_generated_by", fields: [generatedById], references: [id])
+
+  documents     DispatchDocument[]
+  items         DispatchBatchItem[]
+
+  @@index([institutionId, status])
+  @@map("institution_dispatch_batches")
+}
+
+model DispatchBatchItem {
+  id              String   @id @default(uuid())
+  createdAt       DateTime @default(now())
+
+  batchId         String
+  batch           InstitutionDispatchBatch @relation(fields: [batchId], references: [id], onDelete: Cascade)
+
+  reportId        String
+  report          Report   @relation(fields: [reportId], references: [id], onDelete: Cascade)
+
+  routingTargetId String?
+  routingTarget   ReportRoutingTarget? @relation(fields: [routingTargetId], references: [id], onDelete: SetNull)
+
+  @@unique([batchId, reportId])
+  @@index([reportId])
+  @@map("dispatch_batch_items")
+}
+
+model DispatchDocument {
+  id            String   @id @default(uuid())
+  kind          DispatchDocumentKind
+  fileName      String
+  filePath      String
+  mimeType      String
+  createdAt     DateTime @default(now())
+
+  batchId       String
+  batch         InstitutionDispatchBatch @relation(fields: [batchId], references: [id], onDelete: Cascade)
+
+  uploadedById  String?
+  uploadedBy    User? @relation("document_uploaded_by", fields: [uploadedById], references: [id])
+
+  @@index([batchId, kind])
+  @@map("dispatch_documents")
+}
+
+model PasskeyCredential {
+  id                      String   @id @default(uuid())
+  userId                  String
+  webauthnUserId          String
+  credentialId            String   @unique
+  publicKey               String
+  counter                 Int      @default(0)
+  transports              String[]
+  deviceType              String?
+  backedUp                Boolean?
+  name                    String?
+  createdAt               DateTime @default(now())
+  updatedAt               DateTime @updatedAt
+
+  user                    User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@map("passkey_credentials")
+}
+
+model AuthChallenge {
+  id                      String   @id @default(uuid())
+  userId                  String
+  kind                    AuthChallengeKind
+  challenge               String?
+  metadata                Json?
+  expiresAt               DateTime
+  consumedAt              DateTime?
+  createdAt               DateTime @default(now())
+
+  user                    User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, kind])
+  @@index([expiresAt])
+  @@map("auth_challenges")
+}
+
+enum Priority {
+  LOW
+  MEDIUM
+  HIGH
+  URGENT
+}
+
+enum ReportStatus {
+  PENDING
+  IN_REVIEW
+  IN_PROGRESS
+  RESOLVED
+  REJECTED
+}
+
+enum RoutingSource {
+  CATEGORY_DEFAULT
+  ADMIN_UPDATED
+}
+
+enum DispatchBatchStatus {
+  DRAFT
+  PENDING_SIGNATURE
+  SIGNED
+  SENT
+}
+
+enum DispatchDocumentKind {
+  DRAFT
+  SIGNED
+}
+
+enum AuthChallengeKind {
+  LOGIN_MFA
+  TOTP_ENROLL
+  PASSKEY_REGISTRATION
+  PASSKEY_AUTHENTICATION
+}
+
+// ============ VEHICLE MANAGEMENT MODELS ============
+
+model Vehicle {
+  id              String   @id @default(uuid())
+  registrationPlate String  @unique
+  brand           String
+  model           String
+  year            Int
+  color           String?
+  vin             String?  @unique
+  verified        Boolean  @default(false)
+  active          Boolean  @default(true)
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+  
+  userId          String
+  user            User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  incidents       VehicleIncident[]
+  
+  @@index([userId])
+  @@index([verified])
+  @@map("vehicles")
+}
+
+enum IncidentType {
+  BLOCKING
+  COLLISION
+  PARKING_PROBLEM
+  TRAFFIC_VIOLATION
+  ACCIDENT
+  DAMAGE
+  THEFT_ATTEMPT
+  OTHER
+}
+
+enum IncidentStatus {
+  SUBMITTED
+  UNDER_REVIEW
+  VERIFIED
+  REJECTED
+  RESOLVED
+}
+
+model VehicleIncident {
+  id              String   @id @default(uuid())
+  type            IncidentType
+  description     String
+  latitude        Float?
+  longitude       Float?
+  address         String?
+  status          IncidentStatus @default(SUBMITTED)
+  priority        Priority @default(MEDIUM)
+  other_vehicle_plate String?
+  witness_contact String?
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+  
+  vehicleId       String
+  vehicle         Vehicle  @relation(fields: [vehicleId], references: [id], onDelete: Cascade)
+  
+  userId          String
+  user            User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  photos          IncidentPhoto[]
+  verification    DispatcherVerification?
+  
+  @@index([status])
+  @@index([vehicleId])
+  @@index([userId])
+  @@index([createdAt])
+  @@map("vehicle_incidents")
+}
+
+model IncidentPhoto {
+  id              String   @id @default(uuid())
+  fileName        String
+  filePath        String
+  mimeType        String
+  size            Int
+  uploadedAt      DateTime @default(now())
+  
+  incidentId      String
+  incident        VehicleIncident @relation(fields: [incidentId], references: [id], onDelete: Cascade)
+  
+  @@index([incidentId])
+  @@map("incident_photos")
+}
+
+model DispatcherVerification {
+  id              String   @id @default(uuid())
+  status          IncidentStatus
+  notes           String?
+  rejectionReason String?
+  verifiedAt      DateTime @default(now())
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+  notificationSent Boolean  @default(false)
+  notificationSentAt DateTime?
+  
+  incidentId      String   @unique
+  incident        VehicleIncident @relation(fields: [incidentId], references: [id], onDelete: Cascade)
+  
+  dispatcherId    String
+  dispatcher      User     @relation("dispatcher_verifications", fields: [dispatcherId], references: [id])
+  
+  @@index([status])
+  @@index([incidentId])
+  @@index([dispatcherId])
+  @@map("dispatcher_verifications")
+}
+
+

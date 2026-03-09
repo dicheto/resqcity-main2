@@ -1,0 +1,136 @@
+{
+  "project": "ResQCity",
+  "description": "Full-stack urban management platform",
+  "version": "1.0.0",
+  "lastUpdated": "2026-03-08",
+  "status": "Production Ready",
+  
+  "technologies": {
+    "frontend": {
+      "framework": {
+        "Next.js": "14.1.0",
+        "React": "18.2.0",
+        "React DOM": "18.2.0"
+      },
+      "styling": {
+        "Tailwind CSS": "3.4.1",
+        "PostCSS": "8.4.33",
+        "Autoprefixer": "10.4.17"
+      },
+      "typeScript": {
+        "TypeScript": "5.3.3",
+        "@types/react": "18.2.48",
+        "@types/react-dom": "18.2.18"
+      },
+      "ui": {
+        "Lucide React": "0.577.0",
+        "Recharts": "3.8.0"
+      },
+      "maps": {
+        "Leaflet": "1.9.4",
+        "React Leaflet": "4.2.1",
+        "Mapbox GL": "3.1.0",
+        "GTFS Realtime Bindings": "1.1.1"
+      }
+    },
+    
+    "backend": {
+      "runtime": {
+        "Node.js": "18",
+        "TSX": "4.7.0"
+      },
+      "realtime": {
+        "Socket.IO": "4.6.1",
+        "Socket.IO Client": "4.6.1"
+      },
+      "authentication": {
+        "jsonwebtoken": "9.0.2",
+        "bcryptjs": "2.4.3",
+        "@simplewebauthn/browser": "13.2.2",
+        "@simplewebauthn/server": "13.2.3"
+      },
+      "2fa": {
+        "Speakeasy": "2.0.0",
+        "QRCode": "1.5.4"
+      },
+      "validation": {
+        "Zod": "3.22.4"
+      },
+      "http": {
+        "Axios": "1.6.5"
+      }
+    },
+    
+    "database": {
+      "orm": {
+        "Prisma": "5.9.0",
+        "@prisma/client": "5.22.0"
+      },
+      "database": {
+        "PostgreSQL": "16",
+        "Hosting": "Supabase",
+        "pg": "8.11.3"
+      },
+      "dataProcessing": {
+        "csv-parse": "6.1.0"
+      }
+    },
+    
+    "tools": {
+      "email": {
+        "Nodemailer": "6.9.9"
+      },
+      "pdf": {
+        "PDFKit": "0.17.2",
+        "@types/pdfkit": "0.17.5"
+      },
+      "linting": {
+        "ESLint": "9.39.4",
+        "ESLint Config Next": "16.1.6"
+      }
+    },
+    
+    "devops": {
+      "containerization": {
+        "Docker": "latest",
+        "Docker Compose": "3.8",
+        "Docker Base Image": "node:18-alpine"
+      }
+    }
+  },
+  
+  "apiIntegrations": {
+    "OpenWeatherMap": "Weather data API",
+    "Mapbox": "Advanced mapping platform",
+    "GTFS": "Public transit data",
+    "Bulgarian eID": "БГ КЕП integration"
+  },
+  
+  "configurations": [
+    "tsconfig.json",
+    "tailwind.config.ts",
+    "postcss.config.js",
+    "next.config.js",
+    "package.json",
+    "prisma/schema.prisma",
+    "Dockerfile",
+    "docker-compose.yml"
+  ],
+  
+  "totalDependencies": {
+    "production": 28,
+    "development": 13,
+    "total": 41
+  },
+  
+  "keyFeatures": {
+    "Interactive Maps": ["Leaflet", "React Leaflet", "Mapbox GL", "GTFS"],
+    "Real-time Vehicle Tracking": ["Socket.IO", "WebSocket"],
+    "Multi-factor Authentication": ["JWT", "bcrypt", "WebAuthn", "TOTP"],
+    "Database": ["PostgreSQL", "Prisma", "Supabase"],
+    "Data Import": ["CSV parsing"],
+    "Document Generation": ["PDFKit"],
+    "Email Notifications": ["Nodemailer"],
+    "Containerization": ["Docker", "Docker Compose"]
+  }
+}
