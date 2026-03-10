@@ -1,4 +1,6 @@
 /** @type {import('next').NextConfig} */
+const path = require('path');
+
 const nextConfig = {
   experimental: {
     serverComponentsExternalPackages: ['pdfkit', 'fontkit', 'linebreak'],
@@ -13,6 +15,12 @@ const nextConfig = {
     ],
   },
   webpack: (config, { isServer }) => {
+    // Explicit @ alias for consistent resolution on all platforms (incl. Vercel/Linux)
+    config.resolve.alias = {
+      ...config.resolve.alias,
+      '@': path.resolve(__dirname, 'src'),
+    };
+
     // Disable ModuleConcatenationPlugin - causes JSON.parse failures on Node 23
     config.optimization.concatenateModules = false;
 
