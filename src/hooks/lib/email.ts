@@ -100,7 +100,7 @@ export async function sendVerificationEmail(
 export async function sendPasswordResetEmail(
   email: string,
   resetLink: string
-): Promise<boolean> {
+): Promise<SendEmailResult> {
   return sendEmail({
     to: email,
     subject: 'Смяна на парола — ResQCity',
@@ -146,7 +146,7 @@ export async function sendReportUpdateEmail(
   email: string,
   reportTitle: string,
   newStatus: string
-): Promise<boolean> {
+): Promise<SendEmailResult> {
   return sendEmail({
     to: email,
     subject: `Report Update: ${reportTitle}`,
