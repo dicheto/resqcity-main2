@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { authMiddleware } from '@/hooks/lib/middleware';
 import { prisma } from '@/hooks/lib/prisma';
 import { notifyReportUpdate } from '@/hooks/lib/websocket';
+import { sendReportStatusChangedEmail } from '@/hooks/lib/email';
 
 export async function GET(
   request: NextRequest,
@@ -171,6 +172,18 @@ export async function PATCH(
         category: updatedReport.category?.nameBg || 'Без категория',
         timestamp: new Date().toISOString(),
       });
+
+      // Изпращане на имейл до автора на сигнала
+      if (currentReport.user?.email) {
+        sendReportStatusChangedEmail(
+          currentReport.user.email,
+          updatedReport.title,
+          params.id,
+          currentReport.status,
+          status,
+          note || undefined
+        ).catch((err) => console.error('[Email] Status changed:', err));
+      }
     }
 
     return NextResponse.json(updatedReport);

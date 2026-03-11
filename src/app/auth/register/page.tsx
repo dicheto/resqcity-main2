@@ -3,11 +3,13 @@
 import { useState } from 'react';
 import Link from 'next/link';
 import axios from 'axios';
+import { PasswordRequirements } from '@/components/PasswordRequirements';
 
 export default function RegisterPage() {
   const [formData, setFormData] = useState({
     email: '',
     password: '',
+    confirmPassword: '',
     firstName: '',
     lastName: '',
     phone: '',
@@ -17,13 +19,20 @@ export default function RegisterPage() {
   const [registeredEmail, setRegisteredEmail] = useState('');
   const [emailAlreadyVerified, setEmailAlreadyVerified] = useState(false);
 
+  const passwordValid = formData.password.length >= 8 &&
+    /[A-ZА-Я]/.test(formData.password) &&
+    /\d/.test(formData.password) &&
+    formData.password === formData.confirmPassword;
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
+    if (!passwordValid) return;
     setLoading(true);
 
     try {
-      const response = await axios.post('/api/auth/register', formData);
+      const { confirmPassword: _, ...data } = formData;
+      const response = await axios.post('/api/auth/register', data);
       setRegisteredEmail(response.data.email);
       setEmailAlreadyVerified(response.data.emailVerified === true);
     } catch (err: any) {
@@ -179,10 +188,24 @@ export default function RegisterPage() {
               <input type="password" className="site-input"
                 value={formData.password}
                 onChange={(e) => setFormData({ ...formData, password: e.target.value })}
-                required minLength={6} placeholder="••••••••" />
+                required placeholder="••••••••" />
             </div>
 
-            <button type="submit" disabled={loading}
+            <div>
+              <label className="block text-[10px] font-semibold uppercase tracking-[0.4em] text-[var(--s-muted)] mb-2">Потвърди парола</label>
+              <input type="password" className="site-input"
+                value={formData.confirmPassword}
+                onChange={(e) => setFormData({ ...formData, confirmPassword: e.target.value })}
+                required placeholder="••••••••" />
+            </div>
+
+            <PasswordRequirements
+              password={formData.password}
+              confirmPassword={formData.confirmPassword}
+              showConfirm
+            />
+
+            <button type="submit" disabled={loading || !passwordValid}
               className="btn-site-primary w-full justify-center py-3.5 rounded-2xl text-sm"
               style={{ background: 'linear-gradient(135deg, var(--s-violet), #7C3AED)', boxShadow: '0 0 28px var(--s-glow-v)' }}>
               {loading ? 'Регистрация...' : 'Създай профил'}

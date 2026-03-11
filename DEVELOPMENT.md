@@ -200,9 +200,12 @@ zoom: 12,
 ```
 
 ### Customizing Email Templates
-Edit `src/lib/email.ts` functions:
-- `sendVerificationEmail`
-- `sendReportUpdateEmail`
+Edit `src/hooks/lib/email.ts` functions:
+- `sendVerificationEmail` (регистрация)
+- `sendPasswordResetEmail` (забравена парола)
+- `sendReportCreatedEmail` (създаден сигнал)
+- `sendReportStatusChangedEmail` (промяна в статус)
+- `sendReportCommentEmail` (нов отговор по сигнал)
 
 ### Adding New Report Categories
 1. Update `prisma/schema.prisma`:

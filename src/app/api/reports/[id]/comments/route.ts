@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { authMiddleware } from '@/hooks/lib/middleware';
 import { prisma } from '@/hooks/lib/prisma';
+import { sendReportCommentEmail } from '@/hooks/lib/email';
 
 export async function POST(
   request: NextRequest,
@@ -23,6 +24,13 @@ export async function POST(
       );
     }
 
+    const report = await prisma.report.findUnique({
+      where: { id: params.id },
+      include: {
+        user: { select: { id: true, email: true } },
+      },
+    });
+
     const comment = await prisma.comment.create({
       data: {
         content,
@@ -39,6 +47,23 @@ export async function POST(
         },
       },
     });
+
+    // Уведомяване на автора на сигнала, когато някой друг добави коментар
+    if (
+      report?.user?.email &&
+      report.user.id !== authResult.user.userId
+    ) {
+      const commenterName =
+        `${authResult.user.firstName || ''} ${authResult.user.lastName || ''}`.trim() ||
+        authResult.user.email;
+      sendReportCommentEmail(
+        report.user.email,
+        report.title || 'Сигнал',
+        params.id,
+        commenterName,
+        content
+      ).catch((err) => console.error('[Email] Report comment:', err));
+    }
 
     return NextResponse.json(comment, { status: 201 });
   } catch (error) {

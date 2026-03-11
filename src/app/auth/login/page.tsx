@@ -254,7 +254,12 @@ export default function LoginPage() {
                 />
               </div>
               <div>
-                <label className="block text-[10px] font-semibold uppercase tracking-[0.4em] text-[var(--s-muted)] mb-2">Парола</label>
+                <div className="flex items-center justify-between mb-2">
+                  <label className="block text-[10px] font-semibold uppercase tracking-[0.4em] text-[var(--s-muted)]">Парола</label>
+                  <Link href="/auth/forgot-password" className="text-[10px] text-[var(--s-orange)] hover:underline font-medium">
+                    Забравена парола?
+                  </Link>
+                </div>
                 <input
                   type="password"
                   className="site-input"

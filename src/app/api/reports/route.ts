@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { authMiddleware } from '@/hooks/lib/middleware';
 import { prisma } from '@/hooks/lib/prisma';
 import { loadSignalRoutingTaxonomy, getSituationInstitutions } from '@/hooks/lib/taxonomy';
+import { sendReportCreatedEmail } from '@/hooks/lib/email';
 
 export async function GET(request: NextRequest) {
   const authResult = await authMiddleware(request);
@@ -307,6 +308,16 @@ export async function POST(request: NextRequest) {
         },
       },
     });
+
+    // Изпращане на имейл за създаден сигнал (неблокиращо)
+    if (hydratedReport?.user?.email) {
+      sendReportCreatedEmail(
+        hydratedReport.user.email,
+        hydratedReport.title,
+        hydratedReport.id,
+        hydratedReport.category?.nameBg || 'Сигнал'
+      ).catch((err) => console.error('[Email] Report created:', err));
+    }
 
     return NextResponse.json(hydratedReport, { status: 201 });
   } catch (error) {

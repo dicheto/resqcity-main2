@@ -3,6 +3,7 @@ import bcrypt from 'bcryptjs';
 import crypto from 'crypto';
 import { prisma } from '@/hooks/lib/prisma';
 import { sendVerificationEmail } from '@/hooks/lib/email';
+import { validatePassword } from '@/hooks/lib/passwordValidation';
 
 export async function POST(request: NextRequest) {
   try {
@@ -17,9 +18,10 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    if (password.length < 6) {
+    const pwdResult = validatePassword(password);
+    if (!pwdResult.ok) {
       return NextResponse.json(
-        { error: 'Паролата трябва да е поне 6 символа' },
+        { error: pwdResult.error },
         { status: 400 }
       );
     }

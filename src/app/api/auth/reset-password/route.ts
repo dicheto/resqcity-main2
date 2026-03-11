@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import bcrypt from 'bcryptjs';
 import { prisma } from '@/hooks/lib/prisma';
+import { validatePassword } from '@/hooks/lib/passwordValidation';
 
 export async function POST(request: NextRequest) {
   try {
@@ -10,8 +11,9 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Липсват задължителни полета' }, { status: 400 });
     }
 
-    if (password.length < 6) {
-      return NextResponse.json({ error: 'Паролата трябва да е поне 6 символа' }, { status: 400 });
+    const pwdResult = validatePassword(password);
+    if (!pwdResult.ok) {
+      return NextResponse.json({ error: pwdResult.error }, { status: 400 });
     }
 
     const user = await prisma.user.findUnique({
