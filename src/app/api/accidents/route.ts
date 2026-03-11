@@ -2,6 +2,8 @@ import { NextResponse } from 'next/server';
 import fs from 'fs';
 import path from 'path';
 
+export const revalidate = 3600;
+
 interface Accident {
   year: string;
   date: string;
@@ -133,6 +135,10 @@ export async function GET(request: Request) {
       success: true,
       total: accidents.length,
       data: accidents,
+    }, {
+      headers: {
+        'Cache-Control': 'public, s-maxage=3600, stale-while-revalidate=86400',
+      },
     });
   } catch (error: any) {
     console.error('Error loading accidents:', error);

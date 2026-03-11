@@ -1,6 +1,8 @@
 import { NextResponse } from 'next/server';
 import { prisma } from '@/hooks/lib/prisma';
 
+export const revalidate = 30;
+
 export async function GET() {
   try {
     const now = new Date();
@@ -148,6 +150,12 @@ export async function GET() {
       })),
       dailyTrend,
       generatedAt: now.toISOString(),
+    }, {
+      headers: {
+        // CDN cache on Vercel: share responses across users to reduce DB load.
+        // Keep it short because this is "live" UI; stale-while-revalidate smooths bursts.
+        'Cache-Control': 'public, s-maxage=30, stale-while-revalidate=300',
+      },
     });
   } catch (error) {
     console.error('[/api/stats] error:', error);

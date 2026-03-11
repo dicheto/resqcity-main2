@@ -1,4 +1,4 @@
-﻿'use client';
+'use client';
 
 import Link from 'next/link';
 import { useEffect, useState } from 'react';
@@ -137,15 +137,45 @@ export default function Home() {
   const [stats, setStats] = useState<StatsData | null>(null);
 
   useEffect(() => {
+    let timer: ReturnType<typeof setTimeout> | null = null;
+    let aborted = false;
+
     async function fetchStats() {
       try {
+        if (aborted) return;
         const res = await fetch('/api/stats');
         if (res.ok) setStats(await res.json());
       } catch { /* silent */ }
     }
+    const schedule = (ms: number) => {
+      if (timer) clearTimeout(timer);
+      timer = setTimeout(async () => {
+        // Pause polling when tab is hidden.
+        if (document.visibilityState === 'visible') {
+          await fetchStats();
+        }
+        // Add small jitter to avoid thundering herd across users.
+        const jitter = Math.floor(Math.random() * 4000);
+        schedule(120_000 + jitter);
+      }, ms);
+    };
+
     fetchStats();
-    const id = setInterval(fetchStats, 30_000);
-    return () => clearInterval(id);
+    schedule(120_000);
+
+    const onVis = () => {
+      if (document.visibilityState === 'visible') {
+        fetchStats();
+        schedule(120_000);
+      }
+    };
+    document.addEventListener('visibilitychange', onVis);
+
+    return () => {
+      aborted = true;
+      document.removeEventListener('visibilitychange', onVis);
+      if (timer) clearTimeout(timer);
+    };
   }, []);
 
   const resolved = stats?.byStatus.find((s) => s.status === 'RESOLVED')?.count ?? 0;

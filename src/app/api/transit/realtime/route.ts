@@ -4,6 +4,8 @@ import { getVehicleTypeInfo } from '@/hooks/lib/vehicle-models';
 import { parseGTFSStops } from '@/hooks/lib/gtfs';
 import routeMapping from '@/hooks/lib/gtfs-routes.json';
 
+export const revalidate = 5;
+
 type RealtimeAlert = {
   id: string;
   alert?: {
@@ -201,6 +203,10 @@ export async function GET(request: NextRequest) {
         alerts: normalizedAlerts,
         timestamp: data.timestamp,
         fetch_errors: data.fetch_errors || [],
+      },
+    }, {
+      headers: {
+        'Cache-Control': 'public, s-maxage=5, stale-while-revalidate=30',
       },
     });
   } catch (error: any) {

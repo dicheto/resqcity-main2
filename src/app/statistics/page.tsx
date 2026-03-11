@@ -92,8 +92,8 @@ export default function StatisticsPage() {
   const [data, setData]         = useState<StatsData | null>(null);
   const [loading, setLoading]   = useState(true);
   const [error, setError]       = useState(false);
-  const [countdown, setCountdown] = useState(30);
-  const REFRESH_SEC = 30;
+  const [countdown, setCountdown] = useState(120);
+  const REFRESH_SEC = 120;
 
   const fetchData = useCallback(async () => {
     try {
@@ -111,9 +111,40 @@ export default function StatisticsPage() {
 
   useEffect(() => {
     fetchData();
-    const refreshId = setInterval(fetchData, REFRESH_SEC * 1000);
-    const tickId    = setInterval(() => setCountdown((c) => (c > 0 ? c - 1 : REFRESH_SEC)), 1000);
-    return () => { clearInterval(refreshId); clearInterval(tickId); };
+    let refreshId: ReturnType<typeof setTimeout> | null = null;
+
+    const scheduleRefresh = (ms: number) => {
+      if (refreshId) clearTimeout(refreshId);
+      refreshId = setTimeout(async () => {
+        if (document.visibilityState === 'visible') {
+          await fetchData();
+        }
+        const jitterMs = Math.floor(Math.random() * 4000);
+        scheduleRefresh(REFRESH_SEC * 1000 + jitterMs);
+      }, ms);
+    };
+
+    scheduleRefresh(REFRESH_SEC * 1000);
+
+    const tickId = setInterval(() => {
+      if (document.visibilityState === 'visible') {
+        setCountdown((c) => (c > 0 ? c - 1 : REFRESH_SEC));
+      }
+    }, 1000);
+
+    const onVis = () => {
+      if (document.visibilityState === 'visible') {
+        fetchData();
+        scheduleRefresh(REFRESH_SEC * 1000);
+      }
+    };
+    document.addEventListener('visibilitychange', onVis);
+
+    return () => {
+      document.removeEventListener('visibilitychange', onVis);
+      if (refreshId) clearTimeout(refreshId);
+      clearInterval(tickId);
+    };
   }, [fetchData]);
 
   /* ── loading skeleton ── */

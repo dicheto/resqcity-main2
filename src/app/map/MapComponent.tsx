@@ -660,9 +660,30 @@ function InteractiveMapComponent() {
   // Polling fallback when WebSocket unavailable (Vercel/serverless)
   useEffect(() => {
     if (isConnected) return;
-    const interval = setInterval(refreshVehicles, 30000);
-    return () => clearInterval(interval);
-  }, [isConnected]);
+    if (!showVehicles) return;
+
+    let interval: ReturnType<typeof setInterval> | null = null;
+
+    const tick = () => {
+      if (typeof document === 'undefined') return;
+      if (document.visibilityState !== 'visible') return;
+      refreshVehicles();
+    };
+
+    // First tick soon after enabling vehicles
+    tick();
+    interval = setInterval(tick, 60_000);
+
+    const onVis = () => {
+      if (document.visibilityState === 'visible') tick();
+    };
+    document.addEventListener('visibilitychange', onVis);
+
+    return () => {
+      document.removeEventListener('visibilitychange', onVis);
+      if (interval) clearInterval(interval);
+    };
+  }, [isConnected, showVehicles]);
 
   // Add/remove report markers
   useEffect(() => {

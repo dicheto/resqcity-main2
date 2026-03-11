@@ -199,6 +199,10 @@ export function startVehicleUpdateService() {
     updateVehicles();
     
     // Update every 30 seconds to reduce jittering and improve smoothness
-    setInterval(updateVehicles, 30000);
+    setInterval(() => {
+      if (typeof document === 'undefined') return;
+      if (document.visibilityState !== 'visible') return;
+      updateVehicles();
+    }, 30000);
   }, 3000);
 }

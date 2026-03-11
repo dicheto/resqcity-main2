@@ -2,6 +2,8 @@ import { NextRequest, NextResponse } from 'next/server';
 import { getTripDelays, getRealtimeData } from '@/hooks/lib/sofia-traffic';
 import routeMapping from '@/hooks/lib/gtfs-routes.json';
 
+export const revalidate = 10;
+
 /**
  * Get display short name for a route (from GTFS data)
  */
@@ -146,6 +148,10 @@ export async function GET(request: NextRequest) {
         average_delay: vehicles.length > 0
           ? Math.round(vehicles.reduce((sum: number, v: any) => sum + v.delay, 0) / vehicles.length)
           : 0,
+      },
+    }, {
+      headers: {
+        'Cache-Control': 'public, s-maxage=10, stale-while-revalidate=60',
       },
     });
   } catch (error: any) {

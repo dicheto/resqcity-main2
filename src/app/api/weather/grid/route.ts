@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
 import axios from 'axios';
 
+export const revalidate = 600;
+
 const OPENWEATHER_API_KEY = process.env.NEXT_PUBLIC_OPENWEATHER_KEY;
 const OPENWEATHER_BASE = 'https://api.openweathermap.org/data/2.5';
 
@@ -60,6 +62,10 @@ export async function GET(request: NextRequest) {
         success: true,
         data: weatherCache.data,
         cached: true,
+      }, {
+        headers: {
+          'Cache-Control': 'public, s-maxage=600, stale-while-revalidate=3600',
+        },
       });
     }
 
@@ -135,6 +141,10 @@ export async function GET(request: NextRequest) {
           data: weatherCache.data,
           cached: true,
           warning: 'Using cached data due to API timeout',
+        }, {
+          headers: {
+            'Cache-Control': 'public, s-maxage=600, stale-while-revalidate=3600',
+          },
         });
       }
       
@@ -156,6 +166,10 @@ export async function GET(request: NextRequest) {
       success: true,
       data: validResults,
       cached: false,
+    }, {
+      headers: {
+        'Cache-Control': 'public, s-maxage=600, stale-while-revalidate=3600',
+      },
     });
   } catch (error: any) {
     console.error('Error fetching weather grid:', error);
