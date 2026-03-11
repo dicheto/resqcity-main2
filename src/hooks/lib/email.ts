@@ -25,7 +25,16 @@ export interface EmailOptions {
   }>;
 }
 
-export async function sendEmail(options: EmailOptions): Promise<boolean> {
+export type SendEmailResult = { ok: true } | { ok: false; error: string };
+
+function getSafeErrorMessage(err: unknown): string {
+  if (err instanceof Error) {
+    return err.message || err.name || 'Unknown error';
+  }
+  return String(err);
+}
+
+export async function sendEmail(options: EmailOptions): Promise<SendEmailResult> {
   try {
     await transporter.sendMail({
       from: process.env.SMTP_FROM,
@@ -35,17 +44,18 @@ export async function sendEmail(options: EmailOptions): Promise<boolean> {
       text: options.text,
       attachments: options.attachments,
     });
-    return true;
+    return { ok: true };
   } catch (error) {
-    console.error('Failed to send email:', error);
-    return false;
+    const msg = getSafeErrorMessage(error);
+    console.error('[Email] Failed to send:', msg, error);
+    return { ok: false, error: msg };
   }
 }
 
 export async function sendVerificationEmail(
   email: string,
   verificationLink: string
-): Promise<boolean> {
+): Promise<SendEmailResult> {
   return sendEmail({
     to: email,
     subject: 'Потвърди своя имейл — ResQCity',

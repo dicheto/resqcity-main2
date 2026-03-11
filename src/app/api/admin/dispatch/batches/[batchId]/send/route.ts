@@ -172,7 +172,7 @@ export async function POST(request: NextRequest, context: RouteContext) {
     // Send email with attachment
     console.log(`[Dispatch] Sending email to ${batch.institution.email} for batch ${batchId}`);
     
-    const emailSent = await sendEmail({
+    const emailResult = await sendEmail({
       to: batch.institution.email,
       subject: emailSubject,
       html: emailHtml,
@@ -186,9 +186,12 @@ export async function POST(request: NextRequest, context: RouteContext) {
       ],
     });
 
-    if (!emailSent) {
+    if (!emailResult.ok) {
       return NextResponse.json(
-        { error: 'Failed to send email. Please check SMTP configuration.' },
+        {
+          error: 'Failed to send email. Please check SMTP configuration.',
+          smtpError: emailResult.error,
+        },
         { status: 500 }
       );
     }

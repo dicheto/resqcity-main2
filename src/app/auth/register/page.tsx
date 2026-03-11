@@ -27,7 +27,9 @@ export default function RegisterPage() {
       setRegisteredEmail(response.data.email);
       setEmailAlreadyVerified(response.data.emailVerified === true);
     } catch (err: any) {
-      setError(err.response?.data?.error || 'Регистрацията е неуспешна');
+      const msg = err.response?.data?.error || 'Регистрацията е неуспешна';
+      const smtpDetail = err.response?.data?.smtpError;
+      setError(smtpDetail ? `${msg} Детайли: ${smtpDetail}` : msg);
     } finally {
       setLoading(false);
     }

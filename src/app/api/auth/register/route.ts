@@ -82,16 +82,16 @@ export async function POST(request: NextRequest) {
     if (shouldVerifyEmail) {
       const appUrl = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000';
       const verificationLink = `${appUrl}/auth/verify-email?token=${userData.emailVerificationToken}`;
-      const emailSent = await sendVerificationEmail(user.email, verificationLink);
+      const emailResult = await sendVerificationEmail(user.email, verificationLink);
 
-      if (!emailSent) {
+      if (!emailResult.ok) {
         // Roll back user creation so they can retry registration cleanly.
         await prisma.user.delete({ where: { id: user.id } });
 
         return NextResponse.json(
           {
-            error:
-              'Не успяхме да изпратим потвърдителен имейл. Моля, опитайте отново след малко.',
+            error: 'Не успяхме да изпратим потвърдителен имейл. Моля, опитайте отново след малко.',
+            smtpError: emailResult.error,
           },
           { status: 503 }
         );
