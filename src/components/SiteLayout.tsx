@@ -430,10 +430,10 @@ function SiteHeader() {
                 </>
               ) : (
                 <>
-                  <Link href="/auth/login" className="btn-site-ghost text-[11px] py-2 px-4">
+                  <Link href="/auth/login" className="btn-site-ghost text-[11px] py-2 px-4" data-cursor-loupe>
                     {copy.login}
                   </Link>
-                  <Link href="/auth/register" className="btn-site-primary text-[11px] py-2 px-4">
+                  <Link href="/auth/register" className="btn-site-primary text-[11px] py-2 px-4" data-cursor-loupe>
                     {copy.register}
                   </Link>
                 </>
@@ -522,6 +522,7 @@ function SiteHeader() {
                       href="/auth/login"
                       onClick={() => setOpen(false)}
                       className="w-full text-center btn-site-ghost text-xs py-3 rounded-xl font-semibold"
+                      data-cursor-loupe
                     >
                       {copy.login}
                     </Link>
@@ -529,6 +530,7 @@ function SiteHeader() {
                       href="/auth/register"
                       onClick={() => setOpen(false)}
                       className="w-full text-center btn-site-primary text-[11px] py-3 rounded-xl font-semibold"
+                      data-cursor-loupe
                     >
                       {copy.register}
                     </Link>
@@ -605,12 +607,12 @@ function SiteFooter() {
             <p className="text-[10px] font-bold uppercase tracking-[0.45em] text-[var(--s-muted)] mb-5">{copy.access}</p>
             <div className="space-y-3">
               {[
-                { href: '/auth/login',     label: copy.loginIcon },
-                { href: '/auth/register',  label: copy.registerIcon },
+                { href: '/auth/login',     label: copy.loginIcon, loupe: true },
+                { href: '/auth/register',  label: copy.registerIcon, loupe: true },
                 { href: '/admin',          label: copy.adminAccess },
                 { href: '/dispatcher',     label: copy.dispatcherAccess },
-              ].map(({ href, label }) => (
-                <Link key={href} href={href} className="block text-sm text-[var(--s-muted)] hover:text-[var(--s-text)] transition-colors">
+              ].map(({ href, label, loupe }) => (
+                <Link key={href} href={href} className="block text-sm text-[var(--s-muted)] hover:text-[var(--s-text)] transition-colors" {...(loupe && { 'data-cursor-loupe': true })}>
                   {label}
                 </Link>
               ))}

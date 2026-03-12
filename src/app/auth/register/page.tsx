@@ -54,7 +54,7 @@ export default function RegisterPage() {
       {/* Registration success screen */}
       {registeredEmail ? (
         <div className="relative w-full max-w-lg">
-          <div className="site-card-glass rounded-3xl p-10 text-center">
+          <div className="site-card-glass rounded-3xl p-10 text-center" data-cursor-loupe>
             <div className="w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-6"
               style={{ background: emailAlreadyVerified ? 'linear-gradient(135deg, #10b981, #059669)' : 'linear-gradient(135deg, var(--s-violet), #06b6d4)', boxShadow: emailAlreadyVerified ? '0 0 40px rgba(16,185,129,0.4)' : '0 0 40px rgba(124,58,237,0.4)' }}>
               <span className="text-4xl">{emailAlreadyVerified ? '✅' : '📧'}</span>
@@ -134,7 +134,7 @@ export default function RegisterPage() {
         </div>
 
         {/* Form panel */}
-        <div className="site-card-glass rounded-3xl p-8 flex flex-col justify-center">
+        <div className="site-card-glass rounded-3xl p-8 flex flex-col justify-center" data-cursor-loupe>
           <div className="flex items-center justify-between mb-8">
             <div>
               <p className="text-[10px] uppercase tracking-[0.5em] text-[var(--s-teal)] font-bold">ResQCity</p>

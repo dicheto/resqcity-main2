@@ -46,7 +46,7 @@ function ResetPasswordForm() {
         <div className="absolute bottom-0 left-0 w-[40vw] h-[40vw] glow-orb-violet opacity-25" />
 
         <div className="relative w-full max-w-lg">
-          <div className="site-card-glass rounded-3xl p-10 text-center">
+          <div className="site-card-glass rounded-3xl p-10 text-center" data-cursor-loupe>
             <p className="text-[10px] uppercase tracking-[0.5em] text-[var(--s-orange)] font-bold mb-3">ResQCity</p>
             <h2 className="text-2xl font-extrabold rc-display text-[var(--s-text)] mb-3">Невалиден линк</h2>
             <p className="text-[var(--s-muted2)] text-sm leading-relaxed mb-8">
@@ -102,7 +102,7 @@ function ResetPasswordForm() {
       <div className="absolute bottom-0 left-0 w-[40vw] h-[40vw] glow-orb-violet opacity-25" />
 
       <div className="relative w-full max-w-lg">
-        <div className="site-card-glass rounded-3xl p-8">
+        <div className="site-card-glass rounded-3xl p-8" data-cursor-loupe>
           <div className="mb-8">
             <p className="text-[10px] uppercase tracking-[0.5em] text-[var(--s-orange)] font-bold">ResQCity</p>
             <h2 className="text-2xl font-bold rc-display text-[var(--s-text)] mt-1">Избери нова парола</h2>

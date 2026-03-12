@@ -220,7 +220,7 @@ export default function LoginPage() {
         </div>
 
         {/* Right form panel */}
-        <div className="site-card-glass rounded-3xl p-8 flex flex-col justify-center">
+        <div className="site-card-glass rounded-3xl p-8 flex flex-col justify-center" data-cursor-loupe>
           <div className="flex items-center justify-between mb-8">
             <div>
               <p className="text-[10px] uppercase tracking-[0.5em] text-[var(--s-orange)] font-bold">ResQCity</p>

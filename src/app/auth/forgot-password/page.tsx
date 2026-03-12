@@ -33,7 +33,7 @@ export default function ForgotPasswordPage() {
         <div className="absolute bottom-0 left-0 w-[40vw] h-[40vw] glow-orb-violet opacity-25" />
 
         <div className="relative w-full max-w-lg">
-          <div className="site-card-glass rounded-3xl p-10 text-center">
+          <div className="site-card-glass rounded-3xl p-10 text-center" data-cursor-loupe>
             <div className="w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-6"
               style={{ background: 'linear-gradient(135deg, #f97316, #ea580c)', boxShadow: '0 0 40px rgba(249,115,22,0.4)' }}>
               <span className="text-4xl">✉️</span>
@@ -64,7 +64,7 @@ export default function ForgotPasswordPage() {
       <div className="absolute bottom-0 left-0 w-[40vw] h-[40vw] glow-orb-violet opacity-25" />
 
       <div className="relative w-full max-w-lg">
-        <div className="site-card-glass rounded-3xl p-8">
+        <div className="site-card-glass rounded-3xl p-8" data-cursor-loupe>
           <div className="mb-8">
             <p className="text-[10px] uppercase tracking-[0.5em] text-[var(--s-orange)] font-bold">ResQCity</p>
             <h2 className="text-2xl font-bold rc-display text-[var(--s-text)] mt-1">Забравена парола</h2>

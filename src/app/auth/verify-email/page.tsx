@@ -100,7 +100,7 @@ function VerifyEmailContent() {
       <div className="absolute bottom-0 right-0 w-[40vw] h-[40vw] glow-orb-teal opacity-25" />
 
       <div className="relative w-full max-w-xl">
-        <div className="site-card-glass rounded-3xl p-10 text-center">
+        <div className="site-card-glass rounded-3xl p-10 text-center" data-cursor-loupe>
           <p className="text-[10px] uppercase tracking-[0.5em] text-[var(--s-teal)] font-bold mb-3">
             ResQCity
           </p>

@@ -1,6 +1,7 @@
 import type { Metadata } from 'next'
 import { Fraunces, Manrope } from 'next/font/google'
 import { SiteLayout } from '@/components/SiteLayout'
+import { CustomCursor } from '@/components/CustomCursor'
 import './globals.css'
 
 const fraunces = Fraunces({ subsets: ['latin'], variable: '--font-display' })
@@ -36,6 +37,7 @@ export default function RootLayout({
   return (
     <html lang="bg" className="dark" suppressHydrationWarning>
       <body className={`${fraunces.variable} ${manrope.variable} font-sans`}>
+        <CustomCursor />
         <SiteLayout>{children}</SiteLayout>
       </body>
     </html>

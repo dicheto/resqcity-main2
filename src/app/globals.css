@@ -2,6 +2,135 @@
 @tailwind components;
 @tailwind utilities;
 
+/* ── Custom cursor (hide native when custom is active) ── */
+body.has-custom-cursor {
+  cursor: none !important;
+}
+body.has-custom-cursor * {
+  cursor: none !important;
+}
+
+/* Custom cursor container */
+.custom-cursor {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 0;
+  height: 0;
+  pointer-events: none;
+  z-index: 99999;
+  will-change: transform;
+}
+
+.custom-cursor-dot {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  transition: transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1), opacity 0.2s ease;
+}
+.custom-cursor-dot.is-loupe {
+  transform: translate(-50%, -50%) scale(1.2);
+}
+
+/* Default dot – ResQCity orange/violet */
+.cursor-dot-core {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 10px;
+  height: 10px;
+  transform: translate(-50%, -50%);
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--s-orange), var(--s-violet));
+  box-shadow: 0 0 12px rgba(255, 107, 43, 0.6), 0 0 20px rgba(139, 92, 246, 0.35);
+}
+.cursor-dot-glow {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 28px;
+  height: 28px;
+  transform: translate(-50%, -50%);
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(255, 107, 43, 0.25) 0%, rgba(139, 92, 246, 0.12) 40%, transparent 70%);
+  animation: cursor-pulse 2.5s ease-in-out infinite;
+}
+
+/* Glassy loupe */
+.custom-cursor-loupe {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 36px;
+  height: 36px;
+  transform: translate(-50%, -50%);
+}
+
+.loupe-glass {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background: linear-gradient(
+    145deg,
+    rgba(255, 255, 255, 0.55) 0%,
+    rgba(255, 255, 255, 0.25) 40%,
+    rgba(139, 92, 246, 0.15) 70%,
+    rgba(255, 107, 43, 0.1) 100%
+  );
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  border: 1.5px solid rgba(255, 255, 255, 0.45);
+  box-shadow:
+    inset 0 1px 2px rgba(255, 255, 255, 0.5),
+    inset 0 -1px 1px rgba(0, 0, 0, 0.08),
+    0 0 16px rgba(139, 92, 246, 0.35),
+    0 0 24px rgba(255, 107, 43, 0.2);
+}
+
+.loupe-ring {
+  position: absolute;
+  top: -2px;
+  left: -2px;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  border: 2px solid transparent;
+  background: linear-gradient(white, white) padding-box,
+    linear-gradient(135deg, var(--s-orange), var(--s-violet), var(--s-teal)) border-box;
+  -webkit-mask: linear-gradient(#fff 0 0) padding-box, linear-gradient(#fff 0 0);
+  mask: linear-gradient(#fff 0 0) padding-box, linear-gradient(#fff 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+  opacity: 0.9;
+}
+
+.loupe-handle {
+  position: absolute;
+  bottom: -4px;
+  right: -4px;
+  width: 14px;
+  height: 4px;
+  background: linear-gradient(90deg, rgba(139, 92, 246, 0.5), rgba(255, 107, 43, 0.6));
+  border-radius: 2px;
+  transform: rotate(-45deg);
+  transform-origin: left center;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+}
+
+@keyframes cursor-pulse {
+  0%, 100% { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+  50%      { opacity: 0.7; transform: translate(-50%, -50%) scale(1.15); }
+}
+
+/* Reduced motion: disable cursor pulse */
+.a11y-reduced-motion .cursor-dot-glow {
+  animation: none;
+}
+
 @layer base {
   html {
     scroll-behavior: smooth;
