@@ -32,6 +32,7 @@
     "axios": "^1.6.5",
     "bcryptjs": "^2.4.3",
     "csv-parse": "^6.1.0",
+    "framer-motion": "^12.36.0",
     "gtfs-realtime-bindings": "^1.1.1",
     "jsonwebtoken": "^9.0.2",
     "leaflet": "^1.9.4",

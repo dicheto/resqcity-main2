@@ -22,6 +22,33 @@ body.has-custom-cursor * {
   will-change: transform;
 }
 
+/* RB-style cursor (two circles, spring physics) */
+.custom-cursor-rb .cursor-rb-outer,
+.custom-cursor-rb .cursor-rb-inner {
+  position: absolute;
+  top: 0;
+  left: 0;
+  border-radius: 50%;
+  pointer-events: none;
+}
+.cursor-rb-outer {
+  border: 1.5px solid rgba(255, 255, 255, 0.6);
+  background: rgba(255, 107, 43, 0.08);
+  box-shadow: 0 0 20px rgba(139, 92, 246, 0.15);
+  transition: border-color 0.2s, background 0.2s;
+}
+.cursor-rb-inner {
+  background: linear-gradient(135deg, var(--s-orange) 0%, var(--s-violet) 80%);
+  box-shadow:
+    0 0 12px rgba(255, 107, 43, 0.5),
+    inset 0 1px 0 rgba(255, 255, 255, 0.35);
+  border: 1px solid rgba(255, 255, 255, 0.4);
+}
+.a11y-reduced-motion .cursor-rb-outer,
+.a11y-reduced-motion .cursor-rb-inner {
+  transition: none;
+}
+
 .custom-cursor-inner {
   position: absolute;
   top: 50%;

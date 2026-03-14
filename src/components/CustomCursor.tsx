@@ -1,102 +1,110 @@
 'use client';
 
-import { useEffect, useState, useRef } from 'react';
+import { useEffect, useState, useMemo } from 'react';
+import { motion, useMotionValue, useSpring, useTransform } from 'framer-motion';
 
-const LERP = 0.12;
-const LOUPE_LERP = 0.18;
+/** Селектор за интерактивни елементи – при hover външният кръг се разширява */
+const HOVER_SELECTOR =
+  'a, button, input, textarea, select, label, [role="button"], [data-cursor="hover"], [data-cursor-loupe]';
 
 export function CustomCursor() {
-  const [pos, setPos] = useState({ x: -999, y: -999 });
-  const [renderPos, setRenderPos] = useState({ x: -999, y: -999 });
-  const [isLoupe, setIsLoupe] = useState(false);
   const [ready, setReady] = useState(false);
-  const rafRef = useRef<number>(0);
-  const posRef = useRef({ x: 0, y: 0 });
-  const renderPosRef = useRef({ x: 0, y: 0 });
+  const [isHover, setIsHover] = useState(false);
+  const [isPressed, setIsPressed] = useState(false);
+
+  const cursorX = useMotionValue(-100);
+  const cursorY = useMotionValue(-100);
+
+  const innerSize = useMemo(() => (isPressed ? 6 : 8), [isPressed]);
+  const outerSize = useMemo(() => (isHover ? 42 : 34), [isHover]);
+
+  const springInner = { stiffness: 900, damping: 42, mass: 0.25 };
+  const springOuter = { stiffness: 260, damping: 30, mass: 0.9 };
+
+  const innerSpringX = useSpring(cursorX, springInner);
+  const innerSpringY = useSpring(cursorY, springInner);
+  const outerSpringX = useSpring(cursorX, springOuter);
+  const outerSpringY = useSpring(cursorY, springOuter);
+
+  const innerX = useTransform(innerSpringX, (v) => v - innerSize / 2);
+  const innerY = useTransform(innerSpringY, (v) => v - innerSize / 2);
+  const outerX = useTransform(outerSpringX, (v) => v - outerSize / 2);
+  const outerY = useTransform(outerSpringY, (v) => v - outerSize / 2);
 
   useEffect(() => {
     const isTouch = 'ontouchstart' in window || navigator.maxTouchPoints > 0;
-    if (isTouch) return;
+    const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    const hasFinePointer = window.matchMedia('(pointer: fine)').matches;
+
+    if (isTouch || prefersReducedMotion || !hasFinePointer) return;
 
     const handleMove = (e: MouseEvent) => {
-      setPos({ x: e.clientX, y: e.clientY });
-      posRef.current = { x: e.clientX, y: e.clientY };
-      if (!ready) {
-        setReady(true);
-        renderPosRef.current = { x: e.clientX, y: e.clientY };
-      }
+      cursorX.set(e.clientX);
+      cursorY.set(e.clientY);
+
+      if (!ready) setReady(true);
 
       const el = document.elementFromPoint(e.clientX, e.clientY);
-      const hasLoupe = el?.closest('[data-cursor-loupe]');
-      setIsLoupe(!!hasLoupe);
+      const isOverInteractive = el?.closest(HOVER_SELECTOR) ?? false;
+      setIsHover(!!isOverInteractive);
     };
 
-    const handleLeave = () => setReady(false);
+    const handleDown = () => setIsPressed(true);
+    const handleUp = () => setIsPressed(false);
+    const handleLeave = () => {
+      setReady(false);
+      setIsPressed(false);
+      setIsHover(false);
+    };
     const handleEnter = () => setReady(true);
 
     window.addEventListener('mousemove', handleMove);
+    window.addEventListener('mousedown', handleDown);
+    window.addEventListener('mouseup', handleUp);
     document.documentElement.addEventListener('mouseleave', handleLeave);
     document.documentElement.addEventListener('mouseenter', handleEnter);
 
     return () => {
       window.removeEventListener('mousemove', handleMove);
+      window.removeEventListener('mousedown', handleDown);
+      window.removeEventListener('mouseup', handleUp);
       document.documentElement.removeEventListener('mouseleave', handleLeave);
       document.documentElement.removeEventListener('mouseenter', handleEnter);
     };
-  }, [ready]);
-
-  useEffect(() => {
-    const isTouch = 'ontouchstart' in window || navigator.maxTouchPoints > 0;
-    if (isTouch) return;
-    if (ready) document.body.classList.add('has-custom-cursor');
-    else document.body.classList.remove('has-custom-cursor');
-    return () => document.body.classList.remove('has-custom-cursor');
-  }, [ready]);
+  }, [cursorX, cursorY, ready]);
 
   useEffect(() => {
     if (!ready) return;
-
-    const animate = () => {
-      const t = isLoupe ? LOUPE_LERP : LERP;
-      renderPosRef.current = {
-        x: renderPosRef.current.x + (posRef.current.x - renderPosRef.current.x) * t,
-        y: renderPosRef.current.y + (posRef.current.y - renderPosRef.current.y) * t,
-      };
-      setRenderPos({ ...renderPosRef.current });
-      rafRef.current = requestAnimationFrame(animate);
+    document.documentElement.classList.add('custom-cursor-enabled');
+    document.body.classList.add('has-custom-cursor');
+    return () => {
+      document.documentElement.classList.remove('custom-cursor-enabled');
+      document.body.classList.remove('has-custom-cursor');
     };
-    rafRef.current = requestAnimationFrame(animate);
-    return () => cancelAnimationFrame(rafRef.current);
-  }, [ready, isLoupe]);
+  }, [ready]);
 
   if (!ready) return null;
 
   return (
-    <div
-      className="custom-cursor"
-      aria-hidden
-      style={{
-        transform: `translate(${renderPos.x}px, ${renderPos.y}px)`,
-      }}
-    >
-      <div className={`custom-cursor-inner ${isLoupe ? 'is-loupe' : ''}`}>
-        {isLoupe ? (
-          <div className="custom-cursor-loupe">
-            <div className="loupe-outer" />
-            <div className="loupe-glass" />
-            <div className="loupe-ring" />
-            <div className="loupe-shimmer" />
-            <div className="loupe-handle" />
-          </div>
-        ) : (
-          <>
-            <div className="cursor-outer-glow" />
-            <div className="cursor-glass-ring" />
-            <div className="cursor-dot-core" />
-            <div className="cursor-dot-pulse" />
-          </>
-        )}
-      </div>
+    <div className="custom-cursor custom-cursor-rb" aria-hidden>
+      <motion.div
+        className="cursor-rb-outer"
+        style={{
+          x: outerX,
+          y: outerY,
+          width: outerSize,
+          height: outerSize,
+        }}
+      />
+      <motion.div
+        className="cursor-rb-inner"
+        style={{
+          x: innerX,
+          y: innerY,
+          width: innerSize,
+          height: innerSize,
+        }}
+      />
     </div>
   );
 }
