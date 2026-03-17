@@ -162,7 +162,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
   }
 
   return (
-    <div className="admin-root flex h-screen overflow-hidden">
+    <div className="admin-root flex min-h-screen">
       {/* Mobile sidebar overlay */}
       {sidebarOpen && (
         <div
@@ -174,7 +174,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
       {/* SIDEBAR */}
       <aside className={`
         sidebar-panel
-        fixed lg:relative z-30 h-full
+        fixed lg:sticky lg:top-0 z-30 h-screen
         transition-transform duration-300 ease-[cubic-bezier(0.23,1,0.32,1)]
         ${sidebarOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'}
         w-[260px] flex flex-col flex-shrink-0
@@ -285,7 +285,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
       </aside>
 
       {/* MAIN */}
-      <div className="flex-1 flex flex-col min-w-0 overflow-hidden">
+      <div className="flex-1 flex flex-col min-w-0">
         {/* Topbar */}
         <header className="topbar-panel px-5 py-3.5 flex items-center justify-between flex-shrink-0">
           <div className="flex items-center gap-4">
@@ -329,7 +329,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
         </header>
 
         {/* Scrollable content */}
-        <main className="flex-1 overflow-y-auto admin-bg p-5 md:p-7">
+        <main className="flex-1 admin-bg p-5 md:p-7">
           {children}
         </main>
       </div>

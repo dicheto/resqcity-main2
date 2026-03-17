@@ -27,6 +27,7 @@ export function LenisProvider({ children, enabled = true }: LenisProviderProps) 
       orientation: 'vertical',
       gestureOrientation: 'vertical',
       smoothWheel: true,
+      allowNestedScroll: true,
       wheelMultiplier: 1,
       touchMultiplier: 2,
     });
