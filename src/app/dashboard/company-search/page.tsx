@@ -73,6 +73,14 @@ export default function CompanySearchPage() {
 
   const inFlightControllerRef = useRef<AbortController | null>(null);
   const searchCacheRef = useRef<Map<string, SearchResponse>>(new Map());
+  const companyDetailsCacheRef = useRef<Map<string, CompanyDetails>>(new Map());
+
+  const closeCompanyDetailsModal = () => {
+    setSelectedCompanyUic('');
+    setCompanyDetails(null);
+    setCompanyDetailsError('');
+    setCompanyDetailsLoading(false);
+  };
 
   useEffect(() => {
     const timeout = setTimeout(() => {
@@ -96,7 +104,19 @@ export default function CompanySearchPage() {
     setCompanyDetailsLoading(false);
     setCompanyDetailsError('');
     searchCacheRef.current.clear();
+    companyDetailsCacheRef.current.clear();
   }, [mode]);
+
+  useEffect(() => {
+    const onKeyDown = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') {
+        closeCompanyDetailsModal();
+      }
+    };
+
+    window.addEventListener('keydown', onKeyDown);
+    return () => window.removeEventListener('keydown', onKeyDown);
+  }, []);
 
   const validationMessage = useMemo(() => getValidationMessage(mode, debouncedQuery || query), [mode, debouncedQuery, query]);
 
@@ -252,13 +272,21 @@ export default function CompanySearchPage() {
   const handleShowCompanyDetails = async (uic: string) => {
     const normalizedUic = uic.trim();
     if (!/^\d{9,13}$/.test(normalizedUic)) {
-      setCompanyDetails(null);
-      setSelectedCompanyUic('');
+      closeCompanyDetailsModal();
       setCompanyDetailsError('Липсва валиден ЕИК за зареждане на детайли.');
       return;
     }
 
     if (selectedCompanyUic === normalizedUic && companyDetails) {
+      return;
+    }
+
+    const cachedDetails = companyDetailsCacheRef.current.get(normalizedUic);
+    if (cachedDetails) {
+      setSelectedCompanyUic(normalizedUic);
+      setCompanyDetails(cachedDetails);
+      setCompanyDetailsError('');
+      setCompanyDetailsLoading(false);
       return;
     }
 
@@ -268,6 +296,7 @@ export default function CompanySearchPage() {
 
     try {
       const details = await getCompanyDetailsClient(normalizedUic);
+      companyDetailsCacheRef.current.set(normalizedUic, details);
       setCompanyDetails(details);
     } catch (err: any) {
       setCompanyDetails(null);
@@ -388,14 +417,24 @@ export default function CompanySearchPage() {
   };
 
   const renderCompanyDetails = () => {
+    if (!selectedCompanyUic) {
+      return null;
+    }
+
     if (companyDetailsLoading) {
       return (
-        <div className="site-card rounded-2xl p-5">
-          <p className="text-xs uppercase tracking-[0.2em] text-[var(--s-muted)] mb-3">Детайли за фирма</p>
-          <div className="space-y-2">
-            {[1, 2, 3, 4].map((row) => (
-              <div key={row} className="h-10 rounded-lg" style={{ background: 'var(--s-surface2)' }} />
-            ))}
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+          <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={closeCompanyDetailsModal} />
+          <div className="relative w-full max-w-4xl site-card rounded-2xl p-5 max-h-[85vh] overflow-auto">
+            <div className="flex items-center justify-between mb-3">
+              <p className="text-xs uppercase tracking-[0.2em] text-[var(--s-muted)]">Детайли за фирма</p>
+              <button type="button" className="btn-site-ghost text-xs py-1.5 px-3 rounded-lg" onClick={closeCompanyDetailsModal}>Затвори</button>
+            </div>
+            <div className="space-y-2">
+              {[1, 2, 3, 4].map((row) => (
+                <div key={row} className="h-10 rounded-lg" style={{ background: 'var(--s-surface2)' }} />
+              ))}
+            </div>
           </div>
         </div>
       );
@@ -403,9 +442,15 @@ export default function CompanySearchPage() {
 
     if (companyDetailsError) {
       return (
-        <div className="site-card rounded-2xl p-5 border border-[var(--s-red)]/30">
-          <p className="text-xs uppercase tracking-[0.2em] text-[var(--s-muted)] mb-3">Детайли за фирма</p>
-          <p className="text-sm text-[var(--s-red)]">{companyDetailsError}</p>
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+          <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={closeCompanyDetailsModal} />
+          <div className="relative w-full max-w-3xl site-card rounded-2xl p-5 border border-[var(--s-red)]/30">
+            <div className="flex items-center justify-between mb-3">
+              <p className="text-xs uppercase tracking-[0.2em] text-[var(--s-muted)]">Детайли за фирма</p>
+              <button type="button" className="btn-site-ghost text-xs py-1.5 px-3 rounded-lg" onClick={closeCompanyDetailsModal}>Затвори</button>
+            </div>
+            <p className="text-sm text-[var(--s-red)]">{companyDetailsError}</p>
+          </div>
         </div>
       );
     }
@@ -415,47 +460,53 @@ export default function CompanySearchPage() {
     }
 
     return (
-      <div className="site-card rounded-2xl p-5">
-        <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-2 mb-4">
-          <div>
-            <p className="text-xs uppercase tracking-[0.2em] text-[var(--s-muted)]">Детайли за фирма</p>
-            <h3 className="rc-display font-bold text-xl text-[var(--s-text)] mt-1">
-              {companyDetails.fullName || companyDetails.companyName || companyDetails.uic}
-            </h3>
+      <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+        <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={closeCompanyDetailsModal} />
+        <div className="relative w-full max-w-6xl site-card rounded-2xl p-5 max-h-[88vh] overflow-auto">
+          <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-2 mb-4">
+            <div>
+              <p className="text-xs uppercase tracking-[0.2em] text-[var(--s-muted)]">Детайли за фирма</p>
+              <h3 className="rc-display font-bold text-xl text-[var(--s-text)] mt-1">
+                {companyDetails.fullName || companyDetails.companyName || companyDetails.uic}
+              </h3>
+            </div>
+            <div className="flex items-center gap-2">
+              <div className="text-xs text-[var(--s-muted)]">
+                <p>ЕИК: <span className="text-[var(--s-text)] font-semibold">{companyDetails.uic || '-'}</span></p>
+                {companyDetails.entryDate && (
+                  <p className="mt-1">Актуално към: {new Date(companyDetails.entryDate).toLocaleString('bg-BG')}</p>
+                )}
+              </div>
+              <button type="button" className="btn-site-ghost text-xs py-1.5 px-3 rounded-lg" onClick={closeCompanyDetailsModal}>Затвори</button>
+            </div>
           </div>
-          <div className="text-xs text-[var(--s-muted)]">
-            <p>ЕИК: <span className="text-[var(--s-text)] font-semibold">{companyDetails.uic || '-'}</span></p>
-            {companyDetails.entryDate && (
-              <p className="mt-1">Актуално към: {new Date(companyDetails.entryDate).toLocaleString('bg-BG')}</p>
-            )}
-          </div>
-        </div>
 
-        {companyDetails.fields.length === 0 ? (
-          <p className="text-sm text-[var(--s-muted)]">Няма налични полета за визуализация.</p>
-        ) : (
-          <div className="overflow-x-auto">
-            <table className="w-full text-sm">
-              <thead>
-                <tr className="text-left text-[var(--s-muted)] border-b border-[var(--s-border)]">
-                  <th className="py-2 pr-3">Поле</th>
-                  <th className="py-2">Стойност</th>
-                </tr>
-              </thead>
-              <tbody>
-                {companyDetails.fields.slice(0, 60).map((field, index) => (
-                  <tr key={`${field.code}-${index}`} className="border-b border-[var(--s-border)]/60 align-top">
-                    <td className="py-2 pr-3 text-[var(--s-muted2)] w-[240px]">
-                      <p className="font-medium text-[var(--s-text)]">{field.label}</p>
-                      <p className="text-[11px] mt-0.5">{field.code}</p>
-                    </td>
-                    <td className="py-2 text-[var(--s-muted2)] whitespace-pre-wrap">{field.value}</td>
+          {companyDetails.fields.length === 0 ? (
+            <p className="text-sm text-[var(--s-muted)]">Няма налични полета за визуализация.</p>
+          ) : (
+            <div className="overflow-x-auto">
+              <table className="w-full text-sm">
+                <thead>
+                  <tr className="text-left text-[var(--s-muted)] border-b border-[var(--s-border)]">
+                    <th className="py-2 pr-3">Поле</th>
+                    <th className="py-2">Стойност</th>
                   </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        )}
+                </thead>
+                <tbody>
+                  {companyDetails.fields.slice(0, 60).map((field, index) => (
+                    <tr key={`${field.code}-${index}`} className="border-b border-[var(--s-border)]/60 align-top">
+                      <td className="py-2 pr-3 text-[var(--s-muted2)] w-[240px]">
+                        <p className="font-medium text-[var(--s-text)]">{field.label}</p>
+                        <p className="text-[11px] mt-0.5">{field.code}</p>
+                      </td>
+                      <td className="py-2 text-[var(--s-muted2)] whitespace-pre-wrap">{field.value}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
+        </div>
       </div>
     );
   };
@@ -581,8 +632,9 @@ export default function CompanySearchPage() {
           )}
         </div>
 
-        {renderCompanyDetails()}
       </div>
+
+      {renderCompanyDetails()}
     </div>
   );
 }
