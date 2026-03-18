@@ -1,8 +1,9 @@
 'use client';
 
 import { useEffect, useMemo, useRef, useState } from 'react';
-import type { FormEvent } from 'react';
+import type { FormEvent, MouseEvent } from 'react';
 import type {
+  CompanyDetails,
   CompanySearchMode,
   CompanySearchResult,
   PaginatedSearchResponse,
@@ -10,6 +11,7 @@ import type {
   SubjectSearchResult,
 } from '@/types/company-search';
 import {
+  getCompanyDetailsClient,
   getSubjectCompaniesClient,
   searchCompaniesByNameClient,
   searchCompanyByEikClient,
@@ -64,6 +66,10 @@ export default function CompanySearchPage() {
   const [personCompanies, setPersonCompanies] = useState<Record<string, SubjectCompanyRelation[]>>({});
   const [personCompaniesLoading, setPersonCompaniesLoading] = useState<Record<string, boolean>>({});
   const [personCompaniesError, setPersonCompaniesError] = useState<Record<string, string>>({});
+  const [selectedCompanyUic, setSelectedCompanyUic] = useState('');
+  const [companyDetails, setCompanyDetails] = useState<CompanyDetails | null>(null);
+  const [companyDetailsLoading, setCompanyDetailsLoading] = useState(false);
+  const [companyDetailsError, setCompanyDetailsError] = useState('');
 
   const inFlightControllerRef = useRef<AbortController | null>(null);
   const searchCacheRef = useRef<Map<string, SearchResponse>>(new Map());
@@ -85,6 +91,10 @@ export default function CompanySearchPage() {
     setPersonCompanies({});
     setPersonCompaniesLoading({});
     setPersonCompaniesError({});
+    setSelectedCompanyUic('');
+    setCompanyDetails(null);
+    setCompanyDetailsLoading(false);
+    setCompanyDetailsError('');
     searchCacheRef.current.clear();
   }, [mode]);
 
@@ -126,6 +136,9 @@ export default function CompanySearchPage() {
       setLoadingMore(true);
     } else {
       setLoading(true);
+      setSelectedCompanyUic('');
+      setCompanyDetails(null);
+      setCompanyDetailsError('');
       if (source === 'submit') {
         setResults([]);
       }
@@ -236,6 +249,34 @@ export default function CompanySearchPage() {
     }
   };
 
+  const handleShowCompanyDetails = async (uic: string) => {
+    const normalizedUic = uic.trim();
+    if (!/^\d{9,13}$/.test(normalizedUic)) {
+      setCompanyDetails(null);
+      setSelectedCompanyUic('');
+      setCompanyDetailsError('Липсва валиден ЕИК за зареждане на детайли.');
+      return;
+    }
+
+    if (selectedCompanyUic === normalizedUic && companyDetails) {
+      return;
+    }
+
+    setSelectedCompanyUic(normalizedUic);
+    setCompanyDetailsLoading(true);
+    setCompanyDetailsError('');
+
+    try {
+      const details = await getCompanyDetailsClient(normalizedUic);
+      setCompanyDetails(details);
+    } catch (err: any) {
+      setCompanyDetails(null);
+      setCompanyDetailsError(err?.message || 'Неуспешно зареждане на фирмените детайли.');
+    } finally {
+      setCompanyDetailsLoading(false);
+    }
+  };
+
   const renderCompanyRows = () => {
     return (
       <div className="overflow-x-auto">
@@ -245,14 +286,31 @@ export default function CompanySearchPage() {
               <th className="py-3 pr-3">ЕИК/Идентификатор</th>
               <th className="py-3 pr-3">Име</th>
               <th className="py-3">Пълно фирмено име</th>
+              <th className="py-3 text-right">Действие</th>
             </tr>
           </thead>
           <tbody>
             {(results as CompanySearchResult[]).map((item) => (
-              <tr key={`${item.ident}-${item.name}`} className="border-b border-[var(--s-border)]/70">
+              <tr
+                key={`${item.ident}-${item.name}`}
+                className="border-b border-[var(--s-border)]/70 hover:bg-[var(--s-surface2)]/70 cursor-pointer"
+                onClick={() => handleShowCompanyDetails(item.ident)}
+              >
                 <td className="py-3 pr-3 text-[var(--s-muted2)]">{item.ident || '-'}</td>
                 <td className="py-3 pr-3 font-medium text-[var(--s-text)]">{item.name || '-'}</td>
                 <td className="py-3 text-[var(--s-muted2)]">{item.companyFullName || '-'}</td>
+                <td className="py-3 text-right">
+                  <button
+                    type="button"
+                    className="btn-site-ghost text-xs py-1.5 px-3 rounded-lg"
+                    onClick={(event: MouseEvent<HTMLButtonElement>) => {
+                      event.stopPropagation();
+                      handleShowCompanyDetails(item.ident);
+                    }}
+                  >
+                    Детайли
+                  </button>
+                </td>
               </tr>
             ))}
           </tbody>
@@ -298,6 +356,7 @@ export default function CompanySearchPage() {
                         <th className="py-2 pr-3">Фирма</th>
                         <th className="py-2 pr-3">ЕИК</th>
                         <th className="py-2">Поле</th>
+                        <th className="py-2 text-right">Действие</th>
                       </tr>
                     </thead>
                     <tbody>
@@ -306,6 +365,15 @@ export default function CompanySearchPage() {
                           <td className="py-2 pr-3 text-[var(--s-text)]">{relation.companyFullName || '-'}</td>
                           <td className="py-2 pr-3 text-[var(--s-muted2)]">{relation.uic || '-'}</td>
                           <td className="py-2 text-[var(--s-muted2)]">{relation.fieldName || '-'}</td>
+                          <td className="py-2 text-right">
+                            <button
+                              type="button"
+                              className="btn-site-ghost text-[11px] py-1 px-2.5 rounded-md"
+                              onClick={() => handleShowCompanyDetails(relation.uic)}
+                            >
+                              Детайли
+                            </button>
+                          </td>
                         </tr>
                       ))}
                     </tbody>
@@ -315,6 +383,79 @@ export default function CompanySearchPage() {
             </div>
           );
         })}
+      </div>
+    );
+  };
+
+  const renderCompanyDetails = () => {
+    if (companyDetailsLoading) {
+      return (
+        <div className="site-card rounded-2xl p-5">
+          <p className="text-xs uppercase tracking-[0.2em] text-[var(--s-muted)] mb-3">Детайли за фирма</p>
+          <div className="space-y-2">
+            {[1, 2, 3, 4].map((row) => (
+              <div key={row} className="h-10 rounded-lg" style={{ background: 'var(--s-surface2)' }} />
+            ))}
+          </div>
+        </div>
+      );
+    }
+
+    if (companyDetailsError) {
+      return (
+        <div className="site-card rounded-2xl p-5 border border-[var(--s-red)]/30">
+          <p className="text-xs uppercase tracking-[0.2em] text-[var(--s-muted)] mb-3">Детайли за фирма</p>
+          <p className="text-sm text-[var(--s-red)]">{companyDetailsError}</p>
+        </div>
+      );
+    }
+
+    if (!companyDetails) {
+      return null;
+    }
+
+    return (
+      <div className="site-card rounded-2xl p-5">
+        <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-2 mb-4">
+          <div>
+            <p className="text-xs uppercase tracking-[0.2em] text-[var(--s-muted)]">Детайли за фирма</p>
+            <h3 className="rc-display font-bold text-xl text-[var(--s-text)] mt-1">
+              {companyDetails.fullName || companyDetails.companyName || companyDetails.uic}
+            </h3>
+          </div>
+          <div className="text-xs text-[var(--s-muted)]">
+            <p>ЕИК: <span className="text-[var(--s-text)] font-semibold">{companyDetails.uic || '-'}</span></p>
+            {companyDetails.entryDate && (
+              <p className="mt-1">Актуално към: {new Date(companyDetails.entryDate).toLocaleString('bg-BG')}</p>
+            )}
+          </div>
+        </div>
+
+        {companyDetails.fields.length === 0 ? (
+          <p className="text-sm text-[var(--s-muted)]">Няма налични полета за визуализация.</p>
+        ) : (
+          <div className="overflow-x-auto">
+            <table className="w-full text-sm">
+              <thead>
+                <tr className="text-left text-[var(--s-muted)] border-b border-[var(--s-border)]">
+                  <th className="py-2 pr-3">Поле</th>
+                  <th className="py-2">Стойност</th>
+                </tr>
+              </thead>
+              <tbody>
+                {companyDetails.fields.slice(0, 60).map((field, index) => (
+                  <tr key={`${field.code}-${index}`} className="border-b border-[var(--s-border)]/60 align-top">
+                    <td className="py-2 pr-3 text-[var(--s-muted2)] w-[240px]">
+                      <p className="font-medium text-[var(--s-text)]">{field.label}</p>
+                      <p className="text-[11px] mt-0.5">{field.code}</p>
+                    </td>
+                    <td className="py-2 text-[var(--s-muted2)] whitespace-pre-wrap">{field.value}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )}
       </div>
     );
   };
@@ -439,6 +580,8 @@ export default function CompanySearchPage() {
             </div>
           )}
         </div>
+
+        {renderCompanyDetails()}
       </div>
     </div>
   );

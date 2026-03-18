@@ -1,4 +1,5 @@
 import type {
+  CompanyDetails,
   CompanySearchResult,
   PaginatedSearchResponse,
   SubjectCompanyRelation,
@@ -68,4 +69,15 @@ export async function searchSubjectsByNameClient({
 export async function getSubjectCompaniesClient(uid: string, name: string): Promise<SubjectCompanyRelation[]> {
   const params = new URLSearchParams({ uid, name });
   return fetchJson<SubjectCompanyRelation[]>(`/api/company-search/person-companies?${params.toString()}`);
+}
+
+export async function getCompanyDetailsClient(uic: string, entryDate?: string): Promise<CompanyDetails> {
+  const params = new URLSearchParams();
+  if (entryDate) {
+    params.set('entryDate', entryDate);
+  }
+
+  const query = params.toString();
+  const suffix = query ? `?${query}` : '';
+  return fetchJson<CompanyDetails>(`/api/company-search/details/${encodeURIComponent(uic)}${suffix}`);
 }
