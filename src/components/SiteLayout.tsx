@@ -22,6 +22,7 @@ const NAV_LABELS = {
   stats: 'Статистики',
   dashboard: 'Табло',
   myReports: 'Моите сигнали',
+  companySearch: 'Търсене на фирми',
   newReport: 'Нов сигнал',
   myFleet: 'Моят автопарк',
   myVehicles: 'Моите коли',
@@ -66,6 +67,7 @@ const UI_COPY = {
   dispatcherAccess: '📡 Диспечер',
   mapInteractive: '🗺 Интерактивна карта',
   myReportsIcon: '📋 Моите сигнали',
+  companySearchIcon: '🏢 Търсене на фирми',
   reportIcon: '📮 Подай сигнал',
   citizenSignalIcon: '📮 Подай граждански сигнал',
   vehicleSignalIcon: '🚗 Подай сигнал - автопарк',
@@ -84,6 +86,7 @@ const CITIZEN_NAV: Array<{ href: string; label: NavLabelKey }> = [
   { href: '/map', label: 'map' },
   { href: '/dashboard', label: 'dashboard' },
   { href: '/dashboard/reports', label: 'myReports' },
+  { href: '/dashboard/company-search', label: 'companySearch' },
   { href: '/dashboard/new-report', label: 'citizenSignal' },
   { href: '/vehicles', label: 'myFleet' },
   { href: '/my-incidents', label: 'autoIncidents' },
@@ -593,6 +596,7 @@ function SiteFooter() {
               {[
                 { href: '/map',             label: copy.mapInteractive },
                 { href: '/dashboard',       label: copy.myReportsIcon },
+                { href: '/dashboard/company-search', label: copy.companySearchIcon },
                 { href: '/report-incident', label: copy.reportIcon },
                 { href: '/my-incidents',    label: copy.autoIncidentsIcon },
               ].map(({ href, label }) => (

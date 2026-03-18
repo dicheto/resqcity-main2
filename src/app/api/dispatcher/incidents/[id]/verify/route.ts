@@ -3,6 +3,7 @@ import { getAuth } from "@/hooks/lib/auth";
 import { prisma } from "@/hooks/lib/prisma";
 import { sendNotification, formatIncidentNotification } from "@/hooks/lib/notifications";
 import { notifyUserIncident } from "@/hooks/lib/websocket";
+import { sendSignalStatusChangedEmail } from "@/hooks/lib/email";
 
 export async function GET(
   req: NextRequest,
@@ -138,6 +139,19 @@ export async function PATCH(
       message: notificationMessage,
       createdAt: new Date().toISOString(),
     });
+
+    if (incident.user.email) {
+      await sendSignalStatusChangedEmail({
+        email: incident.user.email,
+        signalTitle: `${incident.type} - ${incident.vehicle.registrationPlate}`,
+        signalId: incident.id,
+        signalTypeLabel: "сигнал за автомобил",
+        oldStatus: incident.status,
+        newStatus,
+        details: action === "reject" ? rejectionReason || "Няма посочена причина" : notes,
+        linkPath: `/my-incidents`,
+      });
+    }
 
     // SMS remains optional and is used only when enabled and phone is present.
     if (incident.user.phone) {

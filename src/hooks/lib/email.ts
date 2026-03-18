@@ -1,12 +1,15 @@
 import nodemailer from 'nodemailer';
 
+const smtpPassword = process.env.SMTP_PASSWORD || process.env.SMTP_PASS;
+const smtpFrom = process.env.SMTP_FROM || process.env.SMTP_USER;
+
 const transporter = nodemailer.createTransport({
   host: process.env.SMTP_HOST,
   port: parseInt(process.env.SMTP_PORT || '587'),
   secure: parseInt(process.env.SMTP_PORT || '587') === 465,
   auth: {
     user: process.env.SMTP_USER,
-    pass: process.env.SMTP_PASSWORD,
+    pass: smtpPassword,
   },
   tls: {
     rejectUnauthorized: false,
@@ -37,7 +40,7 @@ function getSafeErrorMessage(err: unknown): string {
 export async function sendEmail(options: EmailOptions): Promise<SendEmailResult> {
   try {
     await transporter.sendMail({
-      from: process.env.SMTP_FROM,
+      from: smtpFrom,
       to: options.to,
       subject: options.subject,
       html: options.html,
@@ -135,7 +138,14 @@ const STATUS_LABELS: Record<string, string> = {
   IN_PROGRESS: 'В процес',
   RESOLVED: 'Решен',
   REJECTED: 'Отхвърлен',
+  SUBMITTED: 'Подаден',
+  UNDER_REVIEW: 'В процес на проверка',
+  VERIFIED: 'Потвърден',
 };
+
+function getStatusLabel(status: string): string {
+  return STATUS_LABELS[status] || status;
+}
 
 export async function sendReportCreatedEmail(
   email: string,
@@ -175,8 +185,8 @@ export async function sendReportStatusChangedEmail(
 ): Promise<SendEmailResult> {
   const appUrl = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000';
   const reportLink = `${appUrl}/dashboard/reports/${reportId}`;
-  const oldLabel = STATUS_LABELS[oldStatus] || oldStatus;
-  const newLabel = STATUS_LABELS[newStatus] || newStatus;
+  const oldLabel = getStatusLabel(oldStatus);
+  const newLabel = getStatusLabel(newStatus);
   const noteBlock = note
     ? `<div style="background:rgba(124,58,237,0.08);border-radius:10px;padding:16px;margin-top:16px;border-left:4px solid #7C3AED;"><p style="margin:0;color:#94a3b8;font-size:14px;">${note}</p></div>`
     : '';
@@ -196,6 +206,55 @@ export async function sendReportStatusChangedEmail(
     subject: `Промяна в статус — ${reportTitle}`,
     html: emailLayout(content, '135deg,#7C3AED,#06b6d4'),
     text: `Сигналът ви "${reportTitle}" е обновен: ${oldLabel} → ${newLabel}. Преглед: ${reportLink}`,
+  });
+}
+
+interface SignalStatusEmailInput {
+  email: string;
+  signalTitle: string;
+  signalId: string;
+  signalTypeLabel: string;
+  oldStatus: string;
+  newStatus: string;
+  details?: string;
+  linkPath: string;
+}
+
+export async function sendSignalStatusChangedEmail({
+  email,
+  signalTitle,
+  signalId,
+  signalTypeLabel,
+  oldStatus,
+  newStatus,
+  details,
+  linkPath,
+}: SignalStatusEmailInput): Promise<SendEmailResult> {
+  const appUrl = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000';
+  const signalLink = `${appUrl}${linkPath}`;
+  const oldLabel = getStatusLabel(oldStatus);
+  const newLabel = getStatusLabel(newStatus);
+  const detailsBlock = details
+    ? `<div style="background:rgba(124,58,237,0.08);border-radius:10px;padding:16px;margin-top:16px;border-left:4px solid #7C3AED;"><p style="margin:0;color:#94a3b8;font-size:14px;">${details}</p></div>`
+    : '';
+
+  const content = `
+    <p style="color:#a0aec0;font-size:16px;line-height:1.7;margin:0 0 24px;">Има промяна по ${signalTypeLabel.toLowerCase()} с идентификатор <strong style="color:#e2e8f0;">${signalId}</strong>.</p>
+    <div style="background:rgba(124,58,237,0.08);border-radius:12px;padding:20px;border-left:4px solid #7C3AED;">
+      <p style="margin:0 0 12px;color:#e2e8f0;font-size:17px;font-weight:600;">${signalTitle}</p>
+      <p style="margin:0;color:#94a3b8;font-size:14px;"><span style="text-decoration:line-through;color:#94a3b8;">${oldLabel}</span> → <strong style="color:#a78bfa;">${newLabel}</strong></p>
+      ${detailsBlock}
+    </div>
+    <div style="text-align:center;margin:28px 0;">
+      <a href="${signalLink}" style="display:inline-block;background:linear-gradient(135deg,#7C3AED,#5b21b6);color:#fff!important;text-decoration:none;padding:14px 32px;border-radius:12px;font-weight:600;font-size:14px;">Преглед на сигнала</a>
+    </div>
+  `;
+
+  return sendEmail({
+    to: email,
+    subject: `Промяна в статус на ${signalTypeLabel.toLowerCase()} — ${signalTitle}`,
+    html: emailLayout(content, '135deg,#7C3AED,#06b6d4'),
+    text: `${signalTypeLabel}: ${signalTitle} (${signalId}) е обновен: ${oldLabel} -> ${newLabel}. Преглед: ${signalLink}`,
   });
 }
 

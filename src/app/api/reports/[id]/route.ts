@@ -2,7 +2,26 @@ import { NextRequest, NextResponse } from 'next/server';
 import { authMiddleware } from '@/hooks/lib/middleware';
 import { prisma } from '@/hooks/lib/prisma';
 import { notifyReportUpdate } from '@/hooks/lib/websocket';
-import { sendReportStatusChangedEmail } from '@/hooks/lib/email';
+import { sendSignalStatusChangedEmail } from '@/hooks/lib/email';
+
+function collectUniqueEmails(values: Array<string | null | undefined>): string[] {
+  const unique = new Set<string>();
+
+  for (const value of values) {
+    if (!value) {
+      continue;
+    }
+
+    const normalized = value.trim().toLowerCase();
+    if (!normalized || !normalized.includes('@')) {
+      continue;
+    }
+
+    unique.add(normalized);
+  }
+
+  return Array.from(unique);
+}
 
 export async function GET(
   request: NextRequest,
@@ -98,7 +117,38 @@ export async function PATCH(
             email: true,
           },
         },
+        assignedTo: {
+          select: {
+            id: true,
+            email: true,
+          },
+        },
         category: true,
+        routingTargets: {
+          where: {
+            included: true,
+          },
+          include: {
+            institution: {
+              select: {
+                email: true,
+              },
+            },
+            adHocInstitution: {
+              select: {
+                email: true,
+              },
+            },
+            customizations: {
+              where: {
+                reportId: params.id,
+              },
+              select: {
+                customEmail: true,
+              },
+            },
+          },
+        },
       },
     });
 
@@ -173,17 +223,34 @@ export async function PATCH(
         timestamp: new Date().toISOString(),
       });
 
-      // Изпращане на имейл до автора на сигнала
-      if (currentReport.user?.email) {
-        sendReportStatusChangedEmail(
-          currentReport.user.email,
-          updatedReport.title,
-          params.id,
-          currentReport.status,
-          status,
-          note || undefined
-        ).catch((err) => console.error('[Email] Status changed:', err));
-      }
+      const recipientEmails = collectUniqueEmails([
+        currentReport.user?.email,
+        currentReport.assignedTo?.email,
+        ...currentReport.routingTargets.flatMap((target) => {
+          const customEmail = target.customizations[0]?.customEmail;
+
+          if (customEmail) {
+            return [customEmail];
+          }
+
+          return [target.institution?.email, target.adHocInstitution?.email];
+        }),
+      ]);
+
+      await Promise.allSettled(
+        recipientEmails.map((email) =>
+          sendSignalStatusChangedEmail({
+            email,
+            signalTitle: updatedReport.title,
+            signalId: params.id,
+            signalTypeLabel: 'сигнал',
+            oldStatus: currentReport.status,
+            newStatus: status,
+            details: note || undefined,
+            linkPath: `/dashboard/reports/${params.id}`,
+          })
+        )
+      );
     }
 
     return NextResponse.json(updatedReport);
