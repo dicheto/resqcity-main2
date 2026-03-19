@@ -190,7 +190,19 @@ export default function DispatchPage() {
     }
   };
 
-  const signAndSendWithBiss = async (batchId: string) => {
+  const signAndSendWithBiss = async (batch: DispatchBatch) => {
+    const draft = batch.documents.find((doc) => doc.kind === 'DRAFT');
+    if (!draft) {
+      window.alert('Липсва проектодокумент (DRAFT) за този пакет. Генерирай пакетите отново.');
+      return;
+    }
+
+    if (!batch.institution.email) {
+      window.alert('Институцията няма имейл адрес. Добави имейл в Админ > Институции.');
+      return;
+    }
+
+    const batchId = batch.id;
     setWorking(true);
     try {
       const prepareResponse = await axios.post<BissPrepareResponse>(
@@ -328,8 +340,8 @@ export default function DispatchPage() {
 
                     <button
                       type="button"
-                      onClick={() => signAndSendWithBiss(batch.id)}
-                      disabled={!draft || !batch.institution.email || working || batch.status === 'SENT'}
+                      onClick={() => signAndSendWithBiss(batch)}
+                      disabled={working || batch.status === 'SENT'}
                       className="w-full rounded-xl bg-gradient-to-br from-violet-500 to-violet-600 text-white px-3 py-2 text-sm hover:shadow-lg transition-all disabled:opacity-50"
                     >
                       Подпиши с BISS и изпрати
