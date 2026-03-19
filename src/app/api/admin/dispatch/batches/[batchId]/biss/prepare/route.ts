@@ -52,6 +52,16 @@ export async function POST(request: NextRequest, context: RouteContext) {
       forceUniversalMode,
     });
 
+    // Debug log
+    const isStrictMode = signPayload._strictMode === true;
+    console.log('[BISS/prepare]', {
+      batchId,
+      isStrictMode,
+      hasSignedContents: 'signedContents' in signPayload,
+      hasSignedContentsCert: 'signedContentsCert' in signPayload,
+      mode: isStrictMode ? 'STRICT' : 'UNIVERSAL',
+    });
+
     return NextResponse.json({
       batchId,
       draft: {
@@ -60,7 +70,7 @@ export async function POST(request: NextRequest, context: RouteContext) {
         mimeType: draft.mimeType,
       },
       signRequest: signPayload,
-      mode: signPayload._strictMode ? 'strict' : 'universal',
+      mode: isStrictMode ? 'strict' : 'universal',
       allowTestMode: process.env.BISS_ALLOW_TEST_MODE === 'true',
       portCandidates: [53952, 53953, 53954, 53955],
     });

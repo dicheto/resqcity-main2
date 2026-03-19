@@ -182,23 +182,20 @@ export default function DispatchPage() {
 
   const buildBissRequestPayload = (
     signRequest: BissPrepareResponse['signRequest'],
-    signerCertificateB64: string,
-    forceUniversal = false
+    signerCertificateB64: string
   ): Record<string, unknown> => {
-    // ALWAYS strip internal fields and strict-mode fields by default
-    const { _strictMode, _signContentMode, signedContents, signedContentsCert, ...basePayload } = signRequest;
-
-    // Only include strict-mode fields if explicitly NOT using forceUniversal and they exist
-    const payload = forceUniversal === false && signedContents && signedContentsCert
-      ? {
-          ...basePayload,
-          signedContents,
-          signedContentsCert,
-        }
-      : basePayload;
+    // ALWAYS strip internal fields and strict-mode fields BEFORE sending to BISS
+    // The client NEVER sends signedContents/signedContentsCert - only the backend knows about those
+    const { 
+      _strictMode, 
+      _signContentMode, 
+      signedContents, 
+      signedContentsCert, 
+      ...basePayload 
+    } = signRequest;
 
     return {
-      ...payload,
+      ...basePayload,
       signerCertificateB64,
     };
   };
@@ -339,11 +336,11 @@ export default function DispatchPage() {
         (/сертификат/i.test(reasonTextInitial) && /не е намерен|not found/i.test(reasonTextInitial));
 
       if (missingServerCertificate) {
-        // Hard fallback: retry without strict-only request signature fields.
-        console.warn('[BISS] Detected missing server certificate. Retrying with forceUniversal=true');
+        // Hard fallback: retry with same payload (client always strips strict fields anyway)
+        console.warn('[BISS] Detected missing server certificate. Retrying /sign immediately');
         signResponse = await callBissSign(
           bissBaseUrl,
-          buildBissRequestPayload(prepare.signRequest, signerCertificateB64, true)
+          buildBissRequestPayload(prepare.signRequest, signerCertificateB64)
         );
       }
 

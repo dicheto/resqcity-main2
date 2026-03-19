@@ -83,14 +83,16 @@ export function buildBissSignPayload(params: {
   const signingCertB64 = getBissSigningCertB64();
   
   // Explicit strict mode check: must be explicitly enabled AND fully configured
-  const strictModeEnvValue = String(process.env.BISS_ENABLE_STRICT_MODE || '').toLowerCase();
+  const strictModeEnvValue = String(process.env.BISS_ENABLE_STRICT_MODE || '').toLowerCase().trim();
   const strictModeEnabled = strictModeEnvValue === 'true' || strictModeEnvValue === '1' || strictModeEnvValue === 'yes';
   
   const forceUniversalMode =
-    params.forceUniversalMode === true || String(process.env.BISS_FORCE_UNIVERSAL_MODE || '').toLowerCase() === 'true';
+    params.forceUniversalMode === true || String(process.env.BISS_FORCE_UNIVERSAL_MODE || '').toLowerCase().trim() === 'true';
   
-  // Strict mode requires: explicit enable + valid key + valid cert + not forced universal
-  const strictMode = strictModeEnabled && !forceUniversalMode && Boolean(signingPrivateKey && signingCertB64);
+  // Strict mode ONLY if ALL conditions are met
+  const hasPrivateKey = Boolean(signingPrivateKey && signingPrivateKey.length > 0);
+  const hasCert = Boolean(signingCertB64 && signingCertB64.length > 0);
+  const strictMode = strictModeEnabled && !forceUniversalMode && hasPrivateKey && hasCert;
   const signContentMode = resolveSignContentMode(params.signContentMode);
 
   const signedContents = strictMode
@@ -101,8 +103,7 @@ export function buildBissSignPayload(params: {
       })
     : undefined;
 
-  // Universal mode by default: no strict-mode fields
-  // Strict mode: includes signedContents and signedContentsCert
+  // Base payload - ALWAYS sent to BISS regardless of mode
   const payload = {
     version,
     contents: params.contentsB64,
@@ -112,7 +113,8 @@ export function buildBissSignPayload(params: {
     confirmText: params.confirmText,
   };
 
-  // Internal metadata (for client-side logic, stripped before sending to BISS)
+  // INTERNAL METADATA: Only add strict fields if all conditions met
+  // These fields will be stripped by client before sending to BISS
   const result = {
     ...payload,
     ...(strictMode
@@ -125,14 +127,16 @@ export function buildBissSignPayload(params: {
     _signContentMode: signContentMode,
   };
 
-  // Debug: log the mode for troubleshooting
-  if (typeof console !== 'undefined' && process.env.NODE_ENV === 'development') {
-    console.debug('[BISS]', {
-      mode: strictMode ? 'STRICT' : 'UNIVERSAL',
+  // Server-side logging for debugging
+  if (process.env.NODE_ENV === 'development' || process.env.DEBUG_BISS === 'true') {
+    console.log('[BISS/buildPayload]', {
       strictModeEnabled,
-      hasPrivateKey: Boolean(signingPrivateKey),
-      hasCert: Boolean(signingCertB64),
       forceUniversalMode,
+      hasPrivateKey,
+      hasCert,
+      strictMode: strictMode ? 'YES' : 'NO',
+      hasSignedContents: strictMode ? 'YES' : 'NO',
+      hasSignedContentsCert: strictMode ? 'YES' : 'NO',
     });
   }
 
