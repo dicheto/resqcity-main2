@@ -125,7 +125,8 @@ export default function DispatchPage() {
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        showValidCerts: true,
+        // false => BISS shows both valid and invalid certificates.
+        showValidCerts: false,
       }),
     });
 
