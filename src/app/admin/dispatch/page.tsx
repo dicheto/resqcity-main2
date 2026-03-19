@@ -52,6 +52,7 @@ interface BissSignResponse {
 interface BissPrepareResponse {
   batchId: string;
   mode: 'strict' | 'universal';
+  allowTestMode?: boolean;
   signRequest: {
     version: string;
     contents: string[];
@@ -232,6 +233,38 @@ export default function DispatchPage() {
       if (prepare.mode === 'universal') {
         console.warn('BISS universal mode active: signedContents/signedContentsCert are not sent.');
       }
+
+      if (prepare.allowTestMode) {
+        const confirmed = window.confirm(
+          'BISS тестов режим е активен. Да продължим с MOCK подпис (без реален КЕП)?'
+        );
+
+        if (!confirmed) {
+          setWorking(false);
+          return;
+        }
+
+        const mockSignatureB64 = btoa(`MOCK_BISS_SIGNATURE_${batchId}_${Date.now()}`);
+
+        await axios.post(
+          `/api/admin/dispatch/batches/${batchId}/biss/sign-send`,
+          {
+            status: 'ok',
+            reasonCode: '0',
+            reasonText: 'MOCK_SIGNATURE_FOR_TEST',
+            signatures: [mockSignatureB64],
+            signatureType: 'signature',
+            signerCertificateB64: '',
+          },
+          {
+            headers: getTokenHeader(),
+          }
+        );
+
+        await refreshData();
+        return;
+      }
+
       const bissBaseUrl = await discoverBissBaseUrl(prepare.portCandidates || [53952, 53953, 53954, 53955]);
 
       const signerResponse = await callBissGetSigner(bissBaseUrl);
@@ -247,7 +280,12 @@ export default function DispatchPage() {
       });
 
       if (signResponse.status !== 'ok') {
-        throw new Error(`BISS /sign неуспех: ${signResponse.reasonCode} ${signResponse.reasonText}`);
+        const reasonText = String(signResponse.reasonText || '');
+        const missingServerCert = /сертификат|certificate/i.test(reasonText) && /не е намерен|not found/i.test(reasonText);
+        const strictModeHint = missingServerCert
+          ? ' Липсва server certificate за BISS strict mode. Добави BISS_REQUEST_SIGNING_PRIVATE_KEY_PEM и BISS_REQUEST_SIGNING_CERT_B64 във Vercel Environment Variables и redeploy.'
+          : '';
+        throw new Error(`BISS /sign неуспех: ${signResponse.reasonCode} ${signResponse.reasonText}${strictModeHint}`);
       }
 
       await axios.post(

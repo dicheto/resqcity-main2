@@ -57,6 +57,7 @@ export async function POST(request: NextRequest, context: RouteContext) {
       },
       signRequest: signPayload,
       mode: signPayload._strictMode ? 'strict' : 'universal',
+      allowTestMode: process.env.BISS_ALLOW_TEST_MODE === 'true',
       portCandidates: [53952, 53953, 53954, 53955],
     });
   } catch (error) {
