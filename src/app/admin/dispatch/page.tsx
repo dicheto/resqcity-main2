@@ -81,25 +81,27 @@ export default function DispatchPage() {
 
   const discoverBissBaseUrl = async (candidates: number[]): Promise<string> => {
     for (const port of candidates) {
-      const baseUrl = `https://localhost:${port}`;
-      try {
-        const response = await fetch(`${baseUrl}/version`, {
-          method: 'GET',
-          headers: {
-            Accept: 'application/json',
-          },
-        });
+      for (const protocol of ['https', 'http'] as const) {
+        const baseUrl = `${protocol}://localhost:${port}`;
+        try {
+          const response = await fetch(`${baseUrl}/version`, {
+            method: 'GET',
+            headers: {
+              Accept: 'application/json',
+            },
+          });
 
-        if (!response.ok) {
-          continue;
-        }
+          if (!response.ok) {
+            continue;
+          }
 
-        const payload = (await response.json()) as BissVersionResponse;
-        if (payload?.version) {
-          return baseUrl;
+          const payload = (await response.json()) as BissVersionResponse;
+          if (payload?.version) {
+            return baseUrl;
+          }
+        } catch {
+          // Try next protocol/port.
         }
-      } catch {
-        // Try next port.
       }
     }
 
