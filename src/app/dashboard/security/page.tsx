@@ -3,6 +3,7 @@
 import { useEffect, useMemo, useState } from 'react';
 import axios from 'axios';
 import { startRegistration } from '@simplewebauthn/browser';
+import SixDigitCodeInput from '@/components/SixDigitCodeInput';
 
 type PasskeyItem = {
   id: string;
@@ -255,13 +256,12 @@ export default function SecurityPage() {
                 Ръчен ключ: <span className="font-mono text-[var(--s-text)]">{totpSetup.manualEntryKey}</span>
               </p>
               <div className="flex flex-col sm:flex-row gap-3">
-                <input
-                  type="text"
-                  value={totpCode}
-                  onChange={(e) => setTotpCode(e.target.value)}
-                  placeholder="6-цифрен код"
-                  className="site-input"
-                />
+                <div className="w-full sm:flex-1">
+                  <p className="text-[10px] font-semibold uppercase tracking-[0.4em] text-[var(--s-muted)] mb-2">
+                    Код за потвърждение
+                  </p>
+                  <SixDigitCodeInput value={totpCode} onChange={setTotpCode} disabled={busy} autoFocus />
+                </div>
                 <button
                   onClick={verifyTotpSetup}
                   className="rounded-xl py-2 px-4 text-sm font-semibold disabled:opacity-40 transition"
@@ -279,13 +279,12 @@ export default function SecurityPage() {
               style={{ background: 'rgba(255,167,38,0.07)', borderColor: 'rgba(255,167,38,0.2)' }}>
               <p className="text-sm text-amber-300">За изключване въведи актуален код от Google Authenticator.</p>
               <div className="flex flex-col sm:flex-row gap-3">
-                <input
-                  type="text"
-                  value={disableTotpCode}
-                  onChange={(e) => setDisableTotpCode(e.target.value)}
-                  placeholder="6-цифрен код"
-                  className="site-input"
-                />
+                <div className="w-full sm:flex-1">
+                  <p className="text-[10px] font-semibold uppercase tracking-[0.4em] text-[var(--s-muted)] mb-2">
+                    Код за изключване
+                  </p>
+                  <SixDigitCodeInput value={disableTotpCode} onChange={setDisableTotpCode} disabled={busy} />
+                </div>
                 <button
                   onClick={disableTotp}
                   className="rounded-xl py-2 px-4 text-sm font-semibold disabled:opacity-40 transition"

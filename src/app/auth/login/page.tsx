@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import axios from 'axios';
 import { startAuthentication } from '@simplewebauthn/browser';
+import SixDigitCodeInput from '@/components/SixDigitCodeInput';
 
 export default function LoginPage() {
   const router = useRouter();
@@ -315,8 +316,17 @@ export default function LoginPage() {
 
               {selectedMethod === 'TOTP' && (
                 <div className="space-y-3">
-                  <input type="text" className="site-input" value={mfaCode}
-                    onChange={(e) => setMfaCode(e.target.value)} placeholder="6-цифрен код" />
+                  <div>
+                    <label className="block text-[10px] font-semibold uppercase tracking-[0.4em] text-[var(--s-muted)] mb-2">
+                      Код от приложението
+                    </label>
+                    <SixDigitCodeInput
+                      value={mfaCode}
+                      onChange={setMfaCode}
+                      disabled={loading}
+                      autoFocus
+                    />
+                  </div>
                   <button type="button" onClick={verifyTotp} disabled={loading}
                     className="btn-site-primary w-full justify-center py-3.5 rounded-2xl text-sm">
                     {loading ? 'Проверка...' : 'Потвърди кода'}
