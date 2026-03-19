@@ -79,9 +79,12 @@ export default function DispatchPage() {
     Authorization: `Bearer ${localStorage.getItem('token')}`,
   });
 
+  const allowInsecureBissHttp = false;
+
   const discoverBissBaseUrl = async (candidates: number[]): Promise<string> => {
     for (const port of candidates) {
-      for (const protocol of ['https', 'http'] as const) {
+      const protocols: Array<'https' | 'http'> = allowInsecureBissHttp ? ['https', 'http'] : ['https'];
+      for (const protocol of protocols) {
         const baseUrl = `${protocol}://localhost:${port}`;
         try {
           const response = await fetch(`${baseUrl}/version`, {
@@ -270,12 +273,15 @@ export default function DispatchPage() {
         (error instanceof Error && /Failed to fetch|NetworkError|CORS/i.test(error.message));
 
       if (isCorsOrNetworkFailure) {
+        const currentOrigin = window.location.origin;
         window.alert(
           [
             'Неуспешна връзка с локалния BISS (възможен CORS/SSL проблем).',
             '1) Отвори https://localhost:53952/version в браузъра и приеми сертификата, ако има предупреждение.',
             '2) Увери се, че BISS услугата е стартирана на порт 53952.',
-            '3) Презареди страницата (Ctrl+F5) и опитай пак.',
+            `3) В BISS CORS настройките разреши Origin: ${currentOrigin}`,
+            '4) Увери се, че OPTIONS отговорът връща Access-Control-Allow-Origin/Methods/Headers.',
+            '5) Презареди страницата (Ctrl+F5) и опитай пак.',
           ].join('\n')
         );
         return;
