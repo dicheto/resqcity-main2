@@ -23,7 +23,6 @@ export default function DashboardPage() {
   const [moreMenuOpen, setMoreMenuOpen] = useState(false);
   const [healthModalOpen, setHealthModalOpen] = useState(false);
   const [healthCountdown, setHealthCountdown] = useState(3);
-  const [showHealthIframe, setShowHealthIframe] = useState(false);
 
   useEffect(() => {
     fetchReports();
@@ -33,7 +32,6 @@ export default function DashboardPage() {
     if (!healthModalOpen) return;
 
     setHealthCountdown(3);
-    setShowHealthIframe(false);
 
     const interval = setInterval(() => {
       setHealthCountdown((prev) => {
@@ -73,6 +71,15 @@ export default function DashboardPage() {
   const total    = reports.length;
   const pending  = reports.filter(r => r.status === 'PENDING').length;
   const resolved = reports.filter(r => r.status === 'RESOLVED').length;
+
+  const handleHealthStatusCheck = () => {
+    const url = 'https://portal.nra.bg/details/health-insu-status';
+    const openedTab = window.open(url, '_blank', 'noopener,noreferrer');
+
+    if (!openedTab) {
+      window.location.href = url;
+    }
+  };
 
   return (
     <div className="min-h-screen" style={{ background: 'var(--s-bg)' }}>
@@ -302,7 +309,7 @@ export default function DashboardPage() {
 
               <div className="flex items-center gap-3">
                 <button
-                  onClick={() => setShowHealthIframe(true)}
+                  onClick={handleHealthStatusCheck}
                   disabled={healthCountdown > 0}
                   className="btn-site-primary text-sm px-5 py-2.5 rounded-xl disabled:opacity-60 disabled:cursor-not-allowed"
                 >
@@ -318,20 +325,13 @@ export default function DashboardPage() {
                 </a>
               </div>
 
-              <div className="rounded-2xl overflow-hidden border border-[var(--s-border)] bg-[var(--s-bg)] min-h-[420px]">
-                {showHealthIframe ? (
-                  <iframe
-                    title="Здравноосигурителен статус - НАП"
-                    src="https://portal.nra.bg/details/health-insu-status"
-                    className="w-full h-[65vh] min-h-[420px]"
-                  />
-                ) : (
-                  <div className="h-[65vh] min-h-[420px] flex items-center justify-center text-center px-6">
-                    <div>
-                      <p className="text-sm text-[var(--s-muted)]">Натиснете „Проверка", за да се покаже защитеният екран на НАП.</p>
-                    </div>
+              <div className="rounded-2xl overflow-hidden border border-[var(--s-border)] bg-[var(--s-bg)] min-h-[220px]">
+                <div className="h-[220px] flex items-center justify-center text-center px-6">
+                  <div>
+                    <p className="text-sm text-[var(--s-muted)]">Порталът на НАП е защитен и не позволява вграждане в iframe от външен сайт.</p>
+                    <p className="text-sm text-[var(--s-muted)] mt-2">Използвайте „Проверка", за да се отвори директно в НАП.</p>
                   </div>
-                )}
+                </div>
               </div>
             </div>
           </div>
