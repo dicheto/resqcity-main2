@@ -81,9 +81,10 @@ export function buildBissSignPayload(params: {
 
   const signingPrivateKey = getBissSigningPrivateKeyPem();
   const signingCertB64 = getBissSigningCertB64();
+  const strictModeEnabled = String(process.env.BISS_ENABLE_STRICT_MODE || 'false') === 'true';
   const forceUniversalMode =
     params.forceUniversalMode === true || String(process.env.BISS_FORCE_UNIVERSAL_MODE || '') === 'true';
-  const strictMode = !forceUniversalMode && Boolean(signingPrivateKey && signingCertB64);
+  const strictMode = strictModeEnabled && !forceUniversalMode && Boolean(signingPrivateKey && signingCertB64);
   const signContentMode = resolveSignContentMode(params.signContentMode);
 
   const signedContents = strictMode

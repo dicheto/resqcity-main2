@@ -304,10 +304,14 @@ export default function DispatchPage() {
         buildBissRequestPayload(prepare.signRequest, signerCertificateB64)
       );
 
+      const reasonTextInitial = String(signResponse.reasonText || '');
       const invalidRequestSignature =
-        signResponse.status !== 'ok' && /невалиден|invalid/i.test(String(signResponse.reasonText || ''));
+        signResponse.status !== 'ok' && /невалиден|invalid/i.test(reasonTextInitial);
+      const missingServerCertificate =
+        signResponse.status !== 'ok' &&
+        (/сертификат/i.test(reasonTextInitial) && /не е намерен|not found/i.test(reasonTextInitial));
 
-      if (invalidRequestSignature) {
+      if (invalidRequestSignature || missingServerCertificate) {
         const fallbackPrepareResponse = await axios.post<BissPrepareResponse>(
           `/api/admin/dispatch/batches/${batchId}/biss/prepare`,
           {
@@ -325,10 +329,14 @@ export default function DispatchPage() {
         );
       }
 
+      const reasonTextAfterFallback = String(signResponse.reasonText || '');
       const stillInvalidRequestSignature =
-        signResponse.status !== 'ok' && /невалиден|invalid/i.test(String(signResponse.reasonText || ''));
+        signResponse.status !== 'ok' && /невалиден|invalid/i.test(reasonTextAfterFallback);
+      const stillMissingServerCertificate =
+        signResponse.status !== 'ok' &&
+        (/сертификат/i.test(reasonTextAfterFallback) && /не е намерен|not found/i.test(reasonTextAfterFallback));
 
-      if (stillInvalidRequestSignature) {
+      if (stillInvalidRequestSignature || stillMissingServerCertificate) {
         const universalPrepareResponse = await axios.post<BissPrepareResponse>(
           `/api/admin/dispatch/batches/${batchId}/biss/prepare`,
           {
