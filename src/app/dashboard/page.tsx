@@ -23,6 +23,7 @@ export default function DashboardPage() {
   const [moreMenuOpen, setMoreMenuOpen] = useState(false);
   const [healthModalOpen, setHealthModalOpen] = useState(false);
   const [healthCountdown, setHealthCountdown] = useState(3);
+  const [healthFlow, setHealthFlow] = useState<'idle' | 'countdown' | 'redirected'>('idle');
 
   useEffect(() => {
     fetchReports();
@@ -31,12 +32,19 @@ export default function DashboardPage() {
   useEffect(() => {
     if (!healthModalOpen) return;
 
+    setHealthFlow('idle');
     setHealthCountdown(3);
+  }, [healthModalOpen]);
+
+  useEffect(() => {
+    if (!healthModalOpen || healthFlow !== 'countdown') return;
 
     const interval = setInterval(() => {
       setHealthCountdown((prev) => {
         if (prev <= 1) {
           clearInterval(interval);
+          handleHealthStatusRedirect();
+          setHealthFlow('redirected');
           return 0;
         }
         return prev - 1;
@@ -44,7 +52,7 @@ export default function DashboardPage() {
     }, 1000);
 
     return () => clearInterval(interval);
-  }, [healthModalOpen]);
+  }, [healthModalOpen, healthFlow]);
 
   const fetchReports = async () => {
     try {
@@ -72,13 +80,18 @@ export default function DashboardPage() {
   const pending  = reports.filter(r => r.status === 'PENDING').length;
   const resolved = reports.filter(r => r.status === 'RESOLVED').length;
 
-  const handleHealthStatusCheck = () => {
+  const handleHealthStatusRedirect = () => {
     const url = 'https://portal.nra.bg/details/health-insu-status';
     const openedTab = window.open(url, '_blank', 'noopener,noreferrer');
 
     if (!openedTab) {
       window.location.href = url;
     }
+  };
+
+  const startHealthCheckFlow = () => {
+    setHealthCountdown(3);
+    setHealthFlow('countdown');
   };
 
   return (
@@ -295,34 +308,58 @@ export default function DashboardPage() {
             </div>
 
             <div className="p-6 space-y-4">
-              {healthCountdown > 0 ? (
+              {healthFlow === 'countdown' ? (
                 <div className="rounded-2xl p-5 border" style={{ borderColor: 'rgba(251,191,36,0.3)', background: 'rgba(251,191,36,0.08)' }}>
                   <p className="font-semibold text-[var(--s-text)]">Бивате пренасочени към НАП</p>
                   <p className="text-sm text-[var(--s-muted)] mt-1">Изчакайте {healthCountdown} сек...</p>
                 </div>
+              ) : healthFlow === 'redirected' ? (
+                <div className="rounded-2xl p-5 border" style={{ borderColor: 'rgba(52,211,153,0.25)', background: 'rgba(52,211,153,0.08)' }}>
+                  <p className="font-semibold text-[var(--s-text)]">Вие бяхте пренасочени</p>
+                  <p className="text-sm text-[var(--s-muted)] mt-1">След като приключите в НАП, потвърдете и продължете работа в ResQCity.</p>
+                </div>
               ) : (
                 <div className="rounded-2xl p-5 border" style={{ borderColor: 'rgba(52,211,153,0.25)', background: 'rgba(52,211,153,0.08)' }}>
                   <p className="font-semibold text-[var(--s-text)]">Защитен достъп</p>
-                  <p className="text-sm text-[var(--s-muted)] mt-1">Натиснете бутона „Проверка", за да заредите страницата на НАП.</p>
+                  <p className="text-sm text-[var(--s-muted)] mt-1">Натиснете „Проверка" и след 3 секунди ще бъдете пренасочени към системата на НАП в нов таб.</p>
                 </div>
               )}
 
               <div className="flex items-center gap-3">
-                <button
-                  onClick={handleHealthStatusCheck}
-                  disabled={healthCountdown > 0}
-                  className="btn-site-primary text-sm px-5 py-2.5 rounded-xl disabled:opacity-60 disabled:cursor-not-allowed"
-                >
-                  Проверка
-                </button>
-                <a
-                  href="https://portal.nra.bg/details/health-insu-status"
-                  target="_blank"
-                  rel="noreferrer"
-                  className="btn-site-ghost text-sm px-5 py-2.5 rounded-xl"
-                >
-                  Отвори в нов таб
-                </a>
+                {healthFlow === 'idle' && (
+                  <button
+                    onClick={startHealthCheckFlow}
+                    className="btn-site-primary text-sm px-5 py-2.5 rounded-xl"
+                  >
+                    Проверка
+                  </button>
+                )}
+
+                {healthFlow === 'countdown' && (
+                  <button
+                    disabled
+                    className="btn-site-primary text-sm px-5 py-2.5 rounded-xl opacity-60 cursor-not-allowed"
+                  >
+                    Пренасочване...
+                  </button>
+                )}
+
+                {healthFlow === 'redirected' && (
+                  <>
+                    <button
+                      onClick={() => setHealthModalOpen(false)}
+                      className="btn-site-primary text-sm px-5 py-2.5 rounded-xl"
+                    >
+                      Свършено в НАП - Продължи
+                    </button>
+                    <button
+                      onClick={handleHealthStatusRedirect}
+                      className="btn-site-ghost text-sm px-5 py-2.5 rounded-xl"
+                    >
+                      Отвори НАП отново
+                    </button>
+                  </>
+                )}
               </div>
 
               <div className="rounded-2xl overflow-hidden border border-[var(--s-border)] bg-[var(--s-bg)] min-h-[220px]">
