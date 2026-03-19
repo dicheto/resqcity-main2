@@ -86,8 +86,10 @@ export default function DispatchPage() {
         try {
           const response = await fetch(`${baseUrl}/version`, {
             method: 'GET',
+            mode: 'cors',
+            credentials: 'omit',
             headers: {
-              Accept: 'application/json',
+              Accept: '*/*',
             },
           });
 
@@ -111,7 +113,10 @@ export default function DispatchPage() {
   const callBissGetSigner = async (bissBaseUrl: string): Promise<BissGetSignerResponse> => {
     const response = await fetch(`${bissBaseUrl}/getsigner`, {
       method: 'POST',
+      mode: 'cors',
+      credentials: 'omit',
       headers: {
+        Accept: '*/*',
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
@@ -129,7 +134,10 @@ export default function DispatchPage() {
   const callBissSign = async (bissBaseUrl: string, payload: unknown): Promise<BissSignResponse> => {
     const response = await fetch(`${bissBaseUrl}/sign`, {
       method: 'POST',
+      mode: 'cors',
+      credentials: 'omit',
       headers: {
+        Accept: '*/*',
         'Content-Type': 'application/json',
       },
       body: JSON.stringify(payload),
