@@ -154,6 +154,37 @@ interface Shelter {
   description: string;
 }
 
+interface SocialService {
+  id: string;
+  category: number;
+  name: string;
+  shortName: string;
+  type: string;
+  typePrimary: string;
+  typeSpecific: string;
+  provider: string;
+  address: string;
+  phone: string;
+  contact: string;
+  web: string;
+  email: string;
+  ageRange: string;
+  riskGroup: string;
+  serviceModel: string;
+  targetGroup: string;
+  capacity: number | null;
+  lat: number;
+  lng: number;
+}
+
+interface SocialServiceGeoJsonFeature {
+  properties?: Record<string, any>;
+  geometry?: {
+    type?: string;
+    coordinates?: any;
+  };
+}
+
 function InteractiveMapComponent() {
   const router = useRouter();
   const { isConnected, onVehicleUpdate } = useWebSocket();
@@ -169,6 +200,7 @@ function InteractiveMapComponent() {
   const riskZonesRef = useRef<L.Layer[]>([]);
   const accidentsRendererRef = useRef<L.Canvas | null>(null);
   const shelterMarkersRef = useRef<L.Layer[]>([]);
+  const socialServiceMarkersRef = useRef<L.Layer[]>([]);
   const showWeatherRef = useRef(false);
 
   const [showReports, setShowReports] = useState(true);
@@ -179,6 +211,7 @@ function InteractiveMapComponent() {
   const [showAccidents, setShowAccidents] = useState(false);
   const [showRiskMap, setShowRiskMap] = useState(false);
   const [showShelters, setShowShelters] = useState(false);
+  const [showSocialServices, setShowSocialServices] = useState(false);
 
   const [stores, setStores] = useState<Store[]>([]);
   const [reports, setReports] = useState<Report[]>([]);
@@ -186,7 +219,9 @@ function InteractiveMapComponent() {
   const [accidentStats, setAccidentStats] = useState({ total: 0 });
   const [riskZones, setRiskZones] = useState<RiskZone[]>([]);
   const [shelters, setShelters] = useState<Shelter[]>([]);
+  const [socialServices, setSocialServices] = useState<SocialService[]>([]);
   const [sheltersLoading, setSheltersLoading] = useState(false);
+  const [socialServicesLoading, setSocialServicesLoading] = useState(false);
   const [accidentsLoading, setAccidentsLoading] = useState(false);
   const [riskMapLoading, setRiskMapLoading] = useState(false);
   const [selectedWeather, setSelectedWeather] = useState<Weather | null>(null);
@@ -321,6 +356,95 @@ function InteractiveMapComponent() {
       return { vType: typeMap[m[1]], line: m[2] };
     }
     return { line: filter.trim() };
+  };
+
+  const getSocialServiceCategoryColor = (category: number) => {
+    const categoryColors: Record<number, string> = {
+      1: '#3B82F6',
+      2: '#8B5CF6',
+      3: '#F59E0B',
+      4: '#EF4444',
+      5: '#06B6D4',
+      6: '#10B981',
+      7: '#EC4899',
+      8: '#6B7280',
+    };
+
+    return categoryColors[category] || '#64748B';
+  };
+
+  const getServiceCoordinates = (feature: SocialServiceGeoJsonFeature): [number, number] | null => {
+    const geometry = feature.geometry;
+    if (!geometry || !geometry.coordinates) return null;
+
+    if (geometry.type === 'Point' && Array.isArray(geometry.coordinates) && geometry.coordinates.length >= 2) {
+      const [lng, lat] = geometry.coordinates;
+      if (Number.isFinite(lat) && Number.isFinite(lng)) return [lat, lng];
+    }
+
+    if (geometry.type === 'MultiPoint' && Array.isArray(geometry.coordinates) && geometry.coordinates.length > 0) {
+      const [lng, lat] = geometry.coordinates[0] || [];
+      if (Number.isFinite(lat) && Number.isFinite(lng)) return [lat, lng];
+    }
+
+    return null;
+  };
+
+  const normalizeServiceText = (value: unknown) => String(value || '').trim();
+
+  const normalizeSocialServiceFeature = (
+    feature: SocialServiceGeoJsonFeature,
+    index: number
+  ): SocialService | null => {
+    const coordinates = getServiceCoordinates(feature);
+    if (!coordinates) return null;
+
+    const [lat, lng] = coordinates;
+    const props = feature.properties || {};
+    const name = normalizeServiceText(props.name);
+    const shortName = normalizeServiceText(props.s_name);
+    const provider = normalizeServiceText(props.provider);
+    const displayName = shortName || name || provider || 'Социална услуга';
+    const parsedCategory = Number(props.category);
+    const parsedCapacity = Number(props.d_capacity);
+
+    return {
+      id: String(props.id ?? index + 1),
+      category: Number.isFinite(parsedCategory) ? parsedCategory : 0,
+      name: displayName,
+      shortName,
+      type: normalizeServiceText(props.type),
+      typePrimary: normalizeServiceText(props.type_1),
+      typeSpecific: normalizeServiceText(props.type_3),
+      provider,
+      address: normalizeServiceText(props.address),
+      phone: normalizeServiceText(props.phone),
+      contact: normalizeServiceText(props.contact),
+      web: normalizeServiceText(props.web),
+      email: normalizeServiceText(props.mail),
+      ageRange: normalizeServiceText(props.age),
+      riskGroup: normalizeServiceText(props.risk_group),
+      serviceModel: normalizeServiceText(props.d_type_2),
+      targetGroup: normalizeServiceText(props.d_target),
+      capacity: Number.isFinite(parsedCapacity) ? parsedCapacity : null,
+      lat,
+      lng,
+    };
+  };
+
+  const getOffsetPosition = (
+    lat: number,
+    lng: number,
+    indexAtSameCoordinate: number
+  ): [number, number] => {
+    if (indexAtSameCoordinate === 0) return [lat, lng];
+
+    const ring = Math.ceil(Math.sqrt(indexAtSameCoordinate));
+    const angle = (indexAtSameCoordinate * 45 * Math.PI) / 180;
+    const offsetStep = 0.00018;
+    const offset = ring * offsetStep;
+
+    return [lat + Math.sin(angle) * offset, lng + Math.cos(angle) * offset];
   };
 
   // Initialize Leaflet map - Centered on Sofia
@@ -578,6 +702,29 @@ function InteractiveMapComponent() {
       })
       .catch(console.error)
       .finally(() => setSheltersLoading(false));
+  }, []); // Load once on mount
+
+  // Fetch social services (always load for legend counts)
+  useEffect(() => {
+    setSocialServicesLoading(true);
+    fetch('/data/social-services-sofia.geojson')
+      .then((res) => res.json())
+      .then((data) => {
+        const features = Array.isArray(data?.features) ? data.features : [];
+        const normalized = features
+          .map((feature: SocialServiceGeoJsonFeature, index: number) => normalizeSocialServiceFeature(feature, index))
+          .filter((feature: SocialService | null): feature is SocialService => Boolean(feature));
+
+        if (normalized.length > 0) {
+          setSocialServices(normalized);
+        }
+      })
+      .catch((err) => {
+        console.error('Error fetching social services:', err);
+      })
+      .finally(() => {
+        setSocialServicesLoading(false);
+      });
   }, []); // Load once on mount
 
   // Fetch accidents based on viewport (always load for legend counts)
@@ -864,6 +1011,63 @@ function InteractiveMapComponent() {
       shelterMarkersRef.current.push(marker);
     });
   }, [showShelters, shelters]);
+
+  // Add/remove social services markers
+  useEffect(() => {
+    if (!mapRef.current) return;
+
+    socialServiceMarkersRef.current.forEach((marker) => mapRef.current?.removeLayer(marker));
+    socialServiceMarkersRef.current = [];
+
+    if (!showSocialServices) return;
+
+    const sameCoordinateCounter = new Map<string, number>();
+
+    socialServices.forEach((service) => {
+      const coordinateKey = `${service.lat.toFixed(6)}:${service.lng.toFixed(6)}`;
+      const currentCount = sameCoordinateCounter.get(coordinateKey) || 0;
+      sameCoordinateCounter.set(coordinateKey, currentCount + 1);
+
+      const [renderLat, renderLng] = getOffsetPosition(service.lat, service.lng, currentCount);
+      const color = getSocialServiceCategoryColor(service.category);
+
+      const title = service.shortName || service.name;
+      const details = [
+        service.typeSpecific || service.serviceModel || service.typePrimary,
+        service.riskGroup,
+      ]
+        .filter(Boolean)
+        .join(' • ');
+
+      const popupContent = `
+        <div style="min-width: 260px; font-family: system-ui; color: #cbd5e1;">
+          <strong style="font-size: 14px; color: ${color};">🏥 ${title}</strong><br/>
+          ${service.provider ? `<span style="font-size: 12px; color: #e2e8f0;">${service.provider}</span><br/>` : ''}
+          ${details ? `<span style="font-size: 11px; color: #94a3b8;">${details}</span><br/>` : ''}
+          ${service.address ? `<div style="margin-top: 8px; font-size: 12px;"><strong>📍 Адрес:</strong> ${service.address}</div>` : ''}
+          ${service.phone ? `<div style="font-size: 12px;"><strong>📞 Телефон:</strong> ${service.phone}</div>` : ''}
+          ${service.email ? `<div style="font-size: 12px;"><strong>✉️ Email:</strong> ${service.email}</div>` : ''}
+          ${service.ageRange ? `<div style="font-size: 12px;"><strong>👤 Възраст:</strong> ${service.ageRange}</div>` : ''}
+          ${service.capacity !== null ? `<div style="font-size: 12px;"><strong>👥 Капацитет:</strong> ${service.capacity}</div>` : ''}
+          ${service.targetGroup ? `<div style="margin-top: 8px; padding-top: 8px; border-top: 1px solid rgba(148,163,184,0.25); font-size: 11px; color: #a1aec8;"><strong>Целева група:</strong> ${service.targetGroup}</div>` : ''}
+          ${service.web ? `<div style="margin-top: 8px; font-size: 11px;"><a href="${service.web}" target="_blank" rel="noopener noreferrer" style="color: #60A5FA; text-decoration: underline;">Официална страница</a></div>` : ''}
+        </div>
+      `;
+
+      const marker = L.circleMarker([renderLat, renderLng], {
+        radius: 6,
+        fillColor: color,
+        color: '#ffffff',
+        weight: 1.5,
+        opacity: 1,
+        fillOpacity: 0.9,
+      })
+        .bindPopup(popupContent)
+        .addTo(mapRef.current!);
+
+      socialServiceMarkersRef.current.push(marker);
+    });
+  }, [showSocialServices, socialServices]);
 
   // Add/remove accident markers
   useEffect(() => {
@@ -1422,6 +1626,7 @@ function InteractiveMapComponent() {
               { key: 'reports',  label: 'Сигнали',      count: reports.length,       emoji: '📍', active: showReports,  setter: setShowReports,  color: 'var(--s-orange)' },
               { key: 'stores',   label: 'Магазини',     count: stores.length,        emoji: '🛒', active: showStores,   setter: setShowStores,   color: 'var(--s-teal)' },
               { key: 'shelters', label: 'Убежища',      count: shelters.length,      emoji: '🛡️', active: showShelters, setter: setShowShelters, color: '#10b981' },
+              { key: 'social',   label: 'Соц. услуги',  count: socialServices.length, emoji: '🏥', active: showSocialServices, setter: setShowSocialServices, color: '#38BDF8' },
               { key: 'weather',  label: 'Метео',        count: null,                 emoji: '🌦', active: showWeather,  setter: setShowWeather,  color: '#60A5FA' },
               { key: 'transit',  label: 'Транспорт',    count: transitStops.length,  emoji: '🚌', active: showTransit,  setter: setShowTransit,  color: '#818CF8' },
               { key: 'vehicles', label: 'Превозни',     count: vehicles.length,      emoji: '🚐', active: showVehicles, setter: setShowVehicles, color: '#F87171' },
@@ -1502,6 +1707,7 @@ function InteractiveMapComponent() {
                 { label: 'Сигнали',   value: reports.length,      color: 'var(--s-orange)' },
                 { label: 'Магазини',  value: stores.length,       color: 'var(--s-teal)' },
                 { label: 'Убежища',   value: shelters.length,     color: '#10b981' },
+                { label: 'Соц. услуги', value: socialServices.length, color: '#38BDF8' },
                 { label: 'Превозни',  value: vehicles.length,     color: '#F87171' },
               ].map(({ label, value, color }) => (
                 <div key={label} className="rounded-xl p-2.5 text-center" style={{ background: 'var(--s-surface2)' }}>
@@ -1516,6 +1722,13 @@ function InteractiveMapComponent() {
             <div className="flex items-center gap-2 px-3 py-2 rounded-xl text-xs text-[var(--s-muted)]" style={{ background: 'var(--s-surface2)' }}>
               <div className="w-3 h-3 rounded-full border border-[var(--s-orange)] border-t-transparent animate-spin" />
               Зареждане...
+            </div>
+          )}
+
+          {socialServicesLoading && (
+            <div className="flex items-center gap-2 px-3 py-2 rounded-xl text-xs text-[var(--s-muted)]" style={{ background: 'var(--s-surface2)' }}>
+              <div className="w-3 h-3 rounded-full border border-sky-400 border-t-transparent animate-spin" />
+              Зареждане на социални услуги...
             </div>
           )}
 

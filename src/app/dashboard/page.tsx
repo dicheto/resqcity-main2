@@ -20,10 +20,33 @@ function getStatusLabel(status: string): string {
 export default function DashboardPage() {
   const [reports, setReports] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
+  const [moreMenuOpen, setMoreMenuOpen] = useState(false);
+  const [healthModalOpen, setHealthModalOpen] = useState(false);
+  const [healthCountdown, setHealthCountdown] = useState(3);
+  const [showHealthIframe, setShowHealthIframe] = useState(false);
 
   useEffect(() => {
     fetchReports();
   }, []);
+
+  useEffect(() => {
+    if (!healthModalOpen) return;
+
+    setHealthCountdown(3);
+    setShowHealthIframe(false);
+
+    const interval = setInterval(() => {
+      setHealthCountdown((prev) => {
+        if (prev <= 1) {
+          clearInterval(interval);
+          return 0;
+        }
+        return prev - 1;
+      });
+    }, 1000);
+
+    return () => clearInterval(interval);
+  }, [healthModalOpen]);
 
   const fetchReports = async () => {
     try {
@@ -209,6 +232,111 @@ export default function DashboardPage() {
           )}
         </div>
       </div>
+
+      <div className="fixed bottom-6 right-6 z-40">
+        <div className="relative">
+          {moreMenuOpen && (
+            <div
+              className="absolute right-full mr-3 bottom-0 w-72 site-card rounded-2xl p-2 shadow-2xl"
+              style={{ borderColor: 'var(--s-border)' }}
+            >
+              <button
+                onClick={() => {
+                  setMoreMenuOpen(false);
+                  setHealthModalOpen(true);
+                }}
+                className="w-full text-left px-4 py-3 rounded-xl hover:bg-[var(--s-surface2)] transition-colors"
+              >
+                <p className="text-[11px] uppercase tracking-[0.35em] text-[var(--s-muted)] mb-1">Справка</p>
+                <p className="font-semibold text-[var(--s-text)]">Здравноосигурителен статус</p>
+                <p className="text-xs text-[var(--s-muted)] mt-1">Проверка през НАП</p>
+              </button>
+            </div>
+          )}
+
+          <button
+            onClick={() => setMoreMenuOpen((prev) => !prev)}
+            className="btn-site-primary px-5 py-3 rounded-2xl text-sm font-semibold shadow-xl"
+          >
+            Още
+          </button>
+        </div>
+      </div>
+
+      {healthModalOpen && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center p-4"
+          style={{ background: 'rgba(3, 7, 18, 0.68)' }}
+          onClick={() => setHealthModalOpen(false)}
+        >
+          <div
+            className="w-full max-w-5xl rounded-3xl overflow-hidden border"
+            style={{ background: 'var(--s-surface)', borderColor: 'var(--s-border)' }}
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="flex items-center justify-between px-6 py-4 border-b border-[var(--s-border)]">
+              <div>
+                <p className="text-[10px] uppercase tracking-[0.4em] text-[var(--s-muted)]">Проверка</p>
+                <h3 className="rc-display text-xl text-[var(--s-text)] font-bold">Здравноосигурителен статус</h3>
+              </div>
+              <button
+                onClick={() => setHealthModalOpen(false)}
+                className="btn-site-ghost text-xs px-4 py-2 rounded-xl"
+              >
+                Затвори
+              </button>
+            </div>
+
+            <div className="p-6 space-y-4">
+              {healthCountdown > 0 ? (
+                <div className="rounded-2xl p-5 border" style={{ borderColor: 'rgba(251,191,36,0.3)', background: 'rgba(251,191,36,0.08)' }}>
+                  <p className="font-semibold text-[var(--s-text)]">Бивате пренасочени към НАП</p>
+                  <p className="text-sm text-[var(--s-muted)] mt-1">Изчакайте {healthCountdown} сек...</p>
+                </div>
+              ) : (
+                <div className="rounded-2xl p-5 border" style={{ borderColor: 'rgba(52,211,153,0.25)', background: 'rgba(52,211,153,0.08)' }}>
+                  <p className="font-semibold text-[var(--s-text)]">Защитен достъп</p>
+                  <p className="text-sm text-[var(--s-muted)] mt-1">Натиснете бутона „Проверка", за да заредите страницата на НАП.</p>
+                </div>
+              )}
+
+              <div className="flex items-center gap-3">
+                <button
+                  onClick={() => setShowHealthIframe(true)}
+                  disabled={healthCountdown > 0}
+                  className="btn-site-primary text-sm px-5 py-2.5 rounded-xl disabled:opacity-60 disabled:cursor-not-allowed"
+                >
+                  Проверка
+                </button>
+                <a
+                  href="https://portal.nra.bg/details/health-insu-status"
+                  target="_blank"
+                  rel="noreferrer"
+                  className="btn-site-ghost text-sm px-5 py-2.5 rounded-xl"
+                >
+                  Отвори в нов таб
+                </a>
+              </div>
+
+              <div className="rounded-2xl overflow-hidden border border-[var(--s-border)] bg-[var(--s-bg)] min-h-[420px]">
+                {showHealthIframe ? (
+                  <iframe
+                    title="Здравноосигурителен статус - НАП"
+                    src="https://portal.nra.bg/details/health-insu-status"
+                    className="w-full h-[65vh] min-h-[420px]"
+                  />
+                ) : (
+                  <div className="h-[65vh] min-h-[420px] flex items-center justify-center text-center px-6">
+                    <div>
+                      <p className="text-sm text-[var(--s-muted)]">Натиснете „Проверка", за да се покаже защитеният екран на НАП.</p>
+                    </div>
+                  </div>
+                )}
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
