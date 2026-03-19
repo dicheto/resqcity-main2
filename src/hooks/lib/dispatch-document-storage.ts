@@ -111,11 +111,18 @@ export async function uploadDispatchDocument(params: {
   const safeFileName = fileName.replace(/[^a-zA-Z0-9._-]/g, '_');
   const storagePath = `${folder}/${batchId}/${Date.now()}-${safeFileName}`;
 
-  const { data, error } = await supabase.storage.from(DISPATCH_DOCS_BUCKET).upload(storagePath, buffer, {
-    contentType: mimeType,
-    upsert: false,
-    cacheControl: '3600',
-  });
+  const upload = async (contentType: string) =>
+    supabase.storage.from(DISPATCH_DOCS_BUCKET).upload(storagePath, buffer, {
+      contentType,
+      upsert: false,
+      cacheControl: '3600',
+    });
+
+  let { data, error } = await upload(mimeType);
+
+  if (error && /mime type .* is not supported/i.test(error.message) && mimeType !== 'application/pdf') {
+    ({ data, error } = await upload('application/pdf'));
+  }
 
   if (error) {
     throw new Error(`Failed to upload dispatch document: ${error.message}`);
