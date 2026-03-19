@@ -1,18 +1,51 @@
-# Inbound Email + BISS Setup
+# Dispatch System Documentation
 
-## 1) Environment variables
+ResQCity uses local mock signing for dispatch batch management.
 
-Set the following in your deployment:
+## 1) Dispatch Flow
 
-- `INBOUND_EMAIL_AUTH_TOKEN`
-- `BISS_PROTOCOL_VERSION` (default `1.0`)
-- Optional (strict mode): `BISS_REQUEST_SIGNING_PRIVATE_KEY_PEM`
-- Optional (strict mode): `BISS_REQUEST_SIGNING_CERT_B64`
+1. Generate batch - Admin creates batch of signals for institution
+2. Generate PDF - System creates draft PDF (DRAFT status)
+3. Mock sign - Admin clicks "Sign & Send" - system generates administrative seal
+4. Send email - System emails signed PDF to institution
+5. Mark sent - Batch marked as SENT
 
-Modes:
+## 2) Configuration
 
-- `universal` (default): no extra key/cert setup; browser signs via local BISS.
-- `strict` (optional): backend adds `signedContents` and `signedContentsCert` in BISS request.
+### Email Configuration
+
+Set in `.env.local`:
+
+```bash
+SMTP_HOST="smtp.gmail.com"
+SMTP_PORT="587"
+SMTP_USER="your-email@gmail.com"
+SMTP_PASSWORD="your-app-password"
+SMTP_FROM="noreply@resqcity.bg"
+```
+
+### API Endpoints
+
+- `GET /api/admin/dispatch/batches` - List all batches
+- `POST /api/admin/dispatch/batches` - Generate new batches
+- `POST /api/admin/dispatch/batches/[batchId]/mock-sign-send` - Sign and send batch (mock signature)
+- `POST /api/admin/taxonomy/sync` - Sync taxonomy
+
+## 3) Mock Signature System
+
+Each administrative seal contains:
+- Timestamp of signing
+- Admin email
+- Hash algorithm (SHA256/SHA512) 
+- Content hash of document
+- Type: "ADMINISTRATIVE_SEAL"
+
+## 4) Database Models
+
+- `Institution` - Target institution
+- `InstitutionDispatchBatch` - Batch container (status: DRAFT → SIGNED → SENT)
+- `DispatchDocument` - PDF file (kind: DRAFT or SIGNED)
+- `DispatchBatchItem` - Single signal in batch (references Report)
 
 ## 2) Inbound email API
 
