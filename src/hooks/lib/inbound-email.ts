@@ -23,6 +23,7 @@ export interface InboundEmailPayload {
 }
 
 export type InboundStatus = 'PENDING' | 'IN_REVIEW' | 'IN_PROGRESS' | 'RESOLVED' | 'REJECTED';
+type DetectedInboundStatus = Exclude<InboundStatus, 'PENDING'>;
 
 export interface StoredAttachment {
   fileName: string;
@@ -34,7 +35,7 @@ export interface StoredAttachment {
 const MAX_ATTACHMENT_SIZE_BYTES = 10 * 1024 * 1024;
 const MAX_TOTAL_ATTACHMENT_SIZE_BYTES = 25 * 1024 * 1024;
 
-const STATUS_KEYWORDS: Array<{ status: InboundStatus; patterns: RegExp[] }> = [
+const STATUS_KEYWORDS: Array<{ status: DetectedInboundStatus; patterns: RegExp[] }> = [
   {
     status: 'RESOLVED',
     patterns: [
@@ -101,7 +102,7 @@ export function extractReportIdFromText(...parts: Array<string | undefined | nul
   return match?.[1] ?? null;
 }
 
-export function detectReportStatusFromText(...parts: Array<string | undefined | null>): 'IN_REVIEW' | 'IN_PROGRESS' | 'RESOLVED' | 'REJECTED' | null {
+export function detectReportStatusFromText(...parts: Array<string | undefined | null>): DetectedInboundStatus | null {
   const text = parts.filter(Boolean).join('\n');
   if (!text.trim()) {
     return null;
