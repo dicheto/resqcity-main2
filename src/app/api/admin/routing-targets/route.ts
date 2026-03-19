@@ -1,10 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { PrismaClient } from '@prisma/client';
-import jwt from 'jsonwebtoken';
+import { verifyToken as verifyJwtToken } from '@/hooks/lib/auth';
 import { isAdminRole } from '@/hooks/lib/roles';
 
 const prisma = new PrismaClient();
-const JWT_SECRET = process.env.JWT_SECRET || 'your-secret-key';
 
 function verifyAdmin(request: NextRequest) {
   const authHeader = request.headers.get('authorization');
@@ -12,16 +11,14 @@ function verifyAdmin(request: NextRequest) {
     return null;
   }
 
-  try {
-    const token = authHeader.substring(7);
-    const decoded = jwt.verify(token, JWT_SECRET) as any;
-    if (!isAdminRole(decoded.role)) {
-      return null;
-    }
-    return decoded;
-  } catch (error) {
+  const token = authHeader.substring(7);
+  const decoded = verifyJwtToken(token);
+
+  if (!decoded || !isAdminRole(decoded.role)) {
     return null;
   }
+
+  return decoded;
 }
 
 export async function POST(request: NextRequest) {

@@ -2,9 +2,24 @@ import { NextRequest, NextResponse } from 'next/server';
 import crypto from 'crypto';
 import { prisma } from '@/hooks/lib/prisma';
 import { sendPasswordResetEmail } from '@/hooks/lib/email';
+import { checkRateLimit, getClientIp } from '@/hooks/lib/rate-limit';
 
 export async function POST(request: NextRequest) {
   try {
+    const ip = getClientIp(request);
+    const limiter = checkRateLimit({
+      key: `auth:forgot-password:${ip}`,
+      limit: 5,
+      windowMs: 15 * 60 * 1000,
+    });
+
+    if (!limiter.allowed) {
+      return NextResponse.json(
+        { error: 'Too many reset requests. Please try again later.' },
+        { status: 429, headers: { 'Retry-After': String(limiter.retryAfterSeconds ?? 60) } }
+      );
+    }
+
     const { email } = await request.json();
 
     if (!email) {

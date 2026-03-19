@@ -1,14 +1,30 @@
 import { NextRequest, NextResponse } from 'next/server';
 import bcrypt from 'bcryptjs';
 import { prisma } from '@/hooks/lib/prisma';
-import { generateToken } from '@/hooks/lib/auth';
+import { generateToken, setAuthCookie } from '@/hooks/lib/auth';
 import { AuthChallengeKind } from '@prisma/client';
 import { createAuthChallenge } from '@/hooks/lib/auth-challenges';
+import { checkRateLimit, getClientIp } from '@/hooks/lib/rate-limit';
 
 export async function POST(request: NextRequest) {
   try {
+    const ip = getClientIp(request);
+    const limiter = checkRateLimit({
+      key: `auth:login:${ip}`,
+      limit: 10,
+      windowMs: 15 * 60 * 1000,
+    });
+
+    if (!limiter.allowed) {
+      return NextResponse.json(
+        { error: 'Too many login attempts. Please try again later.' },
+        { status: 429, headers: { 'Retry-After': String(limiter.retryAfterSeconds ?? 60) } }
+      );
+    }
+
     const body = await request.json();
-    const { email, password } = body;
+    const email = String(body?.email || '').trim().toLowerCase();
+    const password = String(body?.password || '');
 
     // Validate input
     if (!email || !password) {
@@ -87,7 +103,7 @@ export async function POST(request: NextRequest) {
       role: user.role,
     });
 
-    return NextResponse.json({
+    const response = NextResponse.json({
       user: {
         id: user.id,
         email: user.email,
@@ -98,6 +114,9 @@ export async function POST(request: NextRequest) {
       },
       token,
     });
+
+    setAuthCookie(response, token);
+    return response;
   } catch (error) {
     console.error('Login error:', error);
     return NextResponse.json(

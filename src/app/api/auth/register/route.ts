@@ -4,9 +4,24 @@ import crypto from 'crypto';
 import { prisma } from '@/hooks/lib/prisma';
 import { sendVerificationEmail } from '@/hooks/lib/email';
 import { validatePassword } from '@/hooks/lib/passwordValidation';
+import { checkRateLimit, getClientIp } from '@/hooks/lib/rate-limit';
 
 export async function POST(request: NextRequest) {
   try {
+    const ip = getClientIp(request);
+    const limiter = checkRateLimit({
+      key: `auth:register:${ip}`,
+      limit: 5,
+      windowMs: 15 * 60 * 1000,
+    });
+
+    if (!limiter.allowed) {
+      return NextResponse.json(
+        { error: 'Too many registration attempts. Please try again later.' },
+        { status: 429, headers: { 'Retry-After': String(limiter.retryAfterSeconds ?? 60) } }
+      );
+    }
+
     const body = await request.json();
     const { email, password, firstName, lastName, phone, verifyEmail } = body;
 

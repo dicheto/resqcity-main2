@@ -1,10 +1,21 @@
 import crypto from 'crypto';
 
-const SECRET_SOURCE =
-  process.env.TOTP_ENCRYPTION_KEY || process.env.JWT_SECRET || 'resqcity-fallback-encryption-key';
+function getSecretSource(): string {
+  const configured = process.env.TOTP_ENCRYPTION_KEY || process.env.JWT_SECRET;
+
+  if (configured) {
+    return configured;
+  }
+
+  if (process.env.NODE_ENV === 'production') {
+    throw new Error('TOTP_ENCRYPTION_KEY or JWT_SECRET is required in production');
+  }
+
+  return 'resqcity-fallback-encryption-key';
+}
 
 function getKey(): Buffer {
-  return crypto.createHash('sha256').update(SECRET_SOURCE).digest();
+  return crypto.createHash('sha256').update(getSecretSource()).digest();
 }
 
 export function encryptText(plainText: string): string {

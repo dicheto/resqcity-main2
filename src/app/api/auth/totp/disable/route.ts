@@ -3,6 +3,7 @@ import { authMiddleware } from '@/hooks/lib/middleware';
 import { prisma } from '@/hooks/lib/prisma';
 import { decryptText } from '@/hooks/lib/crypto';
 import { verifyTotpCode } from '@/hooks/lib/totp';
+import { checkRateLimit, getClientIp } from '@/hooks/lib/rate-limit';
 
 export async function POST(request: NextRequest) {
   const authResult = await authMiddleware(request);
@@ -12,6 +13,20 @@ export async function POST(request: NextRequest) {
   }
 
   try {
+    const ip = getClientIp(request);
+    const limiter = checkRateLimit({
+      key: `auth:totp-disable:${authResult.user.userId}:${ip}`,
+      limit: 10,
+      windowMs: 10 * 60 * 1000,
+    });
+
+    if (!limiter.allowed) {
+      return NextResponse.json(
+        { error: 'Too many attempts. Please try again later.' },
+        { status: 429, headers: { 'Retry-After': String(limiter.retryAfterSeconds ?? 60) } }
+      );
+    }
+
     const body = await request.json();
     const { code } = body;
 

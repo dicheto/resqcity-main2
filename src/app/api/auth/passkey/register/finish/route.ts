@@ -4,6 +4,7 @@ import { authMiddleware } from '@/hooks/lib/middleware';
 import { consumeAuthChallenge, getValidAuthChallenge } from '@/hooks/lib/auth-challenges';
 import { prisma } from '@/hooks/lib/prisma';
 import { verifyPasskeyRegistration } from '@/hooks/lib/webauthn';
+import { checkRateLimit, getClientIp } from '@/hooks/lib/rate-limit';
 
 export async function POST(request: NextRequest) {
   const authResult = await authMiddleware(request);
@@ -13,6 +14,20 @@ export async function POST(request: NextRequest) {
   }
 
   try {
+    const ip = getClientIp(request);
+    const limiter = checkRateLimit({
+      key: `auth:passkey-register-finish:${authResult.user.userId}:${ip}`,
+      limit: 20,
+      windowMs: 10 * 60 * 1000,
+    });
+
+    if (!limiter.allowed) {
+      return NextResponse.json(
+        { error: 'Too many requests. Please try again later.' },
+        { status: 429, headers: { 'Retry-After': String(limiter.retryAfterSeconds ?? 60) } }
+      );
+    }
+
     const body = await request.json();
     const { challengeId, response, name } = body;
 

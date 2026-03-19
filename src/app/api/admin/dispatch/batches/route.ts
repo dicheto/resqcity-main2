@@ -1,9 +1,11 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { promises as fs } from 'fs';
+import os from 'os';
 import path from 'path';
 import { authMiddleware } from '@/hooks/lib/middleware';
 import { prisma } from '@/hooks/lib/prisma';
 import { generateDispatchPDF } from '@/hooks/lib/pdf-generator';
+import { deleteDispatchDocuments, uploadDispatchDocument } from '@/hooks/lib/dispatch-document-storage';
 
 export async function GET(request: NextRequest) {
   const authResult = await authMiddleware(request, ['ADMIN', 'MUNICIPAL_COUNCILOR']);
@@ -98,8 +100,8 @@ export async function POST(request: NextRequest) {
       byInstitution.set(key, collection);
     }
 
-    const outputDir = path.join(process.cwd(), 'public', 'dispatch-docs');
-    await fs.mkdir(outputDir, { recursive: true });
+    const tempOutputDir = path.join(os.tmpdir(), 'resqcity-dispatch-docs');
+    await fs.mkdir(tempOutputDir, { recursive: true });
 
     // Delete all old unsent/unsigned batches (DRAFT or PENDING_SIGNATURE) before generating new ones
     const staleBatches = await prisma.institutionDispatchBatch.findMany({
@@ -108,12 +110,7 @@ export async function POST(request: NextRequest) {
     });
 
     for (const staleBatch of staleBatches) {
-      for (const doc of staleBatch.documents) {
-        const absPath = path.join(process.cwd(), 'public', doc.filePath);
-        await fs.unlink(absPath).catch(() => {
-          // File may already be missing – continue
-        });
-      }
+      await deleteDispatchDocuments(staleBatch.documents.map((doc) => doc.filePath));
     }
 
     if (staleBatches.length > 0) {
@@ -179,7 +176,7 @@ export async function POST(request: NextRequest) {
 
       // Генериране на PDF документ
       const pdfFileName = `batch-${batch.id}-draft.pdf`;
-      const pdfAbsolutePath = path.join(outputDir, pdfFileName);
+      const pdfAbsolutePath = path.join(tempOutputDir, pdfFileName);
 
       console.log(`[Dispatch] Generating PDF: ${pdfAbsolutePath}`);
       await generateDispatchPDF(
@@ -211,6 +208,18 @@ export async function POST(request: NextRequest) {
         pdfAbsolutePath
       );
 
+      const pdfBuffer = await fs.readFile(pdfAbsolutePath);
+      const uploaded = await uploadDispatchDocument({
+        batchId: batch.id,
+        fileName: pdfFileName,
+        buffer: pdfBuffer,
+        mimeType: 'application/pdf',
+      });
+
+      await fs.unlink(pdfAbsolutePath).catch(() => {
+        // Temporary file cleanup is best-effort.
+      });
+
       console.log(`[Dispatch] PDF generated successfully: ${pdfFileName}`);
 
       await prisma.dispatchDocument.create({
@@ -218,7 +227,7 @@ export async function POST(request: NextRequest) {
           batchId: batch.id,
           kind: 'DRAFT',
           fileName: pdfFileName,
-          filePath: `/dispatch-docs/${pdfFileName}`,
+          filePath: uploaded.filePath,
           mimeType: 'application/pdf',
           uploadedById: authResult.user.userId,
         },

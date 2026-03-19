@@ -3,7 +3,7 @@ import axios from 'axios';
 
 export const revalidate = 600;
 
-const OPENWEATHER_API_KEY = process.env.NEXT_PUBLIC_OPENWEATHER_KEY;
+const OPENWEATHER_API_KEY = process.env.OPENWEATHER_API_KEY || process.env.NEXT_PUBLIC_OPENWEATHER_KEY;
 const OPENWEATHER_BASE = 'https://api.openweathermap.org/data/2.5';
 
 interface WeatherGridPoint {
@@ -73,7 +73,7 @@ export async function GET(request: NextRequest) {
     const weatherPromises = BULGARIAN_CITIES.map(async (city) => {
       try {
          if (!OPENWEATHER_API_KEY) {
-           console.warn('⚠️ NEXT_PUBLIC_OPENWEATHER_KEY не е конфигуриран. Използват се mock данни.');
+           console.warn('⚠️ OPENWEATHER_API_KEY не е конфигуриран. Използват се mock данни.');
            // Return mock data for demo
            return {
              lat: city.lat,

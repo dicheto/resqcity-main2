@@ -2,6 +2,61 @@ import { Server as HTTPServer } from 'http';
 import { Server as SocketIOServer } from 'socket.io';
 import { getRealtimeData } from './sofia-traffic';
 import routeMapping from './gtfs-routes.json';
+import jwt from 'jsonwebtoken';
+
+type SocketTokenPayload = {
+  userId: string;
+  email: string;
+  role: string;
+};
+
+function getSocketJwtSecret(): string {
+  const secret = process.env.JWT_SECRET;
+
+  if (secret) {
+    return secret;
+  }
+
+  if (process.env.NODE_ENV === 'production') {
+    throw new Error('JWT_SECRET is required in production');
+  }
+
+  return 'fallback-secret-key';
+}
+
+function getTokenFromSocketHandshake(socket: any): string | null {
+  const authToken = socket.handshake?.auth?.token;
+
+  if (typeof authToken === 'string' && authToken.trim()) {
+    return authToken.trim();
+  }
+
+  const authHeader = socket.handshake?.headers?.authorization;
+
+  if (typeof authHeader === 'string' && authHeader.startsWith('Bearer ')) {
+    return authHeader.substring(7).trim();
+  }
+
+  return null;
+}
+
+function getSocketUser(socket: any): SocketTokenPayload | null {
+  const token = getTokenFromSocketHandshake(socket);
+
+  if (!token) {
+    return null;
+  }
+
+  try {
+    return jwt.verify(token, getSocketJwtSecret()) as SocketTokenPayload;
+  } catch {
+    return null;
+  }
+}
+
+function isAdminRole(role?: string): boolean {
+  return role === 'ADMIN' || role === 'SUPER_ADMIN' || role === 'MUNICIPAL_COUNCILOR';
+}
 
 let io: SocketIOServer | null = null;
 
@@ -17,6 +72,13 @@ export function initializeWebSocket(server: HTTPServer) {
     console.log('Client connected:', socket.id);
 
     socket.on('join-admin', () => {
+      const user = getSocketUser(socket);
+
+      if (!user || !isAdminRole(user.role)) {
+        socket.emit('auth-error', { message: 'Forbidden' });
+        return;
+      }
+
       socket.join('admin-room');
       console.log('Admin joined:', socket.id);
     });
@@ -25,6 +87,18 @@ export function initializeWebSocket(server: HTTPServer) {
       if (!userId) {
         return;
       }
+
+      const user = getSocketUser(socket);
+      if (!user) {
+        socket.emit('auth-error', { message: 'Unauthorized' });
+        return;
+      }
+
+      if (user.userId !== userId && !isAdminRole(user.role)) {
+        socket.emit('auth-error', { message: 'Forbidden' });
+        return;
+      }
+
       const room = `user-${userId}`;
       socket.join(room);
       console.log(`User joined room ${room}:`, socket.id);

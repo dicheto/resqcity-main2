@@ -1,9 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { PrismaClient } from '@prisma/client';
-import jwt from 'jsonwebtoken';
+import { verifyToken as verifyJwtToken } from '@/hooks/lib/auth';
 
 const prisma = new PrismaClient();
-const JWT_SECRET = process.env.JWT_SECRET || 'your-secret-key-here';
 
 interface JWTPayload {
   userId: string;
@@ -11,16 +10,20 @@ interface JWTPayload {
 }
 
 function verifyToken(req: NextRequest): JWTPayload | null {
-  try {
-    const auth = req.headers.get('authorization');
-    if (!auth?.startsWith('Bearer ')) return null;
-    
-    const token = auth.substring(7);
-    const decoded = jwt.verify(token, JWT_SECRET) as JWTPayload;
-    return decoded;
-  } catch (error) {
+  const auth = req.headers.get('authorization');
+  if (!auth?.startsWith('Bearer ')) return null;
+
+  const token = auth.substring(7);
+  const decoded = verifyJwtToken(token);
+
+  if (!decoded) {
     return null;
   }
+
+  return {
+    userId: decoded.userId,
+    role: decoded.role,
+  };
 }
 
 export async function GET(req: NextRequest) {

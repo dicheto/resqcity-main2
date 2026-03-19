@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import axios from 'axios';
 
-const OPENWEATHER_API_KEY = process.env.NEXT_PUBLIC_OPENWEATHER_KEY;
+const OPENWEATHER_API_KEY = process.env.OPENWEATHER_API_KEY || process.env.NEXT_PUBLIC_OPENWEATHER_KEY;
 const OPENWEATHER_BASE = 'https://api.openweathermap.org/data/2.5';
 
 export async function GET(request: NextRequest) {
@@ -18,7 +18,7 @@ export async function GET(request: NextRequest) {
     }
 
     if (!OPENWEATHER_API_KEY) {
-      console.warn('NEXT_PUBLIC_OPENWEATHER_KEY is not configured. Using mock weather forecast data.');
+      console.warn('OPENWEATHER_API_KEY is not configured. Using mock weather forecast data.');
       const mockTemp = 15 + Math.random() * 20;
 
       return NextResponse.json({

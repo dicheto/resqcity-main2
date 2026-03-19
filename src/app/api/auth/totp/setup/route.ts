@@ -6,6 +6,7 @@ import { generateTotpSecret, buildTotpOtpAuthUrl } from '@/hooks/lib/totp';
 import { encryptText } from '@/hooks/lib/crypto';
 import { createAuthChallenge } from '@/hooks/lib/auth-challenges';
 import { AuthChallengeKind } from '@prisma/client';
+import { checkRateLimit, getClientIp } from '@/hooks/lib/rate-limit';
 
 export async function POST(request: NextRequest) {
   const authResult = await authMiddleware(request);
@@ -15,6 +16,20 @@ export async function POST(request: NextRequest) {
   }
 
   try {
+    const ip = getClientIp(request);
+    const limiter = checkRateLimit({
+      key: `auth:totp-setup:${authResult.user.userId}:${ip}`,
+      limit: 10,
+      windowMs: 10 * 60 * 1000,
+    });
+
+    if (!limiter.allowed) {
+      return NextResponse.json(
+        { error: 'Too many setup attempts. Please try again later.' },
+        { status: 429, headers: { 'Retry-After': String(limiter.retryAfterSeconds ?? 60) } }
+      );
+    }
+
     const user = await prisma.user.findUnique({
       where: { id: authResult.user.userId },
       select: {

@@ -1,8 +1,7 @@
 ﻿import { NextRequest, NextResponse } from 'next/server';
-import { promises as fs } from 'fs';
-import path from 'path';
 import { authMiddleware } from '@/hooks/lib/middleware';
 import { prisma } from '@/hooks/lib/prisma';
+import { uploadDispatchDocument } from '@/hooks/lib/dispatch-document-storage';
 
 interface RouteContext {
 	params: Promise<{ batchId: string }>;
@@ -42,19 +41,19 @@ export async function POST(request: NextRequest, context: RouteContext) {
 			);
 		}
 
-		// Ensure the output directory exists
-		const outputDir = path.join(process.cwd(), 'public', 'dispatch-docs');
-		await fs.mkdir(outputDir, { recursive: true });
-
 		// Generate a unique filename for the signed document
 		const timestamp = Date.now();
 		const sanitizedFileName = fileName.replace(/[^a-zA-Z0-9._-]/g, '_');
 		const signedFileName = `batch-${batchId}-signed-${timestamp}-${sanitizedFileName}`;
-		const signedFilePath = path.join(outputDir, signedFileName);
 
-		// Decode base64 and write the file
+		// Decode base64 and upload the signed document
 		const fileBuffer = Buffer.from(base64Content, 'base64');
-		await fs.writeFile(signedFilePath, fileBuffer);
+		const uploaded = await uploadDispatchDocument({
+			batchId,
+			fileName: signedFileName,
+			buffer: fileBuffer,
+			mimeType: mimeType || 'application/pdf',
+		});
 
 		console.log(`[Dispatch] Signed document uploaded: ${signedFileName}`);
 
@@ -64,7 +63,7 @@ export async function POST(request: NextRequest, context: RouteContext) {
 				batchId: batch.id,
 				kind: 'SIGNED',
 				fileName: signedFileName,
-				filePath: `/dispatch-docs/${signedFileName}`,
+				filePath: uploaded.filePath,
 				mimeType: mimeType || 'application/pdf',
 				uploadedById: authResult.user.userId,
 			},
@@ -82,7 +81,7 @@ export async function POST(request: NextRequest, context: RouteContext) {
 			success: true,
 			message: 'Signed document uploaded successfully',
 			fileName: signedFileName,
-			filePath: `/dispatch-docs/${signedFileName}`,
+			filePath: uploaded.filePath,
 		});
 	} catch (error) {
 		console.error('Upload signed document error:', error);

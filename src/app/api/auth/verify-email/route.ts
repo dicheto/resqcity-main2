@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/hooks/lib/prisma';
-import { generateToken } from '@/hooks/lib/auth';
+import { generateToken, setAuthCookie } from '@/hooks/lib/auth';
 
 export async function GET(request: NextRequest) {
   try {
@@ -57,11 +57,14 @@ export async function GET(request: NextRequest) {
       role: updated.role,
     });
 
-    return NextResponse.json({
+    const response = NextResponse.json({
       message: 'Имейлът е потвърден успешно!',
       user: updated,
       token: jwtToken,
     });
+
+    setAuthCookie(response, jwtToken);
+    return response;
   } catch (error) {
     console.error('Email verification error:', error);
     return NextResponse.json({ error: 'Вътрешна грешка на сървъра' }, { status: 500 });

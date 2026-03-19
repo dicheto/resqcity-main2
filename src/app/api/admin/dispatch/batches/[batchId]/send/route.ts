@@ -1,9 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { promises as fs } from 'fs';
-import path from 'path';
 import { authMiddleware } from '@/hooks/lib/middleware';
 import { prisma } from '@/hooks/lib/prisma';
 import { sendEmail } from '@/hooks/lib/email';
+import { readDispatchDocument } from '@/hooks/lib/dispatch-document-storage';
 
 interface RouteContext {
   params: Promise<{ batchId: string }>;
@@ -65,12 +64,11 @@ export async function POST(request: NextRequest, context: RouteContext) {
       );
     }
 
-    // Read the signed PDF file
-    const pdfPath = path.join(process.cwd(), 'public', signedDoc.filePath);
+    // Read the signed PDF from storage (or legacy local path)
     let pdfBuffer: Buffer;
     
     try {
-      pdfBuffer = await fs.readFile(pdfPath);
+      pdfBuffer = await readDispatchDocument(signedDoc.filePath);
     } catch (error) {
       console.error('Failed to read signed PDF:', error);
       return NextResponse.json(

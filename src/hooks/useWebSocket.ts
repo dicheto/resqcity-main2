@@ -8,8 +8,31 @@ export function useWebSocket() {
   const [isConnected, setIsConnected] = useState(false);
 
   useEffect(() => {
-    const url = process.env.NEXT_PUBLIC_WEBSOCKET_URL || 'http://localhost:3000';
-    socketRef.current = io(url);
+    const configuredUrl = process.env.NEXT_PUBLIC_WEBSOCKET_URL;
+    const realtimeMode = process.env.NEXT_PUBLIC_REALTIME_MODE || 'auto';
+    const isProd = process.env.NODE_ENV === 'production';
+
+    let url = configuredUrl || 'http://localhost:3000';
+
+    if (isProd && (!configuredUrl || configuredUrl.includes('localhost'))) {
+      url = window.location.origin;
+    }
+
+    const shouldForcePolling =
+      realtimeMode === 'polling' ||
+      (isProd && (!configuredUrl || configuredUrl.includes('localhost')));
+
+    const token = typeof window !== 'undefined' ? localStorage.getItem('authToken') : null;
+
+    socketRef.current = io(url, {
+      auth: token ? { token } : undefined,
+      transports: shouldForcePolling ? ['polling'] : ['websocket', 'polling'],
+      timeout: 10000,
+      reconnection: true,
+      reconnectionAttempts: 10,
+      reconnectionDelay: 1000,
+      reconnectionDelayMax: 5000,
+    });
 
     socketRef.current.on('connect', () => {
       setIsConnected(true);
@@ -19,6 +42,10 @@ export function useWebSocket() {
     socketRef.current.on('disconnect', () => {
       setIsConnected(false);
       console.log('WebSocket disconnected');
+    });
+
+    socketRef.current.on('auth-error', (payload: { message?: string }) => {
+      console.warn('WebSocket auth error:', payload?.message || 'unknown');
     });
 
     return () => {

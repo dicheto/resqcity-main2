@@ -5,6 +5,7 @@ import { getValidAuthChallenge, consumeAuthChallenge } from '@/hooks/lib/auth-ch
 import { prisma } from '@/hooks/lib/prisma';
 import { decryptText } from '@/hooks/lib/crypto';
 import { verifyTotpCode } from '@/hooks/lib/totp';
+import { checkRateLimit, getClientIp } from '@/hooks/lib/rate-limit';
 
 export async function POST(request: NextRequest) {
   const authResult = await authMiddleware(request);
@@ -14,6 +15,20 @@ export async function POST(request: NextRequest) {
   }
 
   try {
+    const ip = getClientIp(request);
+    const limiter = checkRateLimit({
+      key: `auth:totp-verify-enroll:${authResult.user.userId}:${ip}`,
+      limit: 12,
+      windowMs: 10 * 60 * 1000,
+    });
+
+    if (!limiter.allowed) {
+      return NextResponse.json(
+        { error: 'Too many verification attempts. Please try again later.' },
+        { status: 429, headers: { 'Retry-After': String(limiter.retryAfterSeconds ?? 60) } }
+      );
+    }
+
     const body = await request.json();
     const { challengeId, code } = body;
 
