@@ -3,18 +3,43 @@ import crypto from 'crypto';
 type BissHashAlgorithm = 'SHA256' | 'SHA512';
 type BissSignContentMode = 'decoded' | 'base64';
 
+function normalizePemIfNeeded(raw: string): string {
+  const value = raw.trim();
+  const beginMatch = value.match(/-----BEGIN [^-]+-----/);
+  const endMatch = value.match(/-----END [^-]+-----/);
+
+  if (!beginMatch || !endMatch) {
+    return value;
+  }
+
+  let pem = value.replace(/\\n/g, '\n');
+  if (pem.includes('\n')) {
+    return pem;
+  }
+
+  const begin = beginMatch[0];
+  const end = endMatch[0];
+  const body = pem
+    .replace(begin, '')
+    .replace(end, '')
+    .replace(/\s+/g, '');
+
+  const chunks = body.match(/.{1,64}/g)?.join('\n') || '';
+  return `${begin}\n${chunks}\n${end}`;
+}
+
 function getBissSigningPrivateKeyPem(): string {
   const raw = process.env.BISS_REQUEST_SIGNING_PRIVATE_KEY_PEM;
   if (!raw) return '';
 
-  return raw.includes('-----BEGIN') ? raw.replace(/\\n/g, '\n') : Buffer.from(raw, 'base64').toString('utf8');
+  return raw.includes('-----BEGIN') ? normalizePemIfNeeded(raw) : Buffer.from(raw, 'base64').toString('utf8');
 }
 
 function getBissSigningCertB64(): string {
   const cert = process.env.BISS_REQUEST_SIGNING_CERT_B64;
   if (!cert) return '';
 
-  return cert.trim();
+  return cert.replace(/\s+/g, '');
 }
 
 function getNodeSignAlgorithm(hashAlgorithm: BissHashAlgorithm): 'RSA-SHA256' | 'RSA-SHA512' {
