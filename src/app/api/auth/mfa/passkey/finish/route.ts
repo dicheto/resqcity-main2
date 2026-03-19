@@ -23,9 +23,9 @@ export async function POST(request: NextRequest) {
     }
 
     const body = await request.json();
-    const { challengeId, response } = body;
+    const { challengeId, response: passkeyResponse } = body;
 
-    if (!challengeId || !response) {
+    if (!challengeId || !passkeyResponse) {
       return NextResponse.json({ error: 'challengeId and response are required' }, { status: 400 });
     }
 
@@ -35,7 +35,7 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Invalid or expired challenge' }, { status: 400 });
     }
 
-    const credentialId = response.id;
+    const credentialId = passkeyResponse.id;
 
     if (!credentialId) {
       return NextResponse.json({ error: 'Invalid passkey response' }, { status: 400 });
@@ -50,7 +50,7 @@ export async function POST(request: NextRequest) {
     }
 
     const verification = await verifyPasskeyAuthentication({
-      response,
+      response: passkeyResponse,
       expectedChallenge: challenge.challenge,
       verifier: {
         credentialId: credential.credentialId,

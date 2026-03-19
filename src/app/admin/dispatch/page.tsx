@@ -1,6 +1,6 @@
 'use client';
 
-import { ChangeEvent, useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import axios from 'axios';
 
 interface DispatchDocument {
@@ -25,6 +25,47 @@ interface DispatchBatch {
   documents: DispatchDocument[];
 }
 
+interface BissVersionResponse {
+  version: string;
+  httpMethods: string[];
+  contentTypes: string[];
+  signatureTypes: string[];
+  selectorAvailable: boolean;
+  hashAlgorithms: string[];
+}
+
+interface BissGetSignerResponse {
+  status: 'ok' | 'failed';
+  reasonCode: string;
+  reasonText: string;
+  chain?: string[];
+}
+
+interface BissSignResponse {
+  status: 'ok' | 'failed';
+  reasonCode: string;
+  reasonText: string;
+  signatures?: string[];
+  signatureType?: string;
+}
+
+interface BissPrepareResponse {
+  batchId: string;
+  mode: 'strict' | 'universal';
+  signRequest: {
+    version: string;
+    contents: string[];
+    signedContents?: string[];
+    signedContentsCert?: string[];
+    contentType: 'data';
+    hashAlgorithm: 'SHA256' | 'SHA512';
+    signatureType: 'signature';
+    confirmText?: string[];
+    _strictMode?: boolean;
+  };
+  portCandidates: number[];
+}
+
 export default function DispatchPage() {
   const [loading, setLoading] = useState(true);
   const [working, setWorking] = useState(false);
@@ -37,6 +78,67 @@ export default function DispatchPage() {
   const getTokenHeader = () => ({
     Authorization: `Bearer ${localStorage.getItem('token')}`,
   });
+
+  const discoverBissBaseUrl = async (candidates: number[]): Promise<string> => {
+    for (const port of candidates) {
+      const baseUrl = `https://localhost:${port}`;
+      try {
+        const response = await fetch(`${baseUrl}/version`, {
+          method: 'GET',
+          headers: {
+            Accept: 'application/json',
+          },
+        });
+
+        if (!response.ok) {
+          continue;
+        }
+
+        const payload = (await response.json()) as BissVersionResponse;
+        if (payload?.version) {
+          return baseUrl;
+        }
+      } catch {
+        // Try next port.
+      }
+    }
+
+    throw new Error('BISS не е открит. Уверете се, че локалната BISS услуга е стартирана.');
+  };
+
+  const callBissGetSigner = async (bissBaseUrl: string): Promise<BissGetSignerResponse> => {
+    const response = await fetch(`${bissBaseUrl}/getsigner`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        showValidCerts: true,
+      }),
+    });
+
+    if (!response.ok) {
+      throw new Error(`BISS /getsigner върна HTTP ${response.status}`);
+    }
+
+    return response.json();
+  };
+
+  const callBissSign = async (bissBaseUrl: string, payload: unknown): Promise<BissSignResponse> => {
+    const response = await fetch(`${bissBaseUrl}/sign`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(payload),
+    });
+
+    if (!response.ok) {
+      throw new Error(`BISS /sign върна HTTP ${response.status}`);
+    }
+
+    return response.json();
+  };
 
   const refreshData = async () => {
     setLoading(true);
@@ -88,57 +190,66 @@ export default function DispatchPage() {
     }
   };
 
-  const uploadSignedCopy = async (batchId: string, event: ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0];
-    if (!file) {
-      return;
-    }
-
-    const asBase64 = await new Promise<string>((resolve, reject) => {
-      const reader = new FileReader();
-      reader.onload = () => {
-        const value = String(reader.result || '');
-        const splitValue = value.split(',');
-        resolve(splitValue.length > 1 ? splitValue[1] : splitValue[0]);
-      };
-      reader.onerror = reject;
-      reader.readAsDataURL(file);
-    });
-
+  const signAndSendWithBiss = async (batchId: string) => {
     setWorking(true);
     try {
-      await axios.post(
-        `/api/admin/dispatch/batches/${batchId}/upload-signed`,
+      const prepareResponse = await axios.post<BissPrepareResponse>(
+        `/api/admin/dispatch/batches/${batchId}/biss/prepare`,
         {
-          fileName: file.name,
-          base64Content: asBase64,
-          mimeType: file.type || 'application/octet-stream',
+          hashAlgorithm: 'SHA256',
         },
         {
           headers: getTokenHeader(),
         }
       );
-      await refreshData();
-    } catch (error) {
-      console.error('Failed to upload signed copy:', error);
-    } finally {
-      setWorking(false);
-    }
-  };
 
-  const sendBatchEmail = async (batchId: string) => {
-    setWorking(true);
-    try {
+      const prepare = prepareResponse.data;
+      if (prepare.mode === 'universal') {
+        console.warn('BISS universal mode active: signedContents/signedContentsCert are not sent.');
+      }
+      const bissBaseUrl = await discoverBissBaseUrl(prepare.portCandidates || [53952, 53953, 53954, 53955]);
+
+      const signerResponse = await callBissGetSigner(bissBaseUrl);
+      if (signerResponse.status !== 'ok' || !signerResponse.chain?.[0]) {
+        throw new Error(`BISS /getsigner неуспех: ${signerResponse.reasonCode} ${signerResponse.reasonText}`);
+      }
+
+      const signerCertificateB64 = signerResponse.chain[0];
+
+      const signResponse = await callBissSign(bissBaseUrl, {
+        ...prepare.signRequest,
+        signerCertificateB64,
+      });
+
+      if (signResponse.status !== 'ok') {
+        throw new Error(`BISS /sign неуспех: ${signResponse.reasonCode} ${signResponse.reasonText}`);
+      }
+
       await axios.post(
-        `/api/admin/dispatch/batches/${batchId}/send`,
-        {},
+        `/api/admin/dispatch/batches/${batchId}/biss/sign-send`,
+        {
+          status: signResponse.status,
+          reasonCode: signResponse.reasonCode,
+          reasonText: signResponse.reasonText,
+          signatures: signResponse.signatures || [],
+          signatureType: signResponse.signatureType || 'signature',
+          signerCertificateB64,
+        },
         {
           headers: getTokenHeader(),
         }
       );
+
       await refreshData();
     } catch (error) {
-      console.error('Failed to send batch email:', error);
+      console.error('Failed to sign and send with BISS:', error);
+      const message =
+        axios.isAxiosError(error)
+          ? String(error.response?.data?.error || error.response?.data?.details || error.message)
+          : error instanceof Error
+            ? error.message
+            : 'Неуспешно подписване/изпращане през BISS';
+      window.alert(message);
     } finally {
       setWorking(false);
     }
@@ -204,15 +315,6 @@ export default function DispatchPage() {
                       </a>
                     )}
 
-                    <label className="block rounded-xl border border-current bg-transparent admin-muted hover:admin-text px-3 py-2 text-sm cursor-pointer transition-colors">
-                      Качи подписан файл
-                      <input
-                        type="file"
-                        className="hidden"
-                        onChange={(event) => uploadSignedCopy(batch.id, event)}
-                      />
-                    </label>
-
                     {signed && (
                       <a
                         href={signed.filePath}
@@ -226,11 +328,11 @@ export default function DispatchPage() {
 
                     <button
                       type="button"
-                      onClick={() => sendBatchEmail(batch.id)}
-                      disabled={!signed || !batch.institution.email || working}
+                      onClick={() => signAndSendWithBiss(batch.id)}
+                      disabled={!draft || !batch.institution.email || working || batch.status === 'SENT'}
                       className="w-full rounded-xl bg-gradient-to-br from-violet-500 to-violet-600 text-white px-3 py-2 text-sm hover:shadow-lg transition-all disabled:opacity-50"
                     >
-                      Изпрати към институцията
+                      Подпиши с BISS и изпрати
                     </button>
                   </div>
                 </div>

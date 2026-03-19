@@ -1,14 +1,18 @@
-# Inbound Email + DocuSign Setup
+# Inbound Email + BISS Setup
 
 ## 1) Environment variables
 
 Set the following in your deployment:
 
 - `INBOUND_EMAIL_AUTH_TOKEN`
-- `DOCUSIGN_BASE_URL`
-- `DOCUSIGN_ACCOUNT_ID`
-- `DOCUSIGN_ACCESS_TOKEN`
-- Optional: `DOCUSIGN_CONNECT_HMAC_SECRET`
+- `BISS_PROTOCOL_VERSION` (default `1.0`)
+- Optional (strict mode): `BISS_REQUEST_SIGNING_PRIVATE_KEY_PEM`
+- Optional (strict mode): `BISS_REQUEST_SIGNING_CERT_B64`
+
+Modes:
+
+- `universal` (default): no extra key/cert setup; browser signs via local BISS.
+- `strict` (optional): backend adds `signedContents` and `signedContentsCert` in BISS request.
 
 ## 2) Inbound email API
 
@@ -97,34 +101,31 @@ Environment variables required for PHP runtime:
 - `INBOUND_EMAIL_AUTH_TOKEN`
 - Optional: `INBOUND_EMAIL_MAX_NOTE_CHARS` (default `1200`)
 
-## 4) DocuSign dispatch signing
+## 4) BISS dispatch signing
 
-Send a dispatch batch for DocuSign signing:
+Dispatch signing with BISS is local (browser -> https://localhost:53952..53955):
 
-- `POST /api/admin/dispatch/batches/:batchId/docusign/send`
+- `GET /version`
+- `POST /getsigner`
+- `POST /sign`
 
-Optional request body:
+ResQCity backend endpoints:
 
-```json
-{
-  "signerName": "Ivan Ivanov",
-  "signerEmail": "ivan.ivanov@example.bg"
-}
-```
+- `POST /api/admin/dispatch/batches/:batchId/biss/prepare`
+- `POST /api/admin/dispatch/batches/:batchId/biss/sign-send`
 
-Webhook endpoint:
+Flow:
 
-- `POST /api/docusign/webhook`
-
-On completed envelope:
-
-- Downloads combined signed PDF from DocuSign
-- Stores document in Supabase Storage bucket `dispatch-docs`
-- Creates `DispatchDocument` with `kind=SIGNED`
-- Moves batch status to `SIGNED`
+- Browser discovers local BISS by scanning ports `53952`, `53953`, `53954`, `53955`
+- Browser requests signer certificate via `/getsigner`
+- Backend returns BISS sign payload. In strict mode it includes `signedContents` and `signedContentsCert`.
+- Browser calls BISS `/sign` with selected `signerCertificateB64`
+- Backend stores detached signature (`.p7s`) and sends email to institution
+- Email contains draft PDF + detached signature (+ signer cert when available)
+- Batch status moves to `SENT`
 
 ## 5) Notes
 
-- Current DocuSign auth expects a ready bearer token (`DOCUSIGN_ACCESS_TOKEN`).
-- For long-term production, migrate to OAuth JWT service integration and token refresh.
-- KEP verification remains separate and can be layered after DocuSign completion.
+- BISS requires HTTPS origin for HTML application and CORS checks.
+- `signedContents` is created server-side with SHA256WithRSA (or SHA512WithRSA).
+- `signedContentsCert` must be trusted certificate chain (no self-signed cert for this field).
