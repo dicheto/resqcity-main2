@@ -128,6 +128,10 @@ export async function uploadDispatchDocument(params: {
     throw new Error(`Failed to upload dispatch document: ${error.message}`);
   }
 
+  if (!data) {
+    throw new Error('Failed to upload dispatch document: No data returned');
+  }
+
   const { data: publicData } = supabase.storage.from(DISPATCH_DOCS_BUCKET).getPublicUrl(data.path);
 
   return {
