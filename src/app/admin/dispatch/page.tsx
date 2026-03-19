@@ -149,11 +149,23 @@ export default function DispatchPage() {
       body: JSON.stringify(payload),
     });
 
+    const rawText = await response.text();
+    let parsed: Partial<BissSignResponse> | null = null;
+    try {
+      parsed = rawText ? (JSON.parse(rawText) as Partial<BissSignResponse>) : null;
+    } catch {
+      parsed = null;
+    }
+
+    if (parsed?.status === 'ok' || parsed?.status === 'failed') {
+      return parsed as BissSignResponse;
+    }
+
     if (!response.ok) {
       throw new Error(`BISS /sign върна HTTP ${response.status}`);
     }
 
-    return response.json();
+    throw new Error('BISS /sign върна невалиден JSON отговор');
   };
 
   const buildBissRequestPayload = (
@@ -310,6 +322,27 @@ export default function DispatchPage() {
         signResponse = await callBissSign(
           bissBaseUrl,
           buildBissRequestPayload(fallbackPrepareResponse.data.signRequest, signerCertificateB64)
+        );
+      }
+
+      const stillInvalidRequestSignature =
+        signResponse.status !== 'ok' && /невалиден|invalid/i.test(String(signResponse.reasonText || ''));
+
+      if (stillInvalidRequestSignature) {
+        const universalPrepareResponse = await axios.post<BissPrepareResponse>(
+          `/api/admin/dispatch/batches/${batchId}/biss/prepare`,
+          {
+            hashAlgorithm: 'SHA256',
+            forceUniversalMode: true,
+          },
+          {
+            headers: getTokenHeader(),
+          }
+        );
+
+        signResponse = await callBissSign(
+          bissBaseUrl,
+          buildBissRequestPayload(universalPrepareResponse.data.signRequest, signerCertificateB64)
         );
       }
 

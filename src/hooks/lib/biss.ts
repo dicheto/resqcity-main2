@@ -44,6 +44,7 @@ export function buildBissSignPayload(params: {
   signatureType?: 'signature';
   confirmText?: string[];
   signContentMode?: BissSignContentMode;
+  forceUniversalMode?: boolean;
 }) {
   const hashAlgorithm: BissHashAlgorithm = params.hashAlgorithm || 'SHA256';
   const version = params.version || process.env.BISS_PROTOCOL_VERSION || '1.0';
@@ -55,7 +56,9 @@ export function buildBissSignPayload(params: {
 
   const signingPrivateKey = getBissSigningPrivateKeyPem();
   const signingCertB64 = getBissSigningCertB64();
-  const strictMode = Boolean(signingPrivateKey && signingCertB64);
+  const forceUniversalMode =
+    params.forceUniversalMode === true || String(process.env.BISS_FORCE_UNIVERSAL_MODE || '') === 'true';
+  const strictMode = !forceUniversalMode && Boolean(signingPrivateKey && signingCertB64);
   const signContentMode = resolveSignContentMode(params.signContentMode);
 
   const signedContents = strictMode
