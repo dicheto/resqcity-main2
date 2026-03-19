@@ -63,6 +63,7 @@ interface BissPrepareResponse {
     signatureType: 'signature';
     confirmText?: string[];
     _strictMode?: boolean;
+    _signContentMode?: 'decoded' | 'base64';
   };
   portCandidates: number[];
 }
@@ -152,6 +153,17 @@ export default function DispatchPage() {
     }
 
     return response.json();
+  };
+
+  const buildBissRequestPayload = (
+    signRequest: BissPrepareResponse['signRequest'],
+    signerCertificateB64: string
+  ): Record<string, unknown> => {
+    const { _strictMode, _signContentMode, ...bissPayload } = signRequest;
+    return {
+      ...bissPayload,
+      signerCertificateB64,
+    };
   };
 
   const refreshData = async () => {
@@ -274,10 +286,31 @@ export default function DispatchPage() {
 
       const signerCertificateB64 = signerResponse.chain[0];
 
-      const signResponse = await callBissSign(bissBaseUrl, {
-        ...prepare.signRequest,
-        signerCertificateB64,
-      });
+      let signResponse = await callBissSign(
+        bissBaseUrl,
+        buildBissRequestPayload(prepare.signRequest, signerCertificateB64)
+      );
+
+      const invalidRequestSignature =
+        signResponse.status !== 'ok' && /невалиден|invalid/i.test(String(signResponse.reasonText || ''));
+
+      if (invalidRequestSignature) {
+        const fallbackPrepareResponse = await axios.post<BissPrepareResponse>(
+          `/api/admin/dispatch/batches/${batchId}/biss/prepare`,
+          {
+            hashAlgorithm: 'SHA256',
+            signContentMode: 'base64',
+          },
+          {
+            headers: getTokenHeader(),
+          }
+        );
+
+        signResponse = await callBissSign(
+          bissBaseUrl,
+          buildBissRequestPayload(fallbackPrepareResponse.data.signRequest, signerCertificateB64)
+        );
+      }
 
       if (signResponse.status !== 'ok') {
         const reasonText = String(signResponse.reasonText || '');

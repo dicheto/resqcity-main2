@@ -18,6 +18,7 @@ export async function POST(request: NextRequest, context: RouteContext) {
     const { batchId } = await context.params;
     const body = await request.json().catch(() => ({}));
     const requestedHashAlgorithm = String(body?.hashAlgorithm || 'SHA256').toUpperCase();
+    const requestedSignContentMode = String(body?.signContentMode || '').toLowerCase();
 
     if (requestedHashAlgorithm !== 'SHA256' && requestedHashAlgorithm !== 'SHA512') {
       return NextResponse.json({ error: 'Unsupported hashAlgorithm. Use SHA256 or SHA512.' }, { status: 400 });
@@ -46,6 +47,7 @@ export async function POST(request: NextRequest, context: RouteContext) {
       contentsB64: [draftBase64],
       hashAlgorithm: requestedHashAlgorithm,
       confirmText: [`Подписвате пакет ${batchId}`],
+      signContentMode: requestedSignContentMode === 'base64' ? 'base64' : 'decoded',
     });
 
     return NextResponse.json({

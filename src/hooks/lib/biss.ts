@@ -1,6 +1,7 @@
 import crypto from 'crypto';
 
 type BissHashAlgorithm = 'SHA256' | 'SHA512';
+type BissSignContentMode = 'decoded' | 'base64';
 
 function getBissSigningPrivateKeyPem(): string {
   const raw = process.env.BISS_REQUEST_SIGNING_PRIVATE_KEY_PEM;
@@ -31,12 +32,18 @@ function signContentWithServerKey(content: Buffer, hashAlgorithm: BissHashAlgori
   return signer.sign(privateKey).toString('base64');
 }
 
+function resolveSignContentMode(mode?: string): BissSignContentMode {
+  const candidate = (mode || process.env.BISS_SIGN_CONTENT_MODE || 'decoded').toLowerCase();
+  return candidate === 'base64' ? 'base64' : 'decoded';
+}
+
 export function buildBissSignPayload(params: {
   contentsB64: string[];
   hashAlgorithm?: BissHashAlgorithm;
   version?: string;
   signatureType?: 'signature';
   confirmText?: string[];
+  signContentMode?: BissSignContentMode;
 }) {
   const hashAlgorithm: BissHashAlgorithm = params.hashAlgorithm || 'SHA256';
   const version = params.version || process.env.BISS_PROTOCOL_VERSION || '1.0';
@@ -49,10 +56,12 @@ export function buildBissSignPayload(params: {
   const signingPrivateKey = getBissSigningPrivateKeyPem();
   const signingCertB64 = getBissSigningCertB64();
   const strictMode = Boolean(signingPrivateKey && signingCertB64);
+  const signContentMode = resolveSignContentMode(params.signContentMode);
 
   const signedContents = strictMode
     ? params.contentsB64.map((contentB64) => {
-        const contentBuffer = Buffer.from(contentB64, 'base64');
+        const contentBuffer =
+          signContentMode === 'base64' ? Buffer.from(contentB64, 'utf8') : Buffer.from(contentB64, 'base64');
         return signContentWithServerKey(contentBuffer, hashAlgorithm);
       })
     : undefined;
@@ -71,5 +80,6 @@ export function buildBissSignPayload(params: {
     signatureType,
     confirmText: params.confirmText,
     _strictMode: strictMode,
+    _signContentMode: signContentMode,
   };
 }
