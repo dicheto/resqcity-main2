@@ -157,12 +157,24 @@ export default function DispatchPage() {
       parsed = null;
     }
 
+    // If we have a valid status, return it (even on non-2xx HTTP status)
     if (parsed?.status === 'ok' || parsed?.status === 'failed') {
       return parsed as BissSignResponse;
     }
 
+    // If HTTP status is not ok but we have parsed JSON with reasonCode/reasonText,
+    // construct a failed response from the error details
+    if (!response.ok && parsed && (parsed.reasonCode || parsed.reasonText)) {
+      return {
+        status: 'failed',
+        reasonCode: String(parsed.reasonCode || '500'),
+        reasonText: String(parsed.reasonText || `HTTP ${response.status}`),
+      } as BissSignResponse;
+    }
+
+    // Unable to parse meaningful response
     if (!response.ok) {
-      throw new Error(`BISS /sign върна HTTP ${response.status}`);
+      throw new Error(`BISS /sign върна HTTP ${response.status}: ${rawText.substring(0, 200)}`);
     }
 
     throw new Error('BISS /sign върна невалиден JSON отговор');
@@ -173,13 +185,17 @@ export default function DispatchPage() {
     signerCertificateB64: string,
     forceUniversal = false
   ): Record<string, unknown> => {
-    const { _strictMode, _signContentMode, ...bissPayload } = signRequest;
-    const payload = forceUniversal
-      ? (() => {
-          const { signedContents, signedContentsCert, ...rest } = bissPayload;
-          return rest;
-        })()
-      : bissPayload;
+    // ALWAYS strip internal fields and strict-mode fields by default
+    const { _strictMode, _signContentMode, signedContents, signedContentsCert, ...basePayload } = signRequest;
+
+    // Only include strict-mode fields if explicitly NOT using forceUniversal and they exist
+    const payload = forceUniversal === false && signedContents && signedContentsCert
+      ? {
+          ...basePayload,
+          signedContents,
+          signedContentsCert,
+        }
+      : basePayload;
 
     return {
       ...payload,
@@ -307,12 +323,15 @@ export default function DispatchPage() {
 
       const signerCertificateB64 = signerResponse.chain[0];
 
+      console.log('[BISS] Starting sign attempt with mode:', prepare.mode);
       let signResponse = await callBissSign(
         bissBaseUrl,
         buildBissRequestPayload(prepare.signRequest, signerCertificateB64)
       );
 
       const reasonTextInitial = String(signResponse.reasonText || '');
+      console.log('[BISS] Sign response:', { status: signResponse.status, reasonCode: signResponse.reasonCode, reasonText: reasonTextInitial });
+      
       const invalidRequestSignature =
         signResponse.status !== 'ok' && /невалиден|invalid/i.test(reasonTextInitial);
       const missingServerCertificate =
@@ -321,6 +340,7 @@ export default function DispatchPage() {
 
       if (missingServerCertificate) {
         // Hard fallback: retry without strict-only request signature fields.
+        console.warn('[BISS] Detected missing server certificate. Retrying with forceUniversal=true');
         signResponse = await callBissSign(
           bissBaseUrl,
           buildBissRequestPayload(prepare.signRequest, signerCertificateB64, true)
@@ -328,6 +348,7 @@ export default function DispatchPage() {
       }
 
       if (invalidRequestSignature || missingServerCertificate) {
+        console.warn('[BISS] Retrying with signContentMode=base64');
         const fallbackPrepareResponse = await axios.post<BissPrepareResponse>(
           `/api/admin/dispatch/batches/${batchId}/biss/prepare`,
           {
@@ -343,6 +364,7 @@ export default function DispatchPage() {
           bissBaseUrl,
           buildBissRequestPayload(fallbackPrepareResponse.data.signRequest, signerCertificateB64)
         );
+        console.log('[BISS] Retry response:', { status: signResponse.status, reasonCode: signResponse.reasonCode });
       }
 
       const reasonTextAfterFallback = String(signResponse.reasonText || '');
@@ -353,6 +375,7 @@ export default function DispatchPage() {
         (/сертификат/i.test(reasonTextAfterFallback) && /не е намерен|not found/i.test(reasonTextAfterFallback));
 
       if (stillInvalidRequestSignature || stillMissingServerCertificate) {
+        console.warn('[BISS] Retrying with forceUniversalMode=true on backend');
         const universalPrepareResponse = await axios.post<BissPrepareResponse>(
           `/api/admin/dispatch/batches/${batchId}/biss/prepare`,
           {
@@ -368,15 +391,18 @@ export default function DispatchPage() {
           bissBaseUrl,
           buildBissRequestPayload(universalPrepareResponse.data.signRequest, signerCertificateB64)
         );
+        console.log('[BISS] Final retry response:', { status: signResponse.status, reasonCode: signResponse.reasonCode });
       }
 
       if (signResponse.status !== 'ok') {
         const reasonText = String(signResponse.reasonText || '');
         const missingServerCert = /сертификат|certificate/i.test(reasonText) && /не е намерен|not found/i.test(reasonText);
         const strictModeHint = missingServerCert
-          ? ' Липсва server certificate за BISS strict mode. Добави BISS_REQUEST_SIGNING_PRIVATE_KEY_PEM и BISS_REQUEST_SIGNING_CERT_B64 във Vercel Environment Variables и redeploy.'
+          ? ' Липсва server certificate за BISS strict mode. Добави BISS_REQUEST_SIGNING_PRIVATE_KEY_PEM и BISS_REQUEST_SIGNING_CERT_B64 във Vercel Environment Variables и redeploy. ОЩЕ ЛУЧШЕ: Не добавяй, оставя BISS_ENABLE_STRICT_MODE=false и ползвай режим на договор (универсален режим).'
           : '';
-        throw new Error(`BISS /sign неуспех: ${signResponse.reasonCode} ${signResponse.reasonText}${strictModeHint}`);
+        const errorMsg = `BISS /sign неуспех: ${signResponse.reasonCode} ${signResponse.reasonText}${strictModeHint}`;
+        console.error('[BISS] Final error:', errorMsg);
+        throw new Error(errorMsg);
       }
 
       await axios.post(

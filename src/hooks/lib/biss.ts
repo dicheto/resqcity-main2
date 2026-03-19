@@ -81,9 +81,15 @@ export function buildBissSignPayload(params: {
 
   const signingPrivateKey = getBissSigningPrivateKeyPem();
   const signingCertB64 = getBissSigningCertB64();
-  const strictModeEnabled = String(process.env.BISS_ENABLE_STRICT_MODE || 'false') === 'true';
+  
+  // Explicit strict mode check: must be explicitly enabled AND fully configured
+  const strictModeEnvValue = String(process.env.BISS_ENABLE_STRICT_MODE || '').toLowerCase();
+  const strictModeEnabled = strictModeEnvValue === 'true' || strictModeEnvValue === '1' || strictModeEnvValue === 'yes';
+  
   const forceUniversalMode =
-    params.forceUniversalMode === true || String(process.env.BISS_FORCE_UNIVERSAL_MODE || '') === 'true';
+    params.forceUniversalMode === true || String(process.env.BISS_FORCE_UNIVERSAL_MODE || '').toLowerCase() === 'true';
+  
+  // Strict mode requires: explicit enable + valid key + valid cert + not forced universal
   const strictMode = strictModeEnabled && !forceUniversalMode && Boolean(signingPrivateKey && signingCertB64);
   const signContentMode = resolveSignContentMode(params.signContentMode);
 
@@ -95,20 +101,40 @@ export function buildBissSignPayload(params: {
       })
     : undefined;
 
-  return {
+  // Universal mode by default: no strict-mode fields
+  // Strict mode: includes signedContents and signedContentsCert
+  const payload = {
     version,
     contents: params.contentsB64,
+    contentType: 'data' as const,
+    hashAlgorithm,
+    signatureType,
+    confirmText: params.confirmText,
+  };
+
+  // Internal metadata (for client-side logic, stripped before sending to BISS)
+  const result = {
+    ...payload,
     ...(strictMode
       ? {
           signedContents,
           signedContentsCert: [signingCertB64],
         }
       : {}),
-    contentType: 'data',
-    hashAlgorithm,
-    signatureType,
-    confirmText: params.confirmText,
     _strictMode: strictMode,
     _signContentMode: signContentMode,
   };
+
+  // Debug: log the mode for troubleshooting
+  if (typeof console !== 'undefined' && process.env.NODE_ENV === 'development') {
+    console.debug('[BISS]', {
+      mode: strictMode ? 'STRICT' : 'UNIVERSAL',
+      strictModeEnabled,
+      hasPrivateKey: Boolean(signingPrivateKey),
+      hasCert: Boolean(signingCertB64),
+      forceUniversalMode,
+    });
+  }
+
+  return result;
 }
