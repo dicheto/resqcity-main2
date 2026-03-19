@@ -120,8 +120,8 @@ export default function DispatchPage() {
       credentials: 'omit',
       headers: {
         Accept: '*/*',
+        'Content-Type': 'application/json',
       },
-      // Keep this a simple CORS request to avoid preflight issues on local BISS services.
       body: JSON.stringify({
         showValidCerts: true,
       }),
@@ -141,8 +141,8 @@ export default function DispatchPage() {
       credentials: 'omit',
       headers: {
         Accept: '*/*',
+        'Content-Type': 'application/json',
       },
-      // Keep this a simple CORS request to avoid preflight issues on local BISS services.
       body: JSON.stringify(payload),
     });
 
