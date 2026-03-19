@@ -170,11 +170,19 @@ export default function DispatchPage() {
 
   const buildBissRequestPayload = (
     signRequest: BissPrepareResponse['signRequest'],
-    signerCertificateB64: string
+    signerCertificateB64: string,
+    forceUniversal = false
   ): Record<string, unknown> => {
     const { _strictMode, _signContentMode, ...bissPayload } = signRequest;
+    const payload = forceUniversal
+      ? (() => {
+          const { signedContents, signedContentsCert, ...rest } = bissPayload;
+          return rest;
+        })()
+      : bissPayload;
+
     return {
-      ...bissPayload,
+      ...payload,
       signerCertificateB64,
     };
   };
@@ -310,6 +318,14 @@ export default function DispatchPage() {
       const missingServerCertificate =
         signResponse.status !== 'ok' &&
         (/сертификат/i.test(reasonTextInitial) && /не е намерен|not found/i.test(reasonTextInitial));
+
+      if (missingServerCertificate) {
+        // Hard fallback: retry without strict-only request signature fields.
+        signResponse = await callBissSign(
+          bissBaseUrl,
+          buildBissRequestPayload(prepare.signRequest, signerCertificateB64, true)
+        );
+      }
 
       if (invalidRequestSignature || missingServerCertificate) {
         const fallbackPrepareResponse = await axios.post<BissPrepareResponse>(
