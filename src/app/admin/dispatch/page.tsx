@@ -117,8 +117,8 @@ export default function DispatchPage() {
       credentials: 'omit',
       headers: {
         Accept: '*/*',
-        'Content-Type': 'application/json',
       },
+      // Keep this a simple CORS request to avoid preflight issues on local BISS services.
       body: JSON.stringify({
         showValidCerts: true,
       }),
@@ -138,8 +138,8 @@ export default function DispatchPage() {
       credentials: 'omit',
       headers: {
         Accept: '*/*',
-        'Content-Type': 'application/json',
       },
+      // Keep this a simple CORS request to avoid preflight issues on local BISS services.
       body: JSON.stringify(payload),
     });
 
@@ -265,6 +265,22 @@ export default function DispatchPage() {
       await refreshData();
     } catch (error) {
       console.error('Failed to sign and send with BISS:', error);
+      const isCorsOrNetworkFailure =
+        error instanceof TypeError ||
+        (error instanceof Error && /Failed to fetch|NetworkError|CORS/i.test(error.message));
+
+      if (isCorsOrNetworkFailure) {
+        window.alert(
+          [
+            'Неуспешна връзка с локалния BISS (възможен CORS/SSL проблем).',
+            '1) Отвори https://localhost:53952/version в браузъра и приеми сертификата, ако има предупреждение.',
+            '2) Увери се, че BISS услугата е стартирана на порт 53952.',
+            '3) Презареди страницата (Ctrl+F5) и опитай пак.',
+          ].join('\n')
+        );
+        return;
+      }
+
       const message =
         axios.isAxiosError(error)
           ? String(error.response?.data?.error || error.response?.data?.details || error.message)
