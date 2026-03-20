@@ -257,13 +257,9 @@ export async function POST(request: NextRequest) {
     // Send confirmation email to the institution sender
     if (senderEmail) {
       try {
-        const institution = await prisma.institution.findUnique({
-          where: { email: senderEmail },
-        });
-
         await sendInboundEmailProcessingConfirmation({
           to: senderEmail,
-          institutionName: institution?.name || 'Уважаема организация',
+          institutionName: 'Уважаема организация',
           reportId: report.id,
           reportTitle: report.title,
           oldStatus: report.status,
