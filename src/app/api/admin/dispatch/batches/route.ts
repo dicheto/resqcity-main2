@@ -50,6 +50,31 @@ export async function POST(request: NextRequest) {
 
     console.log('[Dispatch] Fetching routing targets with reportIds:', reportIds);
     
+    // First, get all unsent batches and their report IDs to avoid duplicates
+    const unsentBatches = await prisma.institutionDispatchBatch.findMany({
+      where: {
+        status: { in: ['DRAFT', 'PENDING_SIGNATURE', 'SIGNED'] }, // Not SENT yet
+      },
+      include: {
+        items: {
+          select: { reportId: true },
+        },
+      },
+    });
+
+    // Build a map of institution IDs to already-included report IDs
+    const reportsByInstitution = new Map<string, Set<string>>();
+    for (const batch of unsentBatches) {
+      const key = batch.institutionId;
+      const reportSet = reportsByInstitution.get(key) ?? new Set<string>();
+      for (const item of batch.items) {
+        reportSet.add(item.reportId);
+      }
+      reportsByInstitution.set(key, reportSet);
+    }
+
+    console.log('[Dispatch] Found unsent batches with already-included reports:', reportsByInstitution);
+    
     // Fetch routing targets with their IDs first
     const targets = await prisma.reportRoutingTarget.findMany({
       where: {
@@ -72,8 +97,30 @@ export async function POST(request: NextRequest) {
 
     console.log('[Dispatch] Found', targets.length, 'routing targets');
 
-    // Now fetch the related data we need
-    const targetIds = targets.map((t) => t.id);
+    // Filter out reports that are already in unsent batches for the same institution
+    const filteredTargets = targets.filter((target) => {
+      const alreadyIncluded = reportsByInstitution.get(target.institutionId || '');
+      if (!alreadyIncluded) {
+        return true; // No unsent batch for this institution yet
+      }
+      const isDuplicate = alreadyIncluded.has(target.reportId);
+      if (isDuplicate) {
+        console.log(`[Dispatch] Filtering out duplicate report ${target.reportId} for institution ${target.institutionId}`);
+      }
+      return !isDuplicate;
+    });
+
+    if (filteredTargets.length === 0) {
+      return NextResponse.json(
+        { error: 'All routed reports are already in unsent batches for their respective institutions' },
+        { status: 400 }
+      );
+    }
+
+    console.log('[Dispatch] Filtered to', filteredTargets.length, 'unique targets (removed', targets.length - filteredTargets.length, 'duplicates)');
+
+    // Now fetch the related data we need from filtered targets only
+    const targetIds = filteredTargets.map((t) => t.id);
     const targetsWithData = await prisma.reportRoutingTarget.findMany({
       where: { id: { in: targetIds } },
       include: {

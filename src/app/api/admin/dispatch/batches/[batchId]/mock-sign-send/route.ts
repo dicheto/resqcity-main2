@@ -191,11 +191,6 @@ export async function POST(request: NextRequest, context: RouteContext) {
           content: signedPdfBuffer,
           contentType: 'application/pdf',
         },
-        {
-          filename: metadataFileName,
-          content: signatureMetadataBuffer,
-          contentType: 'application/json',
-        },
       ],
     });
 

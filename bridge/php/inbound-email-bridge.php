@@ -1,9 +1,10 @@
+#!/usr/local/bin/php
 <?php
 declare(strict_types=1);
 
 // cPanel / mail pipe bridge script.
 // Usage (pipe in cPanel):
-// |/usr/local/bin/php /home/USER/public_html/resqcity/bridge/php/inbound-email-bridge.php
+// |/home/USER/public_html/resqcity/bridge/php/inbound-email-bridge.php
 //
 // Goal:
 // - parse raw email locally
