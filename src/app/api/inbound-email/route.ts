@@ -10,7 +10,10 @@ import {
   storeInboundAttachments,
   type InboundEmailPayload,
 } from '@/hooks/lib/inbound-email';
-import { sendSignalStatusChangedEmail } from '@/hooks/lib/email';
+import {
+  sendSignalStatusChangedEmail,
+  sendInboundEmailProcessingConfirmation,
+} from '@/hooks/lib/email';
 
 function safeEqual(secret: string, candidate: string): boolean {
   const left = Buffer.from(secret);
@@ -71,8 +74,17 @@ export async function POST(request: NextRequest) {
     );
   }
 
+  let payload: InboundEmailPayload;
   try {
-    const payload = (await request.json()) as InboundEmailPayload;
+    payload = (await request.json()) as InboundEmailPayload;
+  } catch (error) {
+    return NextResponse.json(
+      { error: 'Invalid JSON payload' },
+      { status: 400 }
+    );
+  }
+
+  try {
     const tokenFromHeader = request.headers.get('x-inbound-email-token') || '';
     const tokenFromBody = payload.authToken || '';
     const tokenToCheck = tokenFromHeader || tokenFromBody;
@@ -157,7 +169,7 @@ export async function POST(request: NextRequest) {
 
     const commentBody = buildInboundCommentBody(payload, storedAttachments);
 
-    const updatedReport = await prisma.$transaction(async (tx) => {
+    const updatedReport = await prisma.$transaction(async (tx: any) => {
       const senderUser = await tx.user.findUnique({
         where: { email: senderEmail },
         select: { id: true },
@@ -242,6 +254,29 @@ export async function POST(request: NextRequest) {
       });
     }
 
+    // Send confirmation email to the institution sender
+    if (senderEmail) {
+      try {
+        const institution = await prisma.institution.findUnique({
+          where: { email: senderEmail },
+        });
+
+        await sendInboundEmailProcessingConfirmation({
+          to: senderEmail,
+          institutionName: institution?.name || 'Уважаема организация',
+          reportId: report.id,
+          reportTitle: report.title,
+          oldStatus: report.status,
+          newStatus: shouldChangeStatus && inferredStatus ? inferredStatus : undefined,
+          updateNote: payload.updateNote,
+          success: true,
+        });
+      } catch (emailError) {
+        console.error('Failed to send institution confirmation email:', emailError);
+        // Don't throw - this is not critical
+      }
+    }
+
     return NextResponse.json({
       success: true,
       reportId: report.id,
@@ -254,6 +289,35 @@ export async function POST(request: NextRequest) {
     });
   } catch (error) {
     console.error('Inbound email processing error:', error);
+
+    // Try to extract sender email and reportId for error notification
+    let senderEmail = '';
+    let reportId = '';
+    try {
+      senderEmail = normalizeEmail(payload.from) || '';
+      reportId = payload.reportId || extractReportIdFromText(payload.subject, payload.text, payload.html) || '';
+    } catch {
+      // If we can't extract sender info, just continue without notification
+    }
+
+    // Send error notification to institution if we have their email
+    if (senderEmail) {
+      try {
+        await sendInboundEmailProcessingConfirmation({
+          to: senderEmail,
+          institutionName: 'Уважаема организация',
+          reportId: reportId || 'unknown',
+          reportTitle: 'Unknown Report',
+          oldStatus: 'unknown',
+          success: false,
+          errorMessage: error instanceof Error ? error.message : String(error),
+        });
+      } catch (emailError) {
+        console.error('Failed to send error notification to institution:', emailError);
+        // Don't throw - this is not critical
+      }
+    }
+
     return NextResponse.json(
       {
         error: 'Failed to process inbound email',

@@ -285,3 +285,76 @@ export async function sendReportCommentEmail(
     text: `${commenterName} отговори по "${reportTitle}": "${preview}". Преглед: ${reportLink}`,
   });
 }
+
+/**
+ * Send inbound email processing confirmation to institution
+ * Notifies them that their email update was successfully processed
+ */
+export async function sendInboundEmailProcessingConfirmation({
+  to,
+  institutionName,
+  reportId,
+  reportTitle,
+  oldStatus,
+  newStatus,
+  updateNote,
+  success = true,
+  errorMessage,
+}: {
+  to: string;
+  institutionName: string;
+  reportId: string;
+  reportTitle: string;
+  oldStatus: string;
+  newStatus?: string;
+  updateNote?: string;
+  success?: boolean;
+  errorMessage?: string;
+}): Promise<SendEmailResult> {
+  if (success && newStatus) {
+    // Success case
+    const content = `
+<h2>✅ Вашето съобщение е обработено успешно</h2>
+<p>Уважаема ${institutionName},</p>
+<p>Вашето съобщение относно сигнал <strong>#${reportId}</strong> е обработено успешно.</p>
+
+<div style="background:#f0fdf4;border-left:4px solid #10b981;padding:16px;margin:20px 0;border-radius:8px;">
+  <p style="margin:0 0 8px;"><strong>Сигнал:</strong> ${reportTitle}</p>
+  <p style="margin:0 0 8px;"><strong>Предишен статус:</strong> <span style="color:#6b7280;">${oldStatus}</span></p>
+  <p style="margin:0 0 8px;"><strong>Нов статус:</strong> <span style="color:#10b981;font-weight:bold;">${newStatus}</span></p>
+  ${updateNote ? `<p style="margin:0;"><strong>Ваша бележка:</strong> "${updateNote}"</p>` : ''}
+</div>
+
+<p>Статусът на сигнала е успешно променен в системата и гражданинът е бил уведомен за промяната.</p>
+<p>Благодарим ви за своевременния отговор!</p>
+    `.trim();
+
+    return sendEmail({
+      to,
+      subject: `✅ Съобщението по сигнал #${reportId} е обработено`,
+      html: emailLayout(content, '135deg,#10b981,#059669'),
+      text: `Вашето съобщение по сигнал "${reportTitle}" е успешно обработено и статусът е променен на "${newStatus}".`,
+    });
+  } else {
+    // Error case
+    const content = `
+<h2>❌ Грешка при обработка на съобщението</h2>
+<p>Уважаема ${institutionName},</p>
+<p>Възникна грешка при обработка на вашето съобщение относно сигнал <strong>#${reportId}</strong>.</p>
+
+<div style="background:#fef2f2;border-left:4px solid #ef4444;padding:16px;margin:20px 0;border-radius:8px;">
+  <p style="margin:0;"><strong>Грешка:</strong> ${errorMessage || 'Неизвестна грешка'}</p>
+</div>
+
+<p>Молим се, опитайте отново или се свържете с технична поддръжка ако проблемът продължава.</p>
+<p>Благодарим за разбирането!</p>
+    `.trim();
+
+    return sendEmail({
+      to,
+      subject: `❌ Грешка при обработка на съобщение по сигнал #${reportId}`,
+      html: emailLayout(content, '135deg,#ef4444,#dc2626'),
+      text: `Възникна грешка при обработка на вашето съобщение: ${errorMessage || 'Неизвестна грешка'}`,
+    });
+  }
+}
