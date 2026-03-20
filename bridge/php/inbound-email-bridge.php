@@ -10,8 +10,8 @@ declare(strict_types=1);
 // - parse raw email locally
 // - send only normalized signal update to Vercel (not full raw email)
 
-$inboundUrl = getenv('INBOUND_EMAIL_URL') ?: 'https://your-domain.com/api/inbound-email';
-$authToken = getenv('INBOUND_EMAIL_AUTH_TOKEN') ?: '';
+$inboundUrl = getenv('INBOUND_EMAIL_URL') ?: 'https://resq.tcom-sf.org/api/inbound-email';
+$authToken = getenv('INBOUND_EMAIL_AUTH_TOKEN') ?: 'aaa';
 $maxNoteChars = (int) (getenv('INBOUND_EMAIL_MAX_NOTE_CHARS') ?: '1200');
 
 if ($authToken === '') {
