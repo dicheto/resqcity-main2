@@ -4,7 +4,7 @@ export interface User {
   firstName: string;
   lastName: string;
   phone?: string;
-  role: 'CITIZEN' | 'ADMIN' | 'MUNICIPAL_COUNCILOR' | 'SUPER_ADMIN';
+  role: 'CITIZEN' | 'ADMIN' | 'MUNICIPAL_COUNCILOR' | 'INSTITUTION' | 'SUPER_ADMIN';
   kepVerified: boolean;
   kepId?: string;
   createdAt: Date;

@@ -27,6 +27,8 @@ export default function DashboardPage() {
   const [healthModalOpen, setHealthModalOpen] = useState(false);
   const [healthCountdown, setHealthCountdown] = useState(3);
   const [healthFlow, setHealthFlow] = useState<'idle' | 'countdown' | 'redirected'>('idle');
+  const [healthRedirectNoticeOpen, setHealthRedirectNoticeOpen] = useState(false);
+  const [healthPopupBlocked, setHealthPopupBlocked] = useState(false);
   const [taxLoading, setTaxLoading] = useState(false);
   const [banksLoading, setBanksLoading] = useState(false);
   const [taxError, setTaxError] = useState<string | null>(null);
@@ -51,6 +53,7 @@ export default function DashboardPage() {
 
     setHealthFlow('idle');
     setHealthCountdown(3);
+    setHealthPopupBlocked(false);
   }, [healthModalOpen]);
 
   useEffect(() => {
@@ -343,14 +346,20 @@ export default function DashboardPage() {
     const url = 'https://portal.nra.bg/details/health-insu-status';
     const openedTab = window.open(url, '_blank', 'noopener,noreferrer');
 
-    if (!openedTab) {
-      window.location.href = url;
+    if (openedTab) {
+      setHealthPopupBlocked(false);
+      setHealthModalOpen(false);
+      setHealthRedirectNoticeOpen(true);
+      return;
     }
+
+    setHealthPopupBlocked(true);
   };
 
   const startHealthCheckFlow = () => {
     setHealthCountdown(3);
     setHealthFlow('countdown');
+    setHealthPopupBlocked(false);
   };
 
   return (
@@ -586,8 +595,11 @@ export default function DashboardPage() {
                 </div>
               ) : healthFlow === 'redirected' ? (
                 <div className="rounded-2xl p-5 border" style={{ borderColor: 'rgba(52,211,153,0.25)', background: 'rgba(52,211,153,0.08)' }}>
-                  <p className="font-semibold text-[var(--s-text)]">Вие бяхте пренасочени</p>
-                  <p className="text-sm text-[var(--s-muted)] mt-1">След като приключите в НАП, потвърдете и продължете работа в ResQCity.</p>
+                  <p className="font-semibold text-[var(--s-text)]">Бяхте пренасочени към портала на НАП.</p>
+                  <p className="text-sm text-[var(--s-muted)] mt-1">Текущата ви сесия в ResQCity остава активна и можете да продължите работа.</p>
+                  {healthPopupBlocked && (
+                    <p className="text-sm text-amber-300 mt-2">Браузърът блокира новия таб. Разрешете pop-up за този сайт и опитайте отново.</p>
+                  )}
                 </div>
               ) : (
                 <div className="rounded-2xl p-5 border" style={{ borderColor: 'rgba(52,211,153,0.25)', background: 'rgba(52,211,153,0.08)' }}>
@@ -618,10 +630,13 @@ export default function DashboardPage() {
                 {healthFlow === 'redirected' && (
                   <>
                     <button
-                      onClick={() => setHealthModalOpen(false)}
+                      onClick={() => {
+                        setHealthModalOpen(false);
+                        setHealthRedirectNoticeOpen(true);
+                      }}
                       className="btn-site-primary text-sm px-5 py-2.5 rounded-xl"
                     >
-                      Свършено в НАП - Продължи
+                      Продължи в платформата
                     </button>
                     <button
                       onClick={handleHealthStatusRedirect}
@@ -646,21 +661,52 @@ export default function DashboardPage() {
         </div>
       )}
 
+      {healthRedirectNoticeOpen && (
+        <div
+          className="fixed inset-0 z-[60] flex items-center justify-center p-4"
+          style={{ background: 'rgba(3, 7, 18, 0.52)', backdropFilter: 'blur(7px)' }}
+        >
+          <div
+            className="w-full max-w-2xl rounded-3xl border p-6 md:p-8"
+            style={{ background: 'color-mix(in srgb, var(--s-surface) 82%, #000 18%)', borderColor: 'rgba(52,211,153,0.3)' }}
+          >
+            <p className="text-[10px] uppercase tracking-[0.4em] text-[var(--s-muted)] mb-2">НАП Портал</p>
+            <h3 className="rc-display text-2xl md:text-3xl text-[var(--s-text)] font-bold">Бяхте пренасочени към портала на НАП.</h3>
+            <p className="text-sm text-[var(--s-muted)] mt-3">Работата ви в ResQCity може да продължи без прекъсване в този таб.</p>
+
+            <div className="flex flex-wrap items-center gap-3 mt-6">
+              <button
+                onClick={() => setHealthRedirectNoticeOpen(false)}
+                className="btn-site-primary text-sm px-5 py-2.5 rounded-xl"
+              >
+                Продължи в платформата
+              </button>
+              <button
+                onClick={handleHealthStatusRedirect}
+                className="btn-site-ghost text-sm px-5 py-2.5 rounded-xl"
+              >
+                Отвори НАП отново
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
       {taxModalOpen && (
         <div
-          className="fixed inset-0 z-50 flex items-center justify-center p-4"
-          style={{ background: 'rgba(3, 7, 18, 0.68)' }}
+          className="fixed inset-0 z-50 flex items-start justify-center p-3 md:p-6 overflow-y-auto"
+          style={{ background: 'radial-gradient(circle at 20% 20%, rgba(251,191,36,0.16), rgba(3,7,18,0.9) 42%), rgba(3, 7, 18, 0.85)', backdropFilter: 'blur(4px)' }}
           onClick={() => setTaxModalOpen(false)}
         >
           <div
-            className="w-full max-w-6xl rounded-3xl overflow-hidden border"
-            style={{ background: 'var(--s-surface)', borderColor: 'var(--s-border)' }}
+            className="w-full max-w-6xl rounded-3xl overflow-hidden border mt-4 md:mt-10 mb-4 shadow-[0_28px_80px_rgba(0,0,0,0.45)]"
+            style={{ background: 'linear-gradient(180deg, var(--s-surface) 0%, color-mix(in srgb, var(--s-surface) 85%, #000 15%) 100%)', borderColor: 'rgba(251,191,36,0.22)' }}
             onClick={(e) => e.stopPropagation()}
           >
-            <div className="flex items-center justify-between px-6 py-4 border-b border-[var(--s-border)]">
+            <div className="flex items-center justify-between px-5 md:px-6 py-4 border-b border-[var(--s-border)] bg-[color-mix(in_srgb,var(--s-surface2)_72%,transparent)]">
               <div>
                 <p className="text-[10px] uppercase tracking-[0.4em] text-[var(--s-muted)]">Плащане</p>
-                <h3 className="rc-display text-xl text-[var(--s-text)] font-bold">Плащане на данъци</h3>
+                <h3 className="rc-display text-xl md:text-2xl text-[var(--s-text)] font-bold">Плащане на данъци</h3>
               </div>
               <button
                 onClick={() => setTaxModalOpen(false)}
@@ -670,7 +716,7 @@ export default function DashboardPage() {
               </button>
             </div>
 
-            <div className="p-6 grid lg:grid-cols-2 gap-6">
+            <div className="p-4 md:p-6 grid lg:grid-cols-2 gap-5 md:gap-6">
               <div className="space-y-4">
                 <div className="rounded-2xl p-4 border" style={{ borderColor: 'rgba(251,191,36,0.25)', background: 'rgba(251,191,36,0.08)' }}>
                   <p className="font-semibold text-[var(--s-text)]">IRISPay Dev/Test v3.5.3</p>
@@ -764,7 +810,7 @@ export default function DashboardPage() {
                 )}
               </div>
 
-              <div className="rounded-2xl border p-5" style={{ borderColor: 'var(--s-border)', background: 'var(--s-bg)' }}>
+              <div className="rounded-2xl border p-4 md:p-5" style={{ borderColor: 'var(--s-border)', background: 'var(--s-bg)' }}>
                 {!activeTaxPayment ? (
                   <div className="h-full min-h-[420px] flex items-center justify-center text-center">
                     <div>
@@ -794,7 +840,7 @@ export default function DashboardPage() {
                         <img
                           src={activeTaxPayment.qrCodeDataUrl}
                           alt="PayByLink QR"
-                          className="w-56 h-56 rounded-lg border border-[var(--s-border)] bg-white"
+                          className="w-44 h-44 md:w-56 md:h-56 rounded-lg border border-[var(--s-border)] bg-white"
                         />
                       ) : (
                         <p className="text-xs text-[var(--s-muted)]">QR не е наличен</p>

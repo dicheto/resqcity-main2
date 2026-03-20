@@ -28,6 +28,17 @@ export async function GET(request: NextRequest) {
       },
       orderBy: { name: 'asc' },
       include: {
+        accountLinks: {
+          include: {
+            user: {
+              select: {
+                id: true,
+                email: true,
+                emailVerified: true,
+              },
+            },
+          },
+        },
         categoryMappings: {
           include: {
             category: {
@@ -58,7 +69,7 @@ export async function POST(request: NextRequest) {
 
   try {
     const body = await request.json();
-    const { name, email, phone, notes, categoryIds, latitude, longitude } = body;
+    const { name, email, phone, notes, categoryIds, linkedUserIds, latitude, longitude } = body;
 
     if (!name) {
       return NextResponse.json({ error: 'Institution name is required' }, { status: 400 });
@@ -98,6 +109,20 @@ export async function POST(request: NextRequest) {
             categoryId,
             institutionId: institution.id,
           },
+        });
+      }
+    }
+
+    if (Array.isArray(linkedUserIds)) {
+      await prisma.institutionAccount.deleteMany({ where: { institutionId: institution.id } });
+
+      if (linkedUserIds.length > 0) {
+        await prisma.institutionAccount.createMany({
+          data: linkedUserIds.map((userId: string) => ({
+            institutionId: institution.id,
+            userId,
+          })),
+          skipDuplicates: true,
         });
       }
     }

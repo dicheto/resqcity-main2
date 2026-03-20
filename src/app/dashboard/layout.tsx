@@ -31,6 +31,11 @@ export default function DashboardLayout({
         router.push('/admin');
         return;
       }
+
+      if (parsedUser.role === 'INSTITUTION') {
+        router.push('/institutions');
+        return;
+      }
       
       setUser(parsedUser);
     } catch (error) {

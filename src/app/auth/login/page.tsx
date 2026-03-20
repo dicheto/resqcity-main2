@@ -31,6 +31,9 @@ export default function LoginPage() {
     
     // Determine redirect destination based on role
     const redirectUrl = 
+      user.role === 'INSTITUTION'
+        ? '/institutions'
+        :
       user.role === 'ADMIN' ||
       user.role === 'SUPER_ADMIN' ||
       user.role === 'MUNICIPAL_COUNCILOR'

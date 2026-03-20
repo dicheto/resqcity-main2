@@ -82,6 +82,11 @@ function VerifyEmailContent() {
           router.push('/admin');
           return;
         }
+
+        if (user.role === 'INSTITUTION') {
+          router.push('/institutions/auth/setup-passkey');
+          return;
+        }
       } catch {
         // ignore parsing issues and fallback to dashboard
       }

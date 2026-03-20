@@ -3,6 +3,7 @@ import { authMiddleware } from '@/hooks/lib/middleware';
 import { prisma } from '@/hooks/lib/prisma';
 import { loadSignalRoutingTaxonomy, getSituationInstitutions } from '@/hooks/lib/taxonomy';
 import { sendReportCreatedEmail } from '@/hooks/lib/email';
+import { getUserInstitutionIds } from '@/hooks/lib/institution-access';
 
 export async function GET(request: NextRequest) {
   const authResult = await authMiddleware(request);
@@ -22,6 +23,29 @@ export async function GET(request: NextRequest) {
   // Citizens can only see their own reports
   if (authResult.user.role === 'CITIZEN') {
     where.userId = authResult.user.userId;
+  } else if (authResult.user.role === 'INSTITUTION') {
+    const institutionIds = await getUserInstitutionIds(authResult.user.userId);
+
+    if (institutionIds.length === 0) {
+      return NextResponse.json({
+        reports: [],
+        pagination: {
+          page,
+          limit,
+          total: 0,
+          pages: 0,
+        },
+      });
+    }
+
+    where.routingTargets = {
+      some: {
+        included: true,
+        institutionId: {
+          in: institutionIds,
+        },
+      },
+    };
   }
 
   if (status) {

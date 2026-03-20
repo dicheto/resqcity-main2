@@ -46,6 +46,13 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    if (user.role === 'INSTITUTION') {
+      return NextResponse.json(
+        { error: 'За институционални акаунти използвайте вход с Passkey от институционалния портал.' },
+        { status: 403 }
+      );
+    }
+
     // Verify password
     const isValidPassword = await bcrypt.compare(password, user.password);
 

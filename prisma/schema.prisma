@@ -40,6 +40,7 @@ model User {
   vehicles      Vehicle[]
   vehicleIncidents VehicleIncident[]
   dispatcherVerifications DispatcherVerification[] @relation("dispatcher_verifications")
+  institutionLinks InstitutionAccount[]
   
   @@map("users")
 }
@@ -119,6 +120,7 @@ enum Role {
   CITIZEN
   ADMIN
   MUNICIPAL_COUNCILOR
+  INSTITUTION
   SUPER_ADMIN
 }
 
@@ -198,8 +200,25 @@ model Institution {
   categoryMappings CategoryInstitution[]
   reportTargets    ReportRoutingTarget[]
   dispatchBatches  InstitutionDispatchBatch[]
+  accountLinks     InstitutionAccount[]
 
   @@map("institutions")
+}
+
+model InstitutionAccount {
+  id            String   @id @default(uuid())
+  createdAt     DateTime @default(now())
+
+  institutionId String
+  institution   Institution @relation(fields: [institutionId], references: [id], onDelete: Cascade)
+
+  userId        String
+  user          User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([institutionId, userId])
+  @@index([institutionId])
+  @@index([userId])
+  @@map("institution_accounts")
 }
 
 model CategoryInstitution {

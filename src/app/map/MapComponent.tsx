@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState, useRef } from 'react';
+import { useCallback, useEffect, useState, useRef } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import L from 'leaflet';
@@ -202,6 +202,8 @@ function InteractiveMapComponent() {
   const shelterMarkersRef = useRef<L.Layer[]>([]);
   const socialServiceMarkersRef = useRef<L.Layer[]>([]);
   const showWeatherRef = useRef(false);
+  const realtimeFetchInFlightRef = useRef(false);
+  const lastRealtimeFetchAtRef = useRef(0);
 
   const [showReports, setShowReports] = useState(true);
   const [showStores, setShowStores] = useState(true);
@@ -771,7 +773,21 @@ function InteractiveMapComponent() {
   }, []); // Load once on mount
 
   // Real-time vehicles: WebSocket when available, polling fallback for Vercel/serverless
-  const refreshVehicles = async () => {
+  const refreshVehicles = useCallback(async (force = false) => {
+    const now = Date.now();
+    const minFetchGapMs = 15_000;
+
+    if (!force && realtimeFetchInFlightRef.current) {
+      return;
+    }
+
+    if (!force && now - lastRealtimeFetchAtRef.current < minFetchGapMs) {
+      return;
+    }
+
+    realtimeFetchInFlightRef.current = true;
+    lastRealtimeFetchAtRef.current = now;
+
     try {
       const response = await fetch('/api/transit/realtime');
       const data = await response.json();
@@ -785,13 +801,14 @@ function InteractiveMapComponent() {
     } catch (err) {
       console.error('Error fetching vehicles:', err);
     } finally {
+      realtimeFetchInFlightRef.current = false;
       setVehiclesLoading(false);
     }
-  };
+  }, []);
 
   useEffect(() => {
     setVehiclesLoading(true);
-    refreshVehicles();
+    refreshVehicles(true);
 
     // Listen for real-time updates via WebSocket when connected
     const unsubscribe = onVehicleUpdate((incomingVehicles: Vehicle[]) => {
@@ -802,7 +819,7 @@ function InteractiveMapComponent() {
     return () => {
       if (unsubscribe) unsubscribe();
     };
-  }, [onVehicleUpdate]);
+  }, [onVehicleUpdate, refreshVehicles]);
 
   // Polling fallback when WebSocket unavailable (Vercel/serverless)
   useEffect(() => {
@@ -830,7 +847,7 @@ function InteractiveMapComponent() {
       document.removeEventListener('visibilitychange', onVis);
       if (interval) clearInterval(interval);
     };
-  }, [isConnected, showVehicles]);
+  }, [isConnected, showVehicles, refreshVehicles]);
 
   // Add/remove report markers
   useEffect(() => {

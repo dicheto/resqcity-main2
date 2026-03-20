@@ -13,6 +13,17 @@ export async function GET(request: NextRequest, { params }: { params: { id: stri
     const institution = await prisma.institution.findUnique({
       where: { id: params.id },
       include: {
+        accountLinks: {
+          include: {
+            user: {
+              select: {
+                id: true,
+                email: true,
+                emailVerified: true,
+              },
+            },
+          },
+        },
         categoryMappings: {
           include: {
             category: {
@@ -47,7 +58,7 @@ export async function PATCH(request: NextRequest, { params }: { params: { id: st
 
   try {
     const body = await request.json();
-    const { name, email, phone, notes, active, categoryIds, latitude, longitude } = body;
+    const { name, email, phone, notes, active, categoryIds, linkedUserIds, latitude, longitude } = body;
 
     // Update institution
     const institution = await prisma.institution.update({
@@ -82,10 +93,37 @@ export async function PATCH(request: NextRequest, { params }: { params: { id: st
       }
     }
 
+    if (Array.isArray(linkedUserIds)) {
+      await prisma.institutionAccount.deleteMany({
+        where: { institutionId: params.id },
+      });
+
+      if (linkedUserIds.length > 0) {
+        await prisma.institutionAccount.createMany({
+          data: linkedUserIds.map((userId: string) => ({
+            institutionId: params.id,
+            userId,
+          })),
+          skipDuplicates: true,
+        });
+      }
+    }
+
     // Fetch updated institution with relations
     const updatedInstitution = await prisma.institution.findUnique({
       where: { id: params.id },
       include: {
+        accountLinks: {
+          include: {
+            user: {
+              select: {
+                id: true,
+                email: true,
+                emailVerified: true,
+              },
+            },
+          },
+        },
         categoryMappings: {
           include: {
             category: {

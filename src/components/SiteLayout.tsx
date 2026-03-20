@@ -61,6 +61,9 @@ const UI_COPY = {
   access: 'Достъп',
   footerDesc: 'Суперприложението, което свързва гражданите на София с общинската администрация. Бързо, прозрачно, ефективно.',
   systemsOnline: 'Всички системи активни',
+  institutionPortalTitle: 'Институционален портал',
+  institutionPortalCta: 'Вход с Passkey',
+  institutionPortalHint: 'Достъп за институции със защитен вход',
   footerLegal: '© 2026 ResQ София — Публична платформа за гражданско участие',
   footerDev: 'Разработено за Столична Община',
   adminAccess: '⚙️ Администрация',
@@ -554,7 +557,19 @@ function SiteFooter() {
 
   return (
     <footer className="site-footer">
+      <div className="site-footer-glow site-footer-glow-left" />
+      <div className="site-footer-glow site-footer-glow-right" />
       <div className="max-w-7xl mx-auto px-6 py-14">
+        <div className="site-footer-hero mb-10">
+          <div>
+            <p className="text-[10px] font-bold uppercase tracking-[0.45em] text-[var(--s-muted)] mb-2">{copy.institutionPortalTitle}</p>
+            <p className="text-sm text-[var(--s-muted)]">{copy.institutionPortalHint}</p>
+          </div>
+          <Link href="/institutions/auth/login" className="site-footer-portal-btn" data-cursor-loupe>
+            {copy.institutionPortalCta}
+          </Link>
+        </div>
+
         <div className="grid md:grid-cols-4 gap-10 mb-12">
           {/* Brand col */}
           <div className="md:col-span-2">
@@ -613,6 +628,7 @@ function SiteFooter() {
               {[
                 { href: '/auth/login',     label: copy.loginIcon, loupe: true },
                 { href: '/auth/register',  label: copy.registerIcon, loupe: true },
+                { href: '/institutions/auth/login', label: '🏛 Институционален портал', loupe: true },
                 { href: '/admin',          label: copy.adminAccess },
                 { href: '/dispatcher',     label: copy.dispatcherAccess },
               ].map(({ href, label, loupe }) => (

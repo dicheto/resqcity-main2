@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { io, Socket } from 'socket.io-client';
 
 export function useWebSocket() {
@@ -55,19 +55,19 @@ export function useWebSocket() {
     };
   }, []);
 
-  const joinAdminRoom = () => {
+  const joinAdminRoom = useCallback(() => {
     if (socketRef.current) {
       socketRef.current.emit('join-admin');
     }
-  };
+  }, []);
 
-  const joinUserRoom = (userId: string) => {
+  const joinUserRoom = useCallback((userId: string) => {
     if (socketRef.current && userId) {
       socketRef.current.emit('join-user', userId);
     }
-  };
+  }, []);
 
-  const onNewReport = (callback: (report: any) => void) => {
+  const onNewReport = useCallback((callback: (report: any) => void) => {
     if (socketRef.current) {
       socketRef.current.on('new-report', callback);
     }
@@ -77,9 +77,9 @@ export function useWebSocket() {
         socketRef.current.off('new-report', callback);
       }
     };
-  };
+  }, []);
 
-  const onReportUpdate = (callback: (data: any) => void) => {
+  const onReportUpdate = useCallback((callback: (data: any) => void) => {
     if (socketRef.current) {
       socketRef.current.on('report-update', callback);
     }
@@ -89,9 +89,9 @@ export function useWebSocket() {
         socketRef.current.off('report-update', callback);
       }
     };
-  };
+  }, []);
 
-  const onIncidentNotification = (callback: (data: any) => void) => {
+  const onIncidentNotification = useCallback((callback: (data: any) => void) => {
     if (socketRef.current) {
       socketRef.current.on('incident-notification', callback);
     }
@@ -101,9 +101,9 @@ export function useWebSocket() {
         socketRef.current.off('incident-notification', callback);
       }
     };
-  };
+  }, []);
 
-  const onVehicleUpdate = (callback: (vehicles: any[]) => void) => {
+  const onVehicleUpdate = useCallback((callback: (vehicles: any[]) => void) => {
     if (socketRef.current) {
       socketRef.current.on('vehicle-update', callback);
     }
@@ -113,7 +113,7 @@ export function useWebSocket() {
         socketRef.current.off('vehicle-update', callback);
       }
     };
-  };
+  }, []);
 
   return {
     socket: socketRef.current,

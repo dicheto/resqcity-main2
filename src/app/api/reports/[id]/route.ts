@@ -3,6 +3,7 @@ import { authMiddleware } from '@/hooks/lib/middleware';
 import { prisma } from '@/hooks/lib/prisma';
 import { notifyReportUpdate } from '@/hooks/lib/websocket';
 import { sendSignalStatusChangedEmail } from '@/hooks/lib/email';
+import { canInstitutionAccessReport } from '@/hooks/lib/institution-access';
 
 function collectUniqueEmails(values: Array<string | null | undefined>): string[] {
   const unique = new Set<string>();
@@ -72,14 +73,19 @@ export async function GET(
     }
 
     // Citizens can only view their own reports
-    if (
-      authResult.user.role === 'CITIZEN' &&
-      report.userId !== authResult.user.userId
-    ) {
+    if (authResult.user.role === 'CITIZEN' && report.userId !== authResult.user.userId) {
       return NextResponse.json(
         { error: 'Forbidden' },
         { status: 403 }
       );
+    }
+
+    if (authResult.user.role === 'INSTITUTION') {
+      const canAccess = await canInstitutionAccessReport(authResult.user.userId, params.id);
+
+      if (!canAccess) {
+        return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
+      }
     }
 
     return NextResponse.json(report);
@@ -96,7 +102,7 @@ export async function PATCH(
   request: NextRequest,
   { params }: { params: { id: string } }
 ) {
-  const authResult = await authMiddleware(request, ['ADMIN', 'MUNICIPAL_COUNCILOR']);
+  const authResult = await authMiddleware(request, ['ADMIN', 'MUNICIPAL_COUNCILOR', 'INSTITUTION']);
   
   if (authResult instanceof NextResponse) {
     return authResult;
@@ -157,6 +163,21 @@ export async function PATCH(
         { error: 'Report not found' },
         { status: 404 }
       );
+    }
+
+    if (authResult.user.role === 'INSTITUTION') {
+      const canAccess = await canInstitutionAccessReport(authResult.user.userId, params.id);
+
+      if (!canAccess) {
+        return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
+      }
+
+      if (priority || assignedToId) {
+        return NextResponse.json(
+          { error: 'Институционалните акаунти могат да променят само статус и бележка.' },
+          { status: 403 }
+        );
+      }
     }
 
     const updatedReport = await prisma.report.update({

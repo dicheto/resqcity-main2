@@ -23,6 +23,20 @@ interface Institution {
       nameBg: string;
     };
   }[];
+  accountLinks?: {
+    user: {
+      id: string;
+      email: string;
+      emailVerified: boolean;
+    };
+  }[];
+}
+
+interface InstitutionAccount {
+  id: string;
+  email: string;
+  emailVerified: boolean;
+  institutionLinks: { institutionId: string }[];
 }
 
 interface Category {
@@ -34,6 +48,7 @@ interface Category {
 export default function InstitutionsManagementPage() {
   const [institutions, setInstitutions] = useState<Institution[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
+  const [institutionAccounts, setInstitutionAccounts] = useState<InstitutionAccount[]>([]);
   const [loading, setLoading] = useState(true);
   const [showInactive, setShowInactive] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
@@ -47,6 +62,7 @@ export default function InstitutionsManagementPage() {
     phone: '',
     notes: '',
     categoryIds: [] as string[],
+    linkedUserIds: [] as string[],
     latitude: null as number | null,
     longitude: null as number | null,
   });
@@ -64,6 +80,7 @@ export default function InstitutionsManagementPage() {
   useEffect(() => {
     fetchInstitutions();
     fetchCategories();
+    fetchInstitutionAccounts();
   }, []);
 
   const fetchInstitutions = async () => {
@@ -91,6 +108,17 @@ export default function InstitutionsManagementPage() {
     }
   };
 
+  const fetchInstitutionAccounts = async () => {
+    try {
+      const response = await axios.get('/api/admin/institution-accounts', {
+        headers: getAuthHeaders(),
+      });
+      setInstitutionAccounts(response.data.accounts || []);
+    } catch (err) {
+      console.error('Failed to fetch institution accounts:', err);
+    }
+  };
+
   const handleAdd = () => {
     setIsAdding(true);
     setEditingId(null);
@@ -101,6 +129,7 @@ export default function InstitutionsManagementPage() {
       phone: '',
       notes: '',
       categoryIds: [],
+      linkedUserIds: [],
       latitude: null,
       longitude: null,
     });
@@ -116,6 +145,7 @@ export default function InstitutionsManagementPage() {
       phone: institution.phone || '',
       notes: institution.notes || '',
       categoryIds: institution.categoryMappings?.map((cm) => cm.category.id) || [],
+      linkedUserIds: institution.accountLinks?.map((link) => link.user.id) || [],
       latitude: institution.latitude ?? null,
       longitude: institution.longitude ?? null,
     });
@@ -131,6 +161,7 @@ export default function InstitutionsManagementPage() {
       phone: '',
       notes: '',
       categoryIds: [],
+      linkedUserIds: [],
       latitude: null,
       longitude: null,
     });
@@ -341,6 +372,37 @@ export default function InstitutionsManagementPage() {
           </div>
 
           <div className="mb-5">
+            <label className="block text-xs uppercase tracking-[0.3em] admin-muted mb-2">Свързани институционални акаунти</label>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-2 max-h-48 overflow-y-auto p-2 rounded-2xl border border-[var(--a-border)] admin-input">
+              {institutionAccounts.length === 0 && (
+                <p className="text-xs admin-muted px-2 py-1">Няма регистрирани институционални акаунти.</p>
+              )}
+              {institutionAccounts.map((account) => (
+                <label
+                  key={account.id}
+                  className="flex items-center gap-2 p-2 rounded-xl hover:bg-[var(--a-surface2)] cursor-pointer admin-text text-sm transition"
+                >
+                  <input
+                    type="checkbox"
+                    checked={formData.linkedUserIds.includes(account.id)}
+                    onChange={() =>
+                      setFormData((prev) => ({
+                        ...prev,
+                        linkedUserIds: prev.linkedUserIds.includes(account.id)
+                          ? prev.linkedUserIds.filter((id) => id !== account.id)
+                          : [...prev.linkedUserIds, account.id],
+                      }))
+                    }
+                    className="w-4 h-4 accent-[var(--a-accent2)]"
+                  />
+                  <span>{account.email}</span>
+                  {!account.emailVerified && <span className="text-[10px] text-amber-400">(непотвърден)</span>}
+                </label>
+              ))}
+            </div>
+          </div>
+
+          <div className="mb-5">
             <div className="flex items-center justify-between mb-2">
               <label className="block text-xs uppercase tracking-[0.3em] admin-muted flex items-center gap-2">
                 <MapPin size={14} />
@@ -445,6 +507,22 @@ export default function InstitutionsManagementPage() {
                             className="text-xs px-2.5 py-1 rounded-full bg-[var(--a-accent2)]/15 text-[var(--a-accent2)] border border-[var(--a-accent2)]/20"
                           >
                             {cm.category.nameBg}
+                          </span>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
+                  {institution.accountLinks && institution.accountLinks.length > 0 && (
+                    <div className="mt-3">
+                      <span className="text-xs uppercase tracking-[0.3em] admin-muted mr-2">Свързани акаунти:</span>
+                      <div className="flex flex-wrap gap-2 mt-2">
+                        {institution.accountLinks.map((link) => (
+                          <span
+                            key={link.user.id}
+                            className="text-xs px-2.5 py-1 rounded-full bg-emerald-500/15 text-emerald-300 border border-emerald-500/30"
+                          >
+                            {link.user.email}
                           </span>
                         ))}
                       </div>

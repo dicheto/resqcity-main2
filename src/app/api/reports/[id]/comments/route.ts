@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { authMiddleware } from '@/hooks/lib/middleware';
 import { prisma } from '@/hooks/lib/prisma';
 import { sendReportCommentEmail } from '@/hooks/lib/email';
+import { canInstitutionAccessReport } from '@/hooks/lib/institution-access';
 
 export async function POST(
   request: NextRequest,
@@ -30,6 +31,21 @@ export async function POST(
         user: { select: { id: true, email: true } },
       },
     });
+
+    if (!report) {
+      return NextResponse.json({ error: 'Report not found' }, { status: 404 });
+    }
+
+    if (authResult.user.role === 'CITIZEN' && report.userId !== authResult.user.userId) {
+      return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
+    }
+
+    if (authResult.user.role === 'INSTITUTION') {
+      const canAccess = await canInstitutionAccessReport(authResult.user.userId, params.id);
+      if (!canAccess) {
+        return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
+      }
+    }
 
     const comment = await prisma.comment.create({
       data: {
