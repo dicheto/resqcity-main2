@@ -181,7 +181,7 @@ export default function StatisticsPage() {
     <div className="min-h-screen" style={{ background: 'var(--s-bg)' }}>
 
       {/* ── Header bar ── */}
-      <div className="sticky top-20 z-30 border-b border-[var(--s-border)] backdrop-blur-xl" style={{ background: 'rgba(8,11,21,0.85)' }}>
+      <div className="sticky top-20 z-30 border-b border-[var(--s-border)] backdrop-blur-xl" style={{ background: 'var(--s-nav-top-bg)' }}>
         <div className="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between gap-4">
           <div className="flex items-center gap-3">
             <Link href="/" className="flex items-center gap-1.5 text-[var(--s-muted)] hover:text-[var(--s-text)] transition-colors text-xs">
@@ -194,13 +194,20 @@ export default function StatisticsPage() {
             </div>
           </div>
           <div className="flex items-center gap-4">
+            <div className="hidden lg:block text-xs text-[var(--s-muted)]">
+              Последна актуализация:{' '}
+              <span className="font-bold text-[var(--s-text)] tabular-nums">
+                {new Date(data.generatedAt).toLocaleTimeString('bg-BG', { hour: '2-digit', minute: '2-digit', second: '2-digit' })}
+              </span>
+            </div>
             <div className="hidden sm:flex items-center gap-2 text-xs text-[var(--s-muted)]">
               <span className="w-1.5 h-1.5 rounded-full bg-[var(--s-teal)] animate-pulse" />
               Автообновяване след <span className="font-bold text-[var(--s-text)] tabular-nums">{countdown}s</span>
             </div>
             <button
               onClick={fetchData}
-              className="flex items-center gap-1.5 text-xs text-[var(--s-muted)] hover:text-[var(--s-orange)] transition-colors border border-[var(--s-border)] px-3 py-1.5 rounded-lg"
+              className="flex items-center gap-1.5 text-xs text-[var(--s-text)] hover:text-[var(--s-orange)] transition-colors border border-[var(--s-border)] px-3 py-1.5 rounded-lg"
+              style={{ background: 'var(--s-surface)' }}
             >
               <RefreshCw size={12} /> Обнови
             </button>
@@ -216,7 +223,7 @@ export default function StatisticsPage() {
           <h1 className="rc-display font-extrabold text-3xl md:text-4xl text-[var(--s-text)]">
             Статистики на <span className="grad-orange">сигналите</span>
           </h1>
-          <p className="text-[var(--s-muted)] text-sm mt-2">
+          <p className="text-[var(--s-muted)] text-sm mt-2 lg:hidden">
             Актуализирано: {new Date(data.generatedAt).toLocaleTimeString('bg-BG', { hour: '2-digit', minute: '2-digit', second: '2-digit' })}
           </p>
         </div>

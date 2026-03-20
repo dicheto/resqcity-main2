@@ -26,7 +26,7 @@ export default function DashboardPage() {
   const [taxModalOpen, setTaxModalOpen] = useState(false);
   const [healthModalOpen, setHealthModalOpen] = useState(false);
   const [healthCountdown, setHealthCountdown] = useState(3);
-  const [healthFlow, setHealthFlow] = useState<'idle' | 'countdown' | 'redirected'>('idle');
+  const [healthFlow, setHealthFlow] = useState<'idle' | 'countdown'>('idle');
   const [healthRedirectNoticeOpen, setHealthRedirectNoticeOpen] = useState(false);
   const [healthPopupBlocked, setHealthPopupBlocked] = useState(false);
   const [taxLoading, setTaxLoading] = useState(false);
@@ -57,6 +57,21 @@ export default function DashboardPage() {
   }, [healthModalOpen]);
 
   useEffect(() => {
+    if (!healthRedirectNoticeOpen) return;
+
+    const previousOverflow = document.body.style.overflow;
+    const previousTouchAction = document.body.style.touchAction;
+
+    document.body.style.overflow = 'hidden';
+    document.body.style.touchAction = 'none';
+
+    return () => {
+      document.body.style.overflow = previousOverflow;
+      document.body.style.touchAction = previousTouchAction;
+    };
+  }, [healthRedirectNoticeOpen]);
+
+  useEffect(() => {
     if (!healthModalOpen || healthFlow !== 'countdown') return;
 
     const interval = setInterval(() => {
@@ -64,7 +79,8 @@ export default function DashboardPage() {
         if (prev <= 1) {
           clearInterval(interval);
           handleHealthStatusRedirect();
-          setHealthFlow('redirected');
+          setHealthModalOpen(false);
+          setHealthRedirectNoticeOpen(true);
           return 0;
         }
         return prev - 1;
@@ -316,6 +332,17 @@ export default function DashboardPage() {
     return labels[status] || status;
   };
 
+  const getTaxStatusChipClass = (status: string): string => {
+    const classes: Record<string, string> = {
+      UNPAID: 'chip chip-pending',
+      PARTIALLY_PAID: 'chip chip-progress',
+      PAID: 'chip chip-resolved',
+      OVERDUE: 'chip chip-rejected',
+    };
+
+    return classes[status] || 'chip chip-pending';
+  };
+
   const getPaymentStatusLabel = (status: string): string => {
     const labels: Record<string, string> = {
       WAITING: 'Изчаква плащане',
@@ -344,12 +371,12 @@ export default function DashboardPage() {
 
   const handleHealthStatusRedirect = () => {
     const url = 'https://portal.nra.bg/details/health-insu-status';
-    const openedTab = window.open(url, '_blank', 'noopener,noreferrer');
+    const openedTab = window.open(url, '_blank');
 
     if (openedTab) {
+      // Prevent the new page from accessing this window while keeping reliable popup detection.
+      openedTab.opener = null;
       setHealthPopupBlocked(false);
-      setHealthModalOpen(false);
-      setHealthRedirectNoticeOpen(true);
       return;
     }
 
@@ -593,14 +620,6 @@ export default function DashboardPage() {
                   <p className="font-semibold text-[var(--s-text)]">Бивате пренасочени към НАП</p>
                   <p className="text-sm text-[var(--s-muted)] mt-1">Изчакайте {healthCountdown} сек...</p>
                 </div>
-              ) : healthFlow === 'redirected' ? (
-                <div className="rounded-2xl p-5 border" style={{ borderColor: 'rgba(52,211,153,0.25)', background: 'rgba(52,211,153,0.08)' }}>
-                  <p className="font-semibold text-[var(--s-text)]">Бяхте пренасочени към портала на НАП.</p>
-                  <p className="text-sm text-[var(--s-muted)] mt-1">Текущата ви сесия в ResQCity остава активна и можете да продължите работа.</p>
-                  {healthPopupBlocked && (
-                    <p className="text-sm text-amber-300 mt-2">Браузърът блокира новия таб. Разрешете pop-up за този сайт и опитайте отново.</p>
-                  )}
-                </div>
               ) : (
                 <div className="rounded-2xl p-5 border" style={{ borderColor: 'rgba(52,211,153,0.25)', background: 'rgba(52,211,153,0.08)' }}>
                   <p className="font-semibold text-[var(--s-text)]">Защитен достъп</p>
@@ -627,34 +646,6 @@ export default function DashboardPage() {
                   </button>
                 )}
 
-                {healthFlow === 'redirected' && (
-                  <>
-                    <button
-                      onClick={() => {
-                        setHealthModalOpen(false);
-                        setHealthRedirectNoticeOpen(true);
-                      }}
-                      className="btn-site-primary text-sm px-5 py-2.5 rounded-xl"
-                    >
-                      Продължи в платформата
-                    </button>
-                    <button
-                      onClick={handleHealthStatusRedirect}
-                      className="btn-site-ghost text-sm px-5 py-2.5 rounded-xl"
-                    >
-                      Отвори НАП отново
-                    </button>
-                  </>
-                )}
-              </div>
-
-              <div className="rounded-2xl overflow-hidden border border-[var(--s-border)] bg-[var(--s-bg)] min-h-[220px]">
-                <div className="h-[220px] flex items-center justify-center text-center px-6">
-                  <div>
-                    <p className="text-sm text-[var(--s-muted)]">Порталът на НАП е защитен и не позволява вграждане в iframe от външен сайт.</p>
-                    <p className="text-sm text-[var(--s-muted)] mt-2">Използвайте „Проверка", за да се отвори директно в НАП.</p>
-                  </div>
-                </div>
               </div>
             </div>
           </div>
@@ -663,30 +654,66 @@ export default function DashboardPage() {
 
       {healthRedirectNoticeOpen && (
         <div
-          className="fixed inset-0 z-[60] flex items-center justify-center p-4"
-          style={{ background: 'rgba(3, 7, 18, 0.52)', backdropFilter: 'blur(7px)' }}
+          className="fixed inset-0 z-[120] overflow-hidden"
+          style={{ background: 'radial-gradient(circle at 10% 10%, rgba(34,197,94,0.14), rgba(3,7,18,0.96) 38%), linear-gradient(130deg, rgba(2,6,23,0.92), rgba(15,23,42,0.98) 55%, rgba(20,83,45,0.35))', backdropFilter: 'blur(12px)' }}
+          role="dialog"
+          aria-modal="true"
         >
-          <div
-            className="w-full max-w-2xl rounded-3xl border p-6 md:p-8"
-            style={{ background: 'color-mix(in srgb, var(--s-surface) 82%, #000 18%)', borderColor: 'rgba(52,211,153,0.3)' }}
-          >
-            <p className="text-[10px] uppercase tracking-[0.4em] text-[var(--s-muted)] mb-2">НАП Портал</p>
-            <h3 className="rc-display text-2xl md:text-3xl text-[var(--s-text)] font-bold">Бяхте пренасочени към портала на НАП.</h3>
-            <p className="text-sm text-[var(--s-muted)] mt-3">Работата ви в ResQCity може да продължи без прекъсване в този таб.</p>
+          <div className="absolute -top-28 -left-20 w-96 h-96 rounded-full blur-3xl" style={{ background: 'rgba(251,191,36,0.18)' }} />
+          <div className="absolute -bottom-24 right-[-80px] w-[28rem] h-[28rem] rounded-full blur-3xl" style={{ background: 'rgba(52,211,153,0.22)' }} />
 
-            <div className="flex flex-wrap items-center gap-3 mt-6">
-              <button
-                onClick={() => setHealthRedirectNoticeOpen(false)}
-                className="btn-site-primary text-sm px-5 py-2.5 rounded-xl"
-              >
-                Продължи в платформата
-              </button>
-              <button
-                onClick={handleHealthStatusRedirect}
-                className="btn-site-ghost text-sm px-5 py-2.5 rounded-xl"
-              >
-                Отвори НАП отново
-              </button>
+          <div
+            className="relative z-10 h-full w-full flex items-center justify-center p-4 md:p-8"
+          >
+            <div
+              className="w-full max-w-5xl rounded-[2rem] border p-5 md:p-8 lg:p-10 shadow-[0_40px_120px_rgba(0,0,0,0.55)]"
+              style={{ background: 'linear-gradient(155deg, rgba(15,23,42,0.92), rgba(2,6,23,0.88) 45%, rgba(20,83,45,0.3))', borderColor: 'rgba(52,211,153,0.35)' }}
+            >
+              <div className="grid gap-6 lg:grid-cols-[1.15fr_0.85fr] items-start">
+                <div>
+                  <p className="text-[10px] uppercase tracking-[0.5em] text-emerald-300/80 mb-3">ResQCity Security Checkpoint</p>
+                  <h3 className="rc-display text-3xl md:text-4xl lg:text-5xl text-white font-extrabold leading-tight">Бяхте пренасочени към портала на НАП.</h3>
+                  <p className="text-sm md:text-base text-slate-300 mt-4 max-w-2xl">Този екран е умишлено блокиращ, за да потвърдите връщането си. Данните и сесията ви в ResQCity са запазени и защитени.</p>
+
+                  <div className="grid md:grid-cols-2 gap-3 mt-6">
+                    <div className="rounded-2xl border p-4" style={{ background: 'rgba(15,23,42,0.6)', borderColor: 'rgba(148,163,184,0.24)' }}>
+                      <p className="text-[11px] uppercase tracking-[0.25em] text-slate-400">Сесия</p>
+                      <p className="text-base text-white font-semibold mt-1">Активна</p>
+                      <p className="text-xs text-slate-400 mt-1">Можете да продължите работа без повторен вход.</p>
+                    </div>
+                    <div className="rounded-2xl border p-4" style={{ background: 'rgba(20,83,45,0.32)', borderColor: 'rgba(52,211,153,0.35)' }}>
+                      <p className="text-[11px] uppercase tracking-[0.25em] text-emerald-200/80">Статус</p>
+                      <p className="text-base text-white font-semibold mt-1">Пренасочване успешно</p>
+                      <p className="text-xs text-emerald-100/70 mt-1">Порталът на НАП е отворен в отделен таб.</p>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="rounded-2xl border p-4 md:p-5" style={{ background: 'rgba(2,6,23,0.72)', borderColor: 'rgba(148,163,184,0.24)' }}>
+                  <p className="text-[11px] uppercase tracking-[0.28em] text-slate-400">Действия</p>
+                  <div className="space-y-3 mt-4">
+                    <button
+                      onClick={() => setHealthRedirectNoticeOpen(false)}
+                      className="w-full btn-site-primary text-sm px-5 py-3 rounded-xl"
+                    >
+                      Продължи в платформата
+                    </button>
+                    <button
+                      onClick={handleHealthStatusRedirect}
+                      className="w-full btn-site-ghost text-sm px-5 py-3 rounded-xl"
+                    >
+                      Отвори НАП отново
+                    </button>
+                  </div>
+
+                  {healthPopupBlocked && (
+                    <div className="mt-4 rounded-xl border p-3" style={{ background: 'rgba(127,29,29,0.35)', borderColor: 'rgba(252,165,165,0.45)' }}>
+                      <p className="text-sm text-rose-200 font-semibold">Браузърът блокира новия таб.</p>
+                      <p className="text-xs text-rose-100/80 mt-1">Разрешете pop-up за този сайт и натиснете „Отвори НАП отново“.</p>
+                    </div>
+                  )}
+                </div>
+              </div>
             </div>
           </div>
         </div>
@@ -773,7 +800,7 @@ export default function DashboardPage() {
                         >
                           <div className="flex items-center justify-between gap-3">
                             <p className="font-semibold text-[var(--s-text)]">{obligation.title}</p>
-                            <span className="chip chip-pending">{getTaxStatusLabel(obligation.status)}</span>
+                            <span className={getTaxStatusChipClass(obligation.status)}>{getTaxStatusLabel(obligation.status)}</span>
                           </div>
                           <div className="flex items-center justify-between gap-2 text-xs mt-2 text-[var(--s-muted)]">
                             <span>Период: {obligation.period}</span>

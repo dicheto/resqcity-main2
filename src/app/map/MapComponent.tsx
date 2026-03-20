@@ -1602,7 +1602,7 @@ function InteractiveMapComponent() {
   }, [vehicles]);
 
   return (
-    <div className="min-h-screen relative" style={{ background: 'var(--s-bg)', color: 'var(--s-text)' }}>
+    <div className="min-h-screen relative overflow-x-hidden" style={{ background: 'var(--s-bg)', color: 'var(--s-text)' }}>
       {/* Background orbs */}
       <div className="pointer-events-none absolute -top-40 -right-40 h-[500px] w-[500px] rounded-full" style={{ background: 'radial-gradient(circle, rgba(255,107,43,0.12), transparent 70%)' }} />
       <div className="pointer-events-none absolute top-60 -left-32 h-96 w-96 rounded-full" style={{ background: 'radial-gradient(circle, rgba(139,92,246,0.10), transparent 70%)' }} />

@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getAuth } from "@/hooks/lib/auth";
 import { prisma } from "@/hooks/lib/prisma";
+import { Prisma } from "@prisma/client";
 
 export async function GET(req: NextRequest) {
   try {
@@ -53,17 +54,19 @@ export async function POST(req: NextRequest) {
     }
 
     const body = await req.json();
-    const {
-      registrationPlate,
-      brand,
-      model,
-      year,
-      color,
-      vin,
-    } = body;
+    const { registrationPlate, brand, model, year, color, vin } = body;
+
+    const normalizedRegistrationPlate = String(registrationPlate || "")
+      .trim()
+      .toUpperCase();
+    const normalizedBrand = String(brand || "").trim();
+    const normalizedModel = String(model || "").trim();
+    const normalizedColor = typeof color === "string" ? color.trim() || null : null;
+    const normalizedVin = typeof vin === "string" ? vin.trim().toUpperCase() || null : null;
+    const parsedYear = Number.parseInt(String(year), 10);
 
     // Validate required fields
-    if (!registrationPlate || !brand || !model || !year) {
+    if (!normalizedRegistrationPlate || !normalizedBrand || !normalizedModel || Number.isNaN(parsedYear)) {
       return NextResponse.json(
         { error: "Missing required fields" },
         { status: 400 }
@@ -72,7 +75,7 @@ export async function POST(req: NextRequest) {
 
     // Check if vehicle already exists for this user
     const existingVehicle = await prisma.vehicle.findUnique({
-      where: { registrationPlate },
+      where: { registrationPlate: normalizedRegistrationPlate },
     });
 
     if (existingVehicle && existingVehicle.userId !== auth.user.userId) {
@@ -82,20 +85,37 @@ export async function POST(req: NextRequest) {
       );
     }
 
+    if (existingVehicle && existingVehicle.userId === auth.user.userId) {
+      return NextResponse.json(
+        { error: "Vehicle with this registration plate already exists" },
+        { status: 409 }
+      );
+    }
+
     const vehicle = await prisma.vehicle.create({
       data: {
-        registrationPlate,
-        brand,
-        model,
-        year: parseInt(year),
-        color,
-        vin,
+        registrationPlate: normalizedRegistrationPlate,
+        brand: normalizedBrand,
+        model: normalizedModel,
+        year: parsedYear,
+        color: normalizedColor,
+        vin: normalizedVin,
         userId: auth.user.userId,
       },
     });
 
     return NextResponse.json(vehicle, { status: 201 });
   } catch (error) {
+    if (
+      error instanceof Prisma.PrismaClientKnownRequestError &&
+      error.code === "P2002"
+    ) {
+      return NextResponse.json(
+        { error: "Vehicle with duplicate unique field already exists" },
+        { status: 409 }
+      );
+    }
+
     console.error("Error creating vehicle:", error);
     return NextResponse.json(
       { error: "Failed to create vehicle" },

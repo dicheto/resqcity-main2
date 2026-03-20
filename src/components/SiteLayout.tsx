@@ -356,6 +356,15 @@ function SiteHeader() {
   const brandLogoSrc = scrolled 
     ? '/branding/logo-cut.png' 
     : (dark ? '/branding/logo-full-dark.png' : '/branding/logo-full-light.png');
+  const mobileMenuBackdrop = dark
+    ? 'linear-gradient(180deg, rgba(0,0,0,0.48) 0%, rgba(0,0,0,0.24) 100%)'
+    : 'linear-gradient(180deg, rgba(15,23,42,0.16) 0%, rgba(15,23,42,0.08) 100%)';
+  const mobileMenuBackground = dark
+    ? 'linear-gradient(135deg, rgba(17,22,39,0.98) 0%, rgba(22,32,46,0.96) 100%)'
+    : 'linear-gradient(135deg, rgba(255,255,255,0.96) 0%, rgba(248,250,252,0.98) 100%)';
+  const mobileMenuShadow = dark
+    ? '0 24px 56px rgba(0,0,0,0.48), 0 0 0 1px rgba(255,107,43,0.12), inset 0 1px 0 rgba(255,255,255,0.06)'
+    : '0 24px 48px rgba(15,23,42,0.14), 0 0 0 1px rgba(255,107,43,0.16), inset 0 1px 0 rgba(255,255,255,0.85)';
 
   return (
     <>
@@ -463,7 +472,7 @@ function SiteHeader() {
               className="fixed inset-0 md:hidden animate-drop-down-backdrop z-[9998]"
               onClick={() => setOpen(false)}
               style={{
-                background: 'linear-gradient(180deg, rgba(0,0,0,0.48) 0%, rgba(0,0,0,0.24) 100%)',
+                background: mobileMenuBackdrop,
                 backdropFilter: 'blur(2px)',
                 WebkitBackdropFilter: 'blur(2px)',
               }}
@@ -472,8 +481,8 @@ function SiteHeader() {
             {/* Mobile menu panel */}
             <div className="md:hidden animate-drop-down fixed top-20 left-4 right-4 z-[9999] rounded-2xl border border-[var(--s-border)] bg-[var(--s-surface)] p-5 backdrop-blur-xl"
               style={{
-                background: 'linear-gradient(135deg, rgba(17,22,39,0.98) 0%, rgba(22,32,46,0.96) 100%)',
-                boxShadow: '0 24px 56px rgba(0,0,0,0.48), 0 0 0 1px rgba(255,107,43,0.12), inset 0 1px 0 rgba(255,255,255,0.06)',
+                background: mobileMenuBackground,
+                boxShadow: mobileMenuShadow,
               }}>
               
               {/* Navigation links */}
@@ -488,7 +497,7 @@ function SiteHeader() {
                       className={`flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition-all duration-200 ${
                         active
                           ? 'text-[var(--s-text)] bg-gradient-to-r from-orange-500/20 via-orange-500/10 to-transparent border border-orange-500/30'
-                          : 'text-[var(--s-muted2)] hover:text-[var(--s-text)] hover:bg-white/6'
+                          : 'text-[var(--s-muted2)] hover:text-[var(--s-text)] hover:bg-black/5 dark:hover:bg-white/6'
                       }`}
                       style={{
                         animation: `slideIn 0.4s cubic-bezier(0.34,1.56,0.64,1) ${idx * 0.08}s both`,
