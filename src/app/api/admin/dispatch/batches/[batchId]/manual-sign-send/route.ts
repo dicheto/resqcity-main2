@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { authMiddleware } from '@/hooks/lib/middleware';
 import { prisma } from '@/hooks/lib/prisma';
 import { sendEmail } from '@/hooks/lib/email';
-import { readDispatchDocument, uploadDispatchDocument } from '@/hooks/lib/dispatch-document-storage';
+import { uploadDispatchDocument, readDispatchDocument } from '@/hooks/lib/dispatch-document-storage';
 
 interface RouteContext {
   params: Promise<{ batchId: string }>;
@@ -16,28 +16,15 @@ export async function POST(request: NextRequest, context: RouteContext) {
 
   try {
     const { batchId } = await context.params;
-    const body = await request.json().catch(() => ({}));
+    const formData = await request.formData();
 
-    const status = String(body?.status || '').toLowerCase();
-    const reasonCode = String(body?.reasonCode || '');
-    const reasonText = String(body?.reasonText || '');
-    const signatureType = String(body?.signatureType || '');
-    const signatures = Array.isArray(body?.signatures) ? body.signatures : [];
-    const signerCertificateB64 = String(body?.signerCertificateB64 || '');
-
-    if (status !== 'ok') {
-      return NextResponse.json(
-        {
-          error: 'BISS signing did not complete successfully',
-          reasonCode,
-          reasonText,
-        },
-        { status: 400 }
-      );
+    const file = formData.get('signedPdf') as File;
+    if (!file || !(file instanceof File)) {
+      return NextResponse.json({ error: 'Missing or invalid signedPdf file' }, { status: 400 });
     }
 
-    if (!signatures[0] || typeof signatures[0] !== 'string') {
-      return NextResponse.json({ error: 'Missing signature payload from BISS' }, { status: 400 });
+    if (!file.name.toLowerCase().endsWith('.pdf')) {
+      return NextResponse.json({ error: 'File must be a PDF' }, { status: 400 });
     }
 
     const batch = await prisma.institutionDispatchBatch.findUnique({
@@ -61,66 +48,74 @@ export async function POST(request: NextRequest, context: RouteContext) {
       return NextResponse.json({ error: 'Batch is already sent' }, { status: 400 });
     }
 
-    const draft = batch.documents.find((doc) => doc.kind === 'DRAFT');
-    if (!draft) {
-      return NextResponse.json({ error: 'Draft dispatch PDF not found' }, { status: 400 });
-    }
-
     if (!batch.institution.email) {
       return NextResponse.json({ error: 'Institution does not have an email address' }, { status: 400 });
     }
 
-    const draftBuffer = await readDispatchDocument(draft.filePath);
+    // Read uploaded file
+    const fileBuffer = await file.arrayBuffer();
+    const signedPdfBuffer = Buffer.from(fileBuffer);
 
-    const signatureBuffer = Buffer.from(String(signatures[0]), 'base64');
-    const signatureFileName = `batch-${batchId}-signature-biss-${Date.now()}.p7s`;
-    const uploadedSignature = await uploadDispatchDocument({
+    // Create signed document record
+    const signedFileName = `batch-${batchId}-manually-signed-${Date.now()}.pdf`;
+    const uploadedSigned = await uploadDispatchDocument({
       batchId,
-      fileName: signatureFileName,
-      buffer: signatureBuffer,
-      mimeType: 'application/pkcs7-signature',
+      fileName: signedFileName,
+      buffer: signedPdfBuffer,
+      mimeType: 'application/pdf',
       folder: 'signed',
     });
 
-    let uploadedSignerCertPath: string | null = null;
-    let signerCertFileName: string | null = null;
-    if (signerCertificateB64) {
-      signerCertFileName = `batch-${batchId}-signer-cert-${Date.now()}.cer`;
-      const signerCertBuffer = Buffer.from(signerCertificateB64, 'base64');
-      const uploadedCert = await uploadDispatchDocument({
-        batchId,
-        fileName: signerCertFileName,
-        buffer: signerCertBuffer,
-        mimeType: 'application/pkix-cert',
-        folder: 'signed',
-      });
-      uploadedSignerCertPath = uploadedCert.filePath;
-    }
+    // Create signature metadata file (for records, manual upload details)
+    const signatureMetadata = {
+      batchId,
+      signedAt: new Date().toISOString(),
+      signedBy: authResult.user.userId,
+      reasonText: 'Document manually signed and uploaded',
+      signatureMethod: 'MANUAL_UPLOAD',
+      uploadedFileName: file.name,
+      documentHash: require('crypto')
+        .createHash('sha256')
+        .update(signedPdfBuffer)
+        .digest('hex'),
+    };
 
+    const signatureMetadataBuffer = Buffer.from(JSON.stringify(signatureMetadata, null, 2));
+    const metadataFileName = `batch-${batchId}-manual-signature-metadata-${Date.now()}.json`;
+    await uploadDispatchDocument({
+      batchId,
+      fileName: metadataFileName,
+      buffer: signatureMetadataBuffer,
+      mimeType: 'application/json',
+      folder: 'signed',
+    });
+
+    // Update database: create signed document record and mark batch as SIGNED
     await prisma.$transaction([
       prisma.dispatchDocument.create({
         data: {
           batchId,
           kind: 'SIGNED',
-          fileName: signatureFileName,
-          filePath: uploadedSignature.filePath,
-          mimeType: 'application/pkcs7-signature',
+          fileName: signedFileName,
+          filePath: uploadedSigned.filePath,
+          mimeType: 'application/pdf',
           uploadedById: authResult.user.userId,
         },
       }),
       prisma.institutionDispatchBatch.update({
         where: { id: batchId },
-        data: { status: 'PENDING_SIGNATURE' },
+        data: { status: 'SIGNED' },
       }),
       prisma.reportHistory.createMany({
-        data: batch.items.map((item) => ({
+        data: batch.items.map((item: any) => ({
           reportId: item.reportId,
           action: 'DISPATCH_SIGNED',
-          description: `Batch ${batchId} signed via BISS. reasonCode=${reasonCode}`,
+          description: `Batch ${batchId} signed manually (external signature) and uploaded by: ${authResult.user.userId}`,
         })),
       }),
     ]);
 
+    // Send email to institution
     const reportsCount = batch.items.length;
     const emailSubject = `Граждански сигнали от ResQCity - ${reportsCount} сигнал(а)`;
 
@@ -149,9 +144,14 @@ export async function POST(request: NextRequest, context: RouteContext) {
             <p style="margin:0;color:#374151;font-size:14px;line-height:1.6;">
               <strong>Идентификатор на пакет:</strong> ${batch.id}<br>
               <strong>Брой сигнали:</strong> ${reportsCount}<br>
-              <strong>Подписан чрез:</strong> BISS локална услуга
+              <strong>Подписан:</strong> ${new Date().toLocaleString('bg-BG')}<br>
+              <strong>Метод на подписване:</strong> Административен подпис (външен)
             </p>
           </div>
+          <p style="color:#6B7280;font-size:13px;line-height:1.5;margin:24px 0 0;">
+            Документът е подписан с административна печат на платформата ResQCity.
+            За повече информация или въпроси, моля свържете се с нас.
+          </p>
         </td></tr>
       </table>
     </td></tr>
@@ -166,7 +166,10 @@ export async function POST(request: NextRequest, context: RouteContext) {
 
 Идентификатор на пакет: ${batch.id}
 Брой сигнали: ${reportsCount}
-Подписан чрез: BISS локална услуга
+Подписан: ${new Date().toLocaleString('bg-BG')}
+Метод на подписване: Административен подпис (външен)
+
+Документът е подписан с административна печат на платформата ResQCity.
 `;
 
     const emailResult = await sendEmail({
@@ -176,38 +179,25 @@ export async function POST(request: NextRequest, context: RouteContext) {
       text: emailText,
       attachments: [
         {
-          filename: draft.fileName,
-          content: draftBuffer,
-          contentType: draft.mimeType || 'application/pdf',
+          filename: signedFileName,
+          content: signedPdfBuffer,
+          contentType: 'application/pdf',
         },
-        {
-          filename: signatureFileName,
-          content: signatureBuffer,
-          contentType: 'application/pkcs7-signature',
-        },
-        ...(signerCertificateB64 && signerCertFileName
-          ? [
-              {
-                filename: signerCertFileName,
-                content: Buffer.from(signerCertificateB64, 'base64'),
-                contentType: 'application/pkix-cert',
-              },
-            ]
-          : []),
       ],
     });
 
     if (!emailResult.ok) {
       return NextResponse.json(
         {
-          error: 'BISS signing succeeded but email sending failed. Please verify SMTP settings.',
+          error: 'Batch signed but email sending failed',
           smtpError: emailResult.error,
-          signatureFilePath: uploadedSignature.filePath,
+          signedDocPath: uploadedSigned.filePath,
         },
         { status: 500 }
       );
     }
 
+    // Final: Mark batch as SENT
     await prisma.institutionDispatchBatch.update({
       where: { id: batchId },
       data: {
@@ -218,18 +208,17 @@ export async function POST(request: NextRequest, context: RouteContext) {
 
     return NextResponse.json({
       success: true,
-      message: 'Batch signed with BISS and sent successfully',
+      message: 'Batch with manually signed PDF uploaded and sent successfully',
       batchId,
-      signatureFilePath: uploadedSignature.filePath,
-      signerCertFilePath: uploadedSignerCertPath,
-      signatureType,
+      signedDocumentPath: uploadedSigned.filePath,
       sentTo: batch.institution.email,
+      signedAt: new Date().toISOString(),
     });
   } catch (error) {
-    console.error('BISS sign and send error:', error);
+    console.error('Manual sign and send error:', error);
     return NextResponse.json(
       {
-        error: 'Failed to sign and send batch via BISS',
+        error: 'Failed to upload signed PDF and send batch',
         details: error instanceof Error ? error.message : String(error),
       },
       { status: 500 }
