@@ -18,59 +18,10 @@ export async function GET(request: NextRequest) {
     }
 
     if (!OPENWEATHER_API_KEY) {
-      console.warn('OPENWEATHER_API_KEY is not configured. Using mock weather forecast data.');
-      const mockTemp = 15 + Math.random() * 20;
-
-      return NextResponse.json({
-        success: true,
-        data: {
-          current: {
-            temp: Math.round(mockTemp),
-            feels_like: Math.round(mockTemp - 2),
-            temp_min: Math.round(mockTemp - 5),
-            temp_max: Math.round(mockTemp + 5),
-            humidity: Math.round(50 + Math.random() * 30),
-            pressure: Math.round(1010 + Math.random() * 20),
-            wind_speed: Math.round(Math.random() * 10),
-            wind_deg: Math.round(Math.random() * 360),
-            clouds: Math.round(Math.random() * 100),
-            visibility: 10000,
-            sunrise: Math.floor(Date.now() / 1000) - 7200,
-            sunset: Math.floor(Date.now() / 1000) + 43200,
-            weather: {
-              id: 801,
-              main: 'Clouds',
-              description: 'малко облачно',
-              icon: '02d',
-            },
-            city_name: `${lat}, ${lon}`,
-          },
-          daily: [
-            {
-              date: new Date().toLocaleDateString('bg-BG'),
-              temp_min: Math.round(mockTemp - 5),
-              temp_max: Math.round(mockTemp + 5),
-              weather: {
-                id: 801,
-                main: 'Clouds',
-                description: 'малко облачно',
-                icon: '02d',
-              },
-            },
-            {
-              date: new Date(Date.now() + 86400000).toLocaleDateString('bg-BG'),
-              temp_min: Math.round(mockTemp - 4),
-              temp_max: Math.round(mockTemp + 6),
-              weather: {
-                id: 801,
-                main: 'Clouds',
-                description: 'малко облачно',
-                icon: '02d',
-              },
-            },
-          ],
-        },
-      });
+      return NextResponse.json(
+        { success: false, error: 'OPENWEATHER_API_KEY is not configured. Real weather data required.' },
+        { status: 503 }
+      );
     }
 
     // Fetch current weather and 5-day forecast

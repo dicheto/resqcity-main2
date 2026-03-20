@@ -1,4 +1,4 @@
-#!/usr/local/bin/php
+#!/opt/cpanel/ea-php80/root/usr/bin/php
 <?php
 declare(strict_types=1);
 
@@ -10,26 +10,65 @@ declare(strict_types=1);
 // - parse raw email locally
 // - send only normalized signal update to Vercel (not full raw email)
 
+
+// IMAP configuration (edit these)
+$imapHost = 'imap.yourhost.com';
+$imapPort = 993;
+$imapUser = 'info@yourdomain.bg';
+$imapPass = 'yourpassword';
+$imapMailbox = 'INBOX';
+
 $inboundUrl = getenv('INBOUND_EMAIL_URL') ?: 'https://resq.tcom-sf.org/api/inbound-email';
 $authToken = getenv('INBOUND_EMAIL_AUTH_TOKEN') ?: 'aaa';
 $maxNoteChars = (int) (getenv('INBOUND_EMAIL_MAX_NOTE_CHARS') ?: '1200');
+$strictDelivery = in_array(
+    strtolower((string) getenv('INBOUND_EMAIL_STRICT_DELIVERY')),
+    ['1', 'true', 'yes', 'on'],
+    true
+);
+
 
 if ($authToken === '') {
     error_log('[ResQCity inbound bridge] Missing INBOUND_EMAIL_AUTH_TOKEN');
     exit(1);
 }
 
-$raw = file_get_contents('php://stdin') ?: '';
-if (trim($raw) === '') {
-    error_log('[ResQCity inbound bridge] Empty stdin payload');
+// Connect to IMAP
+$imapStream = imap_open("{${imapHost}:${imapPort}/ssl}${imapMailbox}", $imapUser, $imapPass);
+if (!$imapStream) {
+    error_log('[ResQCity inbound bridge] IMAP connection failed: ' . imap_last_error());
     exit(1);
 }
 
-[$rawHeaders, $rawBody] = array_pad(preg_split("/\r?\n\r?\n/", $raw, 2), 2, '');
+$emails = imap_search($imapStream, 'UNSEEN');
+if (!$emails) {
+    imap_close($imapStream);
+    exit(0); // No new emails
+}
+
+foreach ($emails as $emailNum) {
+    $overview = imap_fetch_overview($imapStream, $emailNum, 0)[0];
+    $rawHeaders = imap_fetchheader($imapStream, $emailNum);
+    $structure = imap_fetchstructure($imapStream, $emailNum);
+    $rawBody = imap_body($imapStream, $emailNum);
+
+    // If multipart, try to get plain/text
+    if (isset($structure->parts) && count($structure->parts) > 0) {
+        foreach ($structure->parts as $partNum => $part) {
+            if (strtolower($part->subtype ?? '') === 'plain') {
+                $rawBody = imap_fetchbody($imapStream, $emailNum, $partNum+1);
+                break;
+            }
+        }
+    }
+
+    // ...existing code...
 
 function findHeaderValue(string $headers, string $name): string
 {
-    foreach (preg_split('/\r?\n/', $headers) as $line) {
+    // RFC email headers can continue on the next line when prefixed with whitespace.
+    $unfolded = preg_replace("/\r?\n[\t ]+/", ' ', $headers);
+    foreach (preg_split('/\r?\n/', (string) $unfolded) as $line) {
         if (stripos($line, $name . ':') === 0) {
             return trim(substr($line, strlen($name) + 1));
         }
@@ -77,61 +116,83 @@ function inferStatus(string $subject, string $body): string
     return '';
 }
 
-$subject = findHeaderValue($rawHeaders, 'Subject');
-$from = findHeaderValue($rawHeaders, 'From');
-$messageId = findHeaderValue($rawHeaders, 'Message-ID');
-$inReplyTo = findHeaderValue($rawHeaders, 'In-Reply-To');
 
-if ($from === '') {
-    error_log('[ResQCity inbound bridge] Missing From header');
-    exit(1);
+    $subject = findHeaderValue($rawHeaders, 'Subject');
+    $from = findHeaderValue($rawHeaders, 'From');
+    $messageId = findHeaderValue($rawHeaders, 'Message-ID');
+    $inReplyTo = findHeaderValue($rawHeaders, 'In-Reply-To');
+
+    if ($from === '') {
+        error_log('[ResQCity inbound bridge] Missing From header');
+        continue;
+    }
+
+    $plainBody = trim(preg_replace('/\s+/', ' ', strip_tags($rawBody)) ?: '');
+    $reportId = extractReportId($subject, $plainBody);
+    $status = inferStatus($subject, $plainBody);
+    $updateNote = function_exists('mb_substr')
+        ? mb_substr($plainBody, 0, $maxNoteChars, 'UTF-8')
+        : substr($plainBody, 0, $maxNoteChars);
+
+    $payload = [
+        'source' => 'php-mail-bridge',
+        'from' => $from,
+        'subject' => $subject,
+        'text' => $plainBody,
+        'html' => $rawBody,
+        'reportId' => $reportId !== '' ? $reportId : null,
+        'status' => $status !== '' ? $status : null,
+        'updateNote' => $updateNote !== '' ? $updateNote : null,
+        'messageId' => $messageId !== '' ? $messageId : null,
+        'inReplyTo' => $inReplyTo !== '' ? $inReplyTo : null,
+        'authToken' => $authToken,
+    ];
+
+    $json = json_encode($payload, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
+    if ($json === false) {
+        error_log('[ResQCity inbound bridge] Failed to encode payload to JSON');
+        continue;
+    }
+
+    $ch = curl_init($inboundUrl);
+    curl_setopt_array($ch, [
+        CURLOPT_POST => true,
+        CURLOPT_HTTPHEADER => [
+            'Content-Type: application/json',
+            'X-Inbound-Email-Token: ' . $authToken,
+        ],
+        CURLOPT_POSTFIELDS => $json,
+        CURLOPT_RETURNTRANSFER => true,
+        CURLOPT_TIMEOUT => 20,
+    ]);
+
+    $response = curl_exec($ch);
+    $httpCode = (int) curl_getinfo($ch, CURLINFO_RESPONSE_CODE);
+    $curlError = curl_error($ch);
+    curl_close($ch);
+
+    // Log API response and payload for debugging
+    $logFile = '/tmp/inbound-email-bridge.log';
+    $logEntry = sprintf(
+        "[%s] HTTP=%d CURL=%s\nPayload: %s\nResponse: %s\n\n",
+        date('Y-m-d H:i:s'),
+        $httpCode,
+        $curlError,
+        $json,
+        is_string($response) ? $response : var_export($response, true)
+    );
+    file_put_contents($logFile, $logEntry, FILE_APPEND | LOCK_EX);
+
+    if ($response === false || $httpCode >= 400) {
+        error_log('[ResQCity inbound bridge] Forward failed. HTTP=' . $httpCode . ' CURL=' . $curlError . ' RESPONSE=' . (string)$response);
+        continue;
+    }
+
+    // Mark email as deleted
+    imap_delete($imapStream, $emailNum);
 }
 
-$plainBody = trim(preg_replace('/\s+/', ' ', strip_tags($rawBody)) ?: '');
-$reportId = extractReportId($subject, $plainBody);
-$status = inferStatus($subject, $plainBody);
-$updateNote = function_exists('mb_substr')
-    ? mb_substr($plainBody, 0, $maxNoteChars, 'UTF-8')
-    : substr($plainBody, 0, $maxNoteChars);
-
-$payload = [
-    'source' => 'php-mail-bridge',
-    'from' => $from,
-    'subject' => $subject,
-    'reportId' => $reportId !== '' ? $reportId : null,
-    'status' => $status !== '' ? $status : null,
-    'updateNote' => $updateNote !== '' ? $updateNote : null,
-    'messageId' => $messageId !== '' ? $messageId : null,
-    'inReplyTo' => $inReplyTo !== '' ? $inReplyTo : null,
-    'authToken' => $authToken,
-];
-
-$json = json_encode($payload, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
-if ($json === false) {
-    error_log('[ResQCity inbound bridge] Failed to encode payload to JSON');
-    exit(1);
-}
-
-$ch = curl_init($inboundUrl);
-curl_setopt_array($ch, [
-    CURLOPT_POST => true,
-    CURLOPT_HTTPHEADER => [
-        'Content-Type: application/json',
-        'X-Inbound-Email-Token: ' . $authToken,
-    ],
-    CURLOPT_POSTFIELDS => $json,
-    CURLOPT_RETURNTRANSFER => true,
-    CURLOPT_TIMEOUT => 20,
-]);
-
-$response = curl_exec($ch);
-$httpCode = (int) curl_getinfo($ch, CURLINFO_RESPONSE_CODE);
-$curlError = curl_error($ch);
-curl_close($ch);
-
-if ($response === false || $httpCode >= 400) {
-    error_log('[ResQCity inbound bridge] Forward failed. HTTP=' . $httpCode . ' CURL=' . $curlError . ' RESPONSE=' . (string)$response);
-    exit(1);
-}
+imap_expunge($imapStream);
+imap_close($imapStream);
 
 exit(0);

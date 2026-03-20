@@ -88,3 +88,5 @@ Thumbs.db
 # Keys / certs
 # ------------------------------
 *.pem
+.vercel
+.env*.local

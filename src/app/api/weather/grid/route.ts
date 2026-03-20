@@ -73,26 +73,7 @@ export async function GET(request: NextRequest) {
     const weatherPromises = BULGARIAN_CITIES.map(async (city) => {
       try {
          if (!OPENWEATHER_API_KEY) {
-           console.warn('⚠️ OPENWEATHER_API_KEY не е конфигуриран. Използват се mock данни.');
-           // Return mock data for demo
-           return {
-             lat: city.lat,
-             lon: city.lon,
-             temp: Math.round(18 + Math.random() * 12),
-             feels_like: Math.round(17 + Math.random() * 11),
-             humidity: Math.round(50 + Math.random() * 30),
-             pressure: Math.round(1010 + Math.random() * 20),
-             wind_speed: Math.round(Math.random() * 10),
-             wind_deg: Math.round(Math.random() * 360),
-             clouds: Math.round(Math.random() * 100),
-             weather: {
-               id: 801,
-               main: 'Clouds',
-               description: 'малко облачно',
-               icon: '02d',
-             },
-             city_name: city.name,
-           };
+           return null;
          }
         const response = await axios.get(`${OPENWEATHER_BASE}/weather`, {
           params: {

@@ -71,6 +71,7 @@ function emailLayout(content: string, headerGradient = '135deg,#7C3AED,#06b6d4')
     <tr><td align="center">
       <table width="560" cellpadding="0" cellspacing="0" style="background:#1a1b24;border-radius:20px;border:1px solid rgba(124,58,237,0.2);overflow:hidden;box-shadow:0 25px 50px -12px rgba(0,0,0,0.5);">
         <tr><td style="background:linear-gradient(${headerGradient});padding:40px 44px;text-align:center;">
+          <img src="${appUrl}/branding/logo-full-light.png" alt="ResQCity Logo" style="width:120px;height:auto;margin-bottom:16px;" />
           <p style="margin:0;color:rgba(255,255,255,0.9);font-size:10px;letter-spacing:3px;text-transform:uppercase;font-weight:600;">ResQCity</p>
           <div style="width:48px;height:3px;background:rgba(255,255,255,0.5);margin:12px auto 0;border-radius:2px;"></div>
         </td></tr>

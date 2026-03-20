@@ -26,7 +26,7 @@ export default function DashboardPage() {
   const [taxModalOpen, setTaxModalOpen] = useState(false);
   const [healthModalOpen, setHealthModalOpen] = useState(false);
   const [healthCountdown, setHealthCountdown] = useState(3);
-  const [healthFlow, setHealthFlow] = useState<'idle' | 'countdown'>('idle');
+  const [healthFlow, setHealthFlow] = useState<'idle' | 'countdown' | 'redirected'>('idle');
   const [healthRedirectNoticeOpen, setHealthRedirectNoticeOpen] = useState(false);
   const [healthPopupBlocked, setHealthPopupBlocked] = useState(false);
   const [taxLoading, setTaxLoading] = useState(false);
@@ -79,8 +79,7 @@ export default function DashboardPage() {
         if (prev <= 1) {
           clearInterval(interval);
           handleHealthStatusRedirect();
-          setHealthModalOpen(false);
-          setHealthRedirectNoticeOpen(true);
+          setHealthFlow('redirected');
           return 0;
         }
         return prev - 1;
@@ -377,6 +376,8 @@ export default function DashboardPage() {
       // Prevent the new page from accessing this window while keeping reliable popup detection.
       openedTab.opener = null;
       setHealthPopupBlocked(false);
+      setHealthModalOpen(false);
+      setHealthRedirectNoticeOpen(true);
       return;
     }
 
@@ -620,6 +621,14 @@ export default function DashboardPage() {
                   <p className="font-semibold text-[var(--s-text)]">Бивате пренасочени към НАП</p>
                   <p className="text-sm text-[var(--s-muted)] mt-1">Изчакайте {healthCountdown} сек...</p>
                 </div>
+              ) : healthFlow === 'redirected' ? (
+                <div className="rounded-2xl p-5 border" style={{ borderColor: 'rgba(52,211,153,0.25)', background: 'rgba(52,211,153,0.08)' }}>
+                  <p className="font-semibold text-[var(--s-text)]">Бяхте пренасочени към портала на НАП.</p>
+                  <p className="text-sm text-[var(--s-muted)] mt-1">Текущата ви сесия в ResQCity остава активна и можете да продължите работа.</p>
+                  {healthPopupBlocked && (
+                    <p className="text-sm text-amber-300 mt-2">Браузърът блокира новия таб. Разрешете pop-up за този сайт и опитайте отново.</p>
+                  )}
+                </div>
               ) : (
                 <div className="rounded-2xl p-5 border" style={{ borderColor: 'rgba(52,211,153,0.25)', background: 'rgba(52,211,153,0.08)' }}>
                   <p className="font-semibold text-[var(--s-text)]">Защитен достъп</p>
@@ -646,6 +655,34 @@ export default function DashboardPage() {
                   </button>
                 )}
 
+                {healthFlow === 'redirected' && (
+                  <>
+                    <button
+                      onClick={() => {
+                        setHealthModalOpen(false);
+                        setHealthRedirectNoticeOpen(true);
+                      }}
+                      className="btn-site-primary text-sm px-5 py-2.5 rounded-xl"
+                    >
+                      Продължи в платформата
+                    </button>
+                    <button
+                      onClick={handleHealthStatusRedirect}
+                      className="btn-site-ghost text-sm px-5 py-2.5 rounded-xl"
+                    >
+                      Отвори НАП отново
+                    </button>
+                  </>
+                )}
+              </div>
+
+              <div className="rounded-2xl overflow-hidden border border-[var(--s-border)] bg-[var(--s-bg)] min-h-[220px]">
+                <div className="h-[220px] flex items-center justify-center text-center px-6">
+                  <div>
+                    <p className="text-sm text-[var(--s-muted)]">Порталът на НАП е защитен и не позволява вграждане в iframe от външен сайт.</p>
+                    <p className="text-sm text-[var(--s-muted)] mt-2">Използвайте „Проверка", за да се отвори директно в НАП.</p>
+                  </div>
+                </div>
               </div>
             </div>
           </div>
