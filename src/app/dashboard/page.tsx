@@ -4,6 +4,8 @@ import { useEffect, useState } from 'react';
 import axios from 'axios';
 import Link from 'next/link';
 import { formatCategoryLabel } from '@/hooks/lib/report-format';
+import type { TaxObligation, TaxPaymentTransaction } from '@/types/tax-payments';
+import type { IrisBank } from '@/hooks/lib/irispay';
 
 function getStatusLabel(status: string): string {
   const labels: Record<string, string> = {
@@ -21,9 +23,24 @@ export default function DashboardPage() {
   const [reports, setReports] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [moreMenuOpen, setMoreMenuOpen] = useState(false);
+  const [taxModalOpen, setTaxModalOpen] = useState(false);
   const [healthModalOpen, setHealthModalOpen] = useState(false);
   const [healthCountdown, setHealthCountdown] = useState(3);
   const [healthFlow, setHealthFlow] = useState<'idle' | 'countdown' | 'redirected'>('idle');
+  const [taxLoading, setTaxLoading] = useState(false);
+  const [banksLoading, setBanksLoading] = useState(false);
+  const [taxError, setTaxError] = useState<string | null>(null);
+  const [taxObligations, setTaxObligations] = useState<TaxObligation[]>([]);
+  const [taxTransactions, setTaxTransactions] = useState<TaxPaymentTransaction[]>([]);
+  const [availableBanks, setAvailableBanks] = useState<IrisBank[]>([]);
+  const [selectedBankHashes, setSelectedBankHashes] = useState<string[]>([]);
+  const [selectedObligationId, setSelectedObligationId] = useState<string>('');
+  const [creatingTaxPayment, setCreatingTaxPayment] = useState(false);
+  const [simulatingTaxPayment, setSimulatingTaxPayment] = useState(false);
+  const [syncingTaxStatus, setSyncingTaxStatus] = useState(false);
+  const [deactivatingTaxPayment, setDeactivatingTaxPayment] = useState(false);
+  const [refundingTaxPayment, setRefundingTaxPayment] = useState(false);
+  const [activeTaxPayment, setActiveTaxPayment] = useState<TaxPaymentTransaction | null>(null);
 
   useEffect(() => {
     fetchReports();
@@ -54,6 +71,15 @@ export default function DashboardPage() {
     return () => clearInterval(interval);
   }, [healthModalOpen, healthFlow]);
 
+  useEffect(() => {
+    if (!taxModalOpen) {
+      return;
+    }
+
+    fetchTaxBanks();
+    fetchTaxObligations();
+  }, [taxModalOpen]);
+
   const fetchReports = async () => {
     try {
       const token = localStorage.getItem('token');
@@ -67,6 +93,239 @@ export default function DashboardPage() {
       setLoading(false);
     }
   };
+
+  const getAuthHeaders = () => {
+    const token = localStorage.getItem('token');
+    return { Authorization: `Bearer ${token || ''}` };
+  };
+
+  const fetchTaxObligations = async () => {
+    setTaxLoading(true);
+    setTaxError(null);
+
+    try {
+      const response = await axios.get('/api/tax-payments/obligations', {
+        headers: getAuthHeaders(),
+      });
+
+      const obligations = response.data?.obligations || [];
+      const transactions = response.data?.recentTransactions || [];
+
+      setTaxObligations(obligations);
+      setTaxTransactions(transactions);
+
+      if (!selectedObligationId && obligations.length > 0) {
+        setSelectedObligationId(obligations[0].id);
+      }
+    } catch (error: any) {
+      console.error('Error fetching tax obligations:', error);
+      setTaxError(error?.response?.data?.error || 'Неуспешно зареждане на данъчните задължения');
+    } finally {
+      setTaxLoading(false);
+    }
+  };
+
+  const fetchTaxBanks = async () => {
+    setBanksLoading(true);
+
+    try {
+      const response = await axios.get('/api/tax-payments/banks', {
+        headers: getAuthHeaders(),
+      });
+
+      const banks = (response.data?.banks || []) as IrisBank[];
+      setAvailableBanks(banks);
+    } catch (error: any) {
+      console.error('Error fetching tax banks:', error);
+      setTaxError(error?.response?.data?.error || 'Неуспешно зареждане на списък с банки');
+    } finally {
+      setBanksLoading(false);
+    }
+  };
+
+  const toggleBankHash = (bankHash: string) => {
+    setSelectedBankHashes((prev) => {
+      if (prev.includes(bankHash)) {
+        return prev.filter((item) => item !== bankHash);
+      }
+
+      return [...prev, bankHash];
+    });
+  };
+
+  const createTaxPayByLink = async () => {
+    if (!selectedObligationId) {
+      setTaxError('Избери задължение за плащане.');
+      return;
+    }
+
+    setCreatingTaxPayment(true);
+    setTaxError(null);
+
+    try {
+      const response = await axios.post(
+        '/api/tax-payments/paybylink',
+        {
+          obligationId: selectedObligationId,
+          bankHashes: selectedBankHashes.length > 0 ? selectedBankHashes : undefined,
+          requestShortLink: true,
+          repayable: false,
+        },
+        { headers: getAuthHeaders() }
+      );
+
+      setActiveTaxPayment(response.data.payment || null);
+      await fetchTaxObligations();
+    } catch (error: any) {
+      console.error('Error creating tax payment link:', error);
+      setTaxError(error?.response?.data?.error || 'Неуспешно генериране на PayByLink/QR');
+    } finally {
+      setCreatingTaxPayment(false);
+    }
+  };
+
+  const simulateTaxPaymentSuccess = async () => {
+    if (!activeTaxPayment?.id) {
+      return;
+    }
+
+    setSimulatingTaxPayment(true);
+    setTaxError(null);
+
+    try {
+      const response = await axios.post(
+        `/api/tax-payments/transactions/${activeTaxPayment.id}/simulate`,
+        {},
+        { headers: getAuthHeaders() }
+      );
+
+      if (response.data?.transaction) {
+        setActiveTaxPayment((prev) => {
+          if (!prev) {
+            return null;
+          }
+
+          return {
+            ...prev,
+            ...response.data.transaction,
+          };
+        });
+      }
+
+      await fetchTaxObligations();
+    } catch (error: any) {
+      console.error('Error simulating tax payment:', error);
+      setTaxError(error?.response?.data?.error || 'Неуспешна симулация на плащане');
+    } finally {
+      setSimulatingTaxPayment(false);
+    }
+  };
+
+  const syncActiveTaxStatus = async () => {
+    if (!activeTaxPayment?.id) {
+      return;
+    }
+
+    setSyncingTaxStatus(true);
+    setTaxError(null);
+
+    try {
+      const response = await axios.get(
+        `/api/tax-payments/transactions/${activeTaxPayment.id}?sync=1`,
+        { headers: getAuthHeaders() }
+      );
+
+      if (response.data?.transaction) {
+        setActiveTaxPayment(response.data.transaction);
+      }
+
+      await fetchTaxObligations();
+    } catch (error: any) {
+      console.error('Error syncing payment status:', error);
+      setTaxError(error?.response?.data?.error || 'Неуспешна проверка на статуса');
+    } finally {
+      setSyncingTaxStatus(false);
+    }
+  };
+
+  const deactivateActiveTaxPayment = async () => {
+    if (!activeTaxPayment?.id) {
+      return;
+    }
+
+    setDeactivatingTaxPayment(true);
+    setTaxError(null);
+
+    try {
+      const response = await axios.put(
+        `/api/tax-payments/transactions/${activeTaxPayment.id}/deactivate`,
+        {},
+        { headers: getAuthHeaders() }
+      );
+
+      if (response.data?.transaction) {
+        setActiveTaxPayment(response.data.transaction);
+      }
+
+      await fetchTaxObligations();
+    } catch (error: any) {
+      console.error('Error deactivating payment link:', error);
+      setTaxError(error?.response?.data?.error || 'Неуспешно деактивиране на линка');
+    } finally {
+      setDeactivatingTaxPayment(false);
+    }
+  };
+
+  const requestFullRefund = async () => {
+    if (!activeTaxPayment?.id) {
+      return;
+    }
+
+    setRefundingTaxPayment(true);
+    setTaxError(null);
+
+    try {
+      await axios.post(
+        `/api/tax-payments/transactions/${activeTaxPayment.id}/refund`,
+        {
+          refundType: 'FULL',
+          sum: activeTaxPayment.amount,
+          remittanceDescription: `ResQCity refund ${activeTaxPayment.orderId}`,
+        },
+        { headers: getAuthHeaders() }
+      );
+    } catch (error: any) {
+      console.error('Error sending refund request:', error);
+      setTaxError(error?.response?.data?.error || 'Неуспешно заявяване на refund');
+    } finally {
+      setRefundingTaxPayment(false);
+    }
+  };
+
+  const getTaxStatusLabel = (status: string): string => {
+    const labels: Record<string, string> = {
+      UNPAID: 'Неплатено',
+      PARTIALLY_PAID: 'Частично платено',
+      PAID: 'Платено',
+      OVERDUE: 'Просрочено',
+    };
+
+    return labels[status] || status;
+  };
+
+  const getPaymentStatusLabel = (status: string): string => {
+    const labels: Record<string, string> = {
+      WAITING: 'Изчаква плащане',
+      FAILED: 'Неуспешно',
+      CONFIRMED: 'Потвърдено',
+      INACTIVE: 'Деактивирано',
+      UNKNOWN: 'Неизвестно',
+    };
+
+    return labels[status] || status;
+  };
+
+  const formatMoney = (value: number, currency = 'EUR') => `${value.toFixed(2)} ${currency}`;
 
   const STATUS_CFG: Record<string, { label: string; cls: string }> = {
     PENDING:     { label: 'В обработка', cls: 'chip chip-pending' },
@@ -263,6 +522,18 @@ export default function DashboardPage() {
               <button
                 onClick={() => {
                   setMoreMenuOpen(false);
+                  setTaxModalOpen(true);
+                }}
+                className="w-full text-left px-4 py-3 rounded-xl hover:bg-[var(--s-surface2)] transition-colors"
+              >
+                <p className="text-[11px] uppercase tracking-[0.35em] text-[var(--s-muted)] mb-1">Плащания</p>
+                <p className="font-semibold text-[var(--s-text)]">Плащане на данъци</p>
+                <p className="text-xs text-[var(--s-muted)] mt-1">PayByLink QR (dev тест)</p>
+              </button>
+
+              <button
+                onClick={() => {
+                  setMoreMenuOpen(false);
                   setHealthModalOpen(true);
                 }}
                 className="w-full text-left px-4 py-3 rounded-xl hover:bg-[var(--s-surface2)] transition-colors"
@@ -369,6 +640,252 @@ export default function DashboardPage() {
                     <p className="text-sm text-[var(--s-muted)] mt-2">Използвайте „Проверка", за да се отвори директно в НАП.</p>
                   </div>
                 </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {taxModalOpen && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center p-4"
+          style={{ background: 'rgba(3, 7, 18, 0.68)' }}
+          onClick={() => setTaxModalOpen(false)}
+        >
+          <div
+            className="w-full max-w-6xl rounded-3xl overflow-hidden border"
+            style={{ background: 'var(--s-surface)', borderColor: 'var(--s-border)' }}
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="flex items-center justify-between px-6 py-4 border-b border-[var(--s-border)]">
+              <div>
+                <p className="text-[10px] uppercase tracking-[0.4em] text-[var(--s-muted)]">Плащане</p>
+                <h3 className="rc-display text-xl text-[var(--s-text)] font-bold">Плащане на данъци</h3>
+              </div>
+              <button
+                onClick={() => setTaxModalOpen(false)}
+                className="btn-site-ghost text-xs px-4 py-2 rounded-xl"
+              >
+                Затвори
+              </button>
+            </div>
+
+            <div className="p-6 grid lg:grid-cols-2 gap-6">
+              <div className="space-y-4">
+                <div className="rounded-2xl p-4 border" style={{ borderColor: 'rgba(251,191,36,0.25)', background: 'rgba(251,191,36,0.08)' }}>
+                  <p className="font-semibold text-[var(--s-text)]">IRISPay Dev/Test v3.5.3</p>
+                  <p className="text-sm text-[var(--s-muted)] mt-1">Реална интеграция към dev.paybyclick.irispay.bg с тестови merchant key и тестов IBAN.</p>
+                </div>
+
+                <div className="rounded-2xl border p-4" style={{ borderColor: 'var(--s-border)', background: 'var(--s-surface2)' }}>
+                  <div className="flex items-center justify-between gap-3 mb-3">
+                    <p className="text-xs uppercase tracking-[0.28em] text-[var(--s-muted)]">Банки (bankHashes)</p>
+                    {banksLoading && <span className="text-xs text-[var(--s-muted)]">Зареждане...</span>}
+                  </div>
+
+                  <div className="grid sm:grid-cols-2 gap-2 max-h-44 overflow-auto pr-1">
+                    {availableBanks.slice(0, 12).map((bank) => (
+                      <label
+                        key={bank.bankHash}
+                        className="flex items-start gap-2 rounded-lg border px-2.5 py-2 cursor-pointer"
+                        style={{ borderColor: 'var(--s-border)', background: 'var(--s-bg)' }}
+                      >
+                        <input
+                          type="checkbox"
+                          checked={selectedBankHashes.includes(bank.bankHash)}
+                          onChange={() => toggleBankHash(bank.bankHash)}
+                          className="mt-0.5"
+                        />
+                        <span className="text-xs text-[var(--s-text)] leading-snug">{bank.fullName || bank.name}</span>
+                      </label>
+                    ))}
+                  </div>
+
+                  <p className="text-xs text-[var(--s-muted)] mt-3">Ако няма избрани банки, IRIS ще покаже всички достъпни банки.</p>
+                </div>
+
+                {taxLoading ? (
+                  <div className="space-y-2">
+                    {[1, 2, 3].map((item) => (
+                      <div key={item} className="h-24 rounded-2xl" style={{ background: 'var(--s-surface2)', opacity: 0.7 - item * 0.1 }} />
+                    ))}
+                  </div>
+                ) : (
+                  <div className="space-y-3">
+                    {taxObligations.map((obligation) => {
+                      const selected = selectedObligationId === obligation.id;
+
+                      return (
+                        <button
+                          key={obligation.id}
+                          onClick={() => setSelectedObligationId(obligation.id)}
+                          className="w-full text-left rounded-2xl border p-4 transition-colors"
+                          style={{
+                            borderColor: selected ? 'rgba(251,191,36,0.45)' : 'var(--s-border)',
+                            background: selected ? 'rgba(251,191,36,0.08)' : 'var(--s-surface2)',
+                          }}
+                        >
+                          <div className="flex items-center justify-between gap-3">
+                            <p className="font-semibold text-[var(--s-text)]">{obligation.title}</p>
+                            <span className="chip chip-pending">{getTaxStatusLabel(obligation.status)}</span>
+                          </div>
+                          <div className="flex items-center justify-between gap-2 text-xs mt-2 text-[var(--s-muted)]">
+                            <span>Период: {obligation.period}</span>
+                            <span>Падеж: {new Date(obligation.dueDate).toLocaleDateString('bg-BG')}</span>
+                          </div>
+                          <p className="text-sm mt-2 text-[var(--s-text)]">Общо: <span className="font-semibold">{formatMoney(obligation.totalAmount, obligation.currency)}</span></p>
+                        </button>
+                      );
+                    })}
+                  </div>
+                )}
+
+                <div className="flex gap-3">
+                  <button
+                    onClick={createTaxPayByLink}
+                    disabled={creatingTaxPayment || taxLoading || taxObligations.length === 0}
+                    className="btn-site-primary text-sm px-5 py-2.5 rounded-xl disabled:opacity-60 disabled:cursor-not-allowed"
+                  >
+                    {creatingTaxPayment ? 'Генериране...' : 'Генерирай PayByLink + QR'}
+                  </button>
+
+                  <button
+                    onClick={fetchTaxObligations}
+                    className="btn-site-ghost text-sm px-5 py-2.5 rounded-xl"
+                  >
+                    Обнови
+                  </button>
+                </div>
+
+                {taxError && (
+                  <div className="rounded-2xl p-4 border" style={{ borderColor: 'rgba(255,71,87,0.25)', background: 'rgba(255,71,87,0.08)' }}>
+                    <p className="text-sm text-[var(--s-text)]">{taxError}</p>
+                  </div>
+                )}
+              </div>
+
+              <div className="rounded-2xl border p-5" style={{ borderColor: 'var(--s-border)', background: 'var(--s-bg)' }}>
+                {!activeTaxPayment ? (
+                  <div className="h-full min-h-[420px] flex items-center justify-center text-center">
+                    <div>
+                      <p className="text-[var(--s-text)] font-semibold">Няма активна платежна сесия</p>
+                      <p className="text-sm text-[var(--s-muted)] mt-2">Избери задължение и генерирай тестов PayByLink/QR.</p>
+                    </div>
+                  </div>
+                ) : (
+                  <div className="space-y-4">
+                    <div className="flex items-center justify-between gap-3">
+                      <p className="text-sm uppercase tracking-[0.3em] text-[var(--s-muted)]">Платежна сесия</p>
+                      <span className={activeTaxPayment.status === 'CONFIRMED' ? 'chip chip-resolved' : 'chip chip-progress'}>
+                        {getPaymentStatusLabel(activeTaxPayment.status)}
+                      </span>
+                    </div>
+
+                    <div className="rounded-xl border p-4" style={{ borderColor: 'var(--s-border)', background: 'var(--s-surface2)' }}>
+                      <p className="text-sm text-[var(--s-muted)]">Референция</p>
+                      <p className="font-semibold text-[var(--s-text)]">{activeTaxPayment.providerReference}</p>
+                      <p className="text-xs text-[var(--s-muted)] mt-2">Payment hash: {activeTaxPayment.paymentHash}</p>
+                      <p className="text-xs text-[var(--s-muted)] mt-1">OrderId: {activeTaxPayment.orderId}</p>
+                    </div>
+
+                    <div className="rounded-xl border p-4" style={{ borderColor: 'var(--s-border)', background: 'var(--s-surface2)' }}>
+                      <p className="text-sm text-[var(--s-muted)] mb-3">QR image (GET /backend/payment/qr/{'{hash}'})</p>
+                      {activeTaxPayment.qrCodeDataUrl ? (
+                        <img
+                          src={activeTaxPayment.qrCodeDataUrl}
+                          alt="PayByLink QR"
+                          className="w-56 h-56 rounded-lg border border-[var(--s-border)] bg-white"
+                        />
+                      ) : (
+                        <p className="text-xs text-[var(--s-muted)]">QR не е наличен</p>
+                      )}
+                    </div>
+
+                    <div className="flex flex-wrap gap-3">
+                      <a
+                        href={activeTaxPayment.paymentLink}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="btn-site-primary text-sm px-5 py-2.5 rounded-xl"
+                      >
+                        Отвори PayByLink
+                      </a>
+
+                      {activeTaxPayment.shortPaymentLink && (
+                        <a
+                          href={activeTaxPayment.shortPaymentLink}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="btn-site-ghost text-sm px-5 py-2.5 rounded-xl"
+                        >
+                          Отвори ShortLink
+                        </a>
+                      )}
+
+                      <button
+                        onClick={syncActiveTaxStatus}
+                        disabled={syncingTaxStatus}
+                        className="btn-site-ghost text-sm px-5 py-2.5 rounded-xl disabled:opacity-60 disabled:cursor-not-allowed"
+                      >
+                        {syncingTaxStatus ? 'Проверка...' : 'Провери статус'}
+                      </button>
+
+                      <button
+                        onClick={deactivateActiveTaxPayment}
+                        disabled={deactivatingTaxPayment || !activeTaxPayment.isActive}
+                        className="btn-site-ghost text-sm px-5 py-2.5 rounded-xl disabled:opacity-60 disabled:cursor-not-allowed"
+                      >
+                        {deactivatingTaxPayment ? 'Деактивиране...' : 'Деактивирай линк'}
+                      </button>
+
+                      <button
+                        onClick={requestFullRefund}
+                        disabled={refundingTaxPayment || activeTaxPayment.status !== 'CONFIRMED'}
+                        className="btn-site-ghost text-sm px-5 py-2.5 rounded-xl disabled:opacity-60 disabled:cursor-not-allowed"
+                      >
+                        {refundingTaxPayment ? 'Изпращане...' : 'Възстанови сума'}
+                      </button>
+
+                      <button
+                        onClick={simulateTaxPaymentSuccess}
+                        disabled={simulatingTaxPayment || activeTaxPayment.status === 'CONFIRMED'}
+                        className="btn-site-ghost text-sm px-5 py-2.5 rounded-xl disabled:opacity-60 disabled:cursor-not-allowed"
+                      >
+                        {simulatingTaxPayment ? 'Симулация...' : 'Локална симулация (fallback)'}
+                      </button>
+                    </div>
+
+                    {(activeTaxPayment.payerName || activeTaxPayment.payerIban || activeTaxPayment.payerBank) && (
+                      <div className="rounded-xl border p-4" style={{ borderColor: 'var(--s-border)', background: 'var(--s-surface2)' }}>
+                        <p className="text-xs uppercase tracking-[0.26em] text-[var(--s-muted)] mb-2">Платец</p>
+                        <p className="text-sm text-[var(--s-text)]">{activeTaxPayment.payerName || 'Няма данни за име'}</p>
+                        <p className="text-xs text-[var(--s-muted)] mt-1">{activeTaxPayment.payerIban || 'Няма данни за IBAN'}</p>
+                        <p className="text-xs text-[var(--s-muted)] mt-1">{activeTaxPayment.payerBank || 'Няма данни за банка'}</p>
+                      </div>
+                    )}
+
+                    {taxTransactions.length > 0 && (
+                      <div className="pt-2">
+                        <p className="text-xs uppercase tracking-[0.25em] text-[var(--s-muted)] mb-2">Последни транзакции</p>
+                        <div className="space-y-2 max-h-44 overflow-auto pr-1">
+                          {taxTransactions.map((tx) => (
+                            <div
+                              key={tx.id}
+                              className="rounded-xl border px-3 py-2 text-xs"
+                              style={{ borderColor: 'var(--s-border)', background: 'var(--s-surface2)' }}
+                            >
+                              <div className="flex items-center justify-between gap-2">
+                                <span className="font-medium text-[var(--s-text)]">{tx.providerReference}</span>
+                                <span className="text-[var(--s-muted)]">{getPaymentStatusLabel(tx.status)}</span>
+                              </div>
+                              <p className="text-[var(--s-muted)] mt-1">{formatMoney(tx.amount, tx.currency)} • {new Date(tx.createdAt).toLocaleString('bg-BG')}</p>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                )}
               </div>
             </div>
           </div>
