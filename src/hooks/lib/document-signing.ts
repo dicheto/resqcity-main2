@@ -26,17 +26,29 @@ export function generateMockSignature(
 ): SignatureResult {
   try {
     const timestamp = new Date().toISOString();
+
+    // SVG seal for visual signature
+    const svgSeal = `
+<svg width="180" height="80" viewBox="0 0 180 80" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <ellipse cx="90" cy="40" rx="80" ry="30" fill="#f3f4f6" stroke="#10b981" stroke-width="4"/>
+  <text x="90" y="38" text-anchor="middle" font-size="18" font-family="Verdana" fill="#10b981" font-weight="bold">ResQCity</text>
+  <text x="90" y="58" text-anchor="middle" font-size="12" font-family="Verdana" fill="#374151">Адм. печат</text>
+</svg>
+`;
+
     const mockSignatureData = `
-ResQCity Document Signature
-===========================
-Signed by: ${adminEmail}
-Signed at: ${timestamp}
-Hash Algorithm: ${hashAlgorithm}
-Content Hash: ${crypto.createHash(hashAlgorithm.toLowerCase()).update(Buffer.from(contentB64, 'base64')).digest('hex')}
-Signature Type: ADMINISTRATIVE_SEAL
----
-This is a non-repudiation proof of administrative action.
-Document was reviewed and approved by authorized personnel.
+<div style="text-align:center;">
+  ${svgSeal}
+  <div style="margin-top:10px;font-family:Verdana,sans-serif;font-size:13px;color:#374151;">
+    <strong>Подписано от:</strong> ${adminEmail}<br/>
+    <strong>Дата:</strong> ${timestamp}<br/>
+    <strong>Алгоритъм:</strong> ${hashAlgorithm}<br/>
+    <strong>Hash:</strong> ${crypto.createHash(hashAlgorithm.toLowerCase()).update(Buffer.from(contentB64, 'base64')).digest('hex')}<br/>
+    <span style="color:#10b981;font-weight:bold;">Административна печат ResQCity</span>
+    <hr style="margin:10px 0;opacity:0.3;"/>
+    <span style="font-size:12px;color:#6b7280;">Документът е подписан с административна печат на платформата ResQCity.<br/>This is a non-repudiation proof of administrative action.</span>
+  </div>
+</div>
     `.trim();
 
     const signatureB64 = Buffer.from(mockSignatureData).toString('base64');
