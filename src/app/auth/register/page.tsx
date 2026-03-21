@@ -211,27 +211,45 @@ export default function RegisterPage() {
             />
 
             <div className="flex items-start gap-2">
-              <input
-                id="termsAccepted"
-                type="checkbox"
-                className="mt-1"
-                checked={formData.termsAccepted}
-                onChange={e => setFormData({ ...formData, termsAccepted: e.target.checked })}
-                required
-              />
-              <label htmlFor="termsAccepted" className="text-xs text-[var(--s-muted2)] select-none">
-                Съгласен съм с
-                <Link href="/terms" target="_blank" className="text-[var(--s-violet)] underline ml-1">Общите условия</Link>
-                и
-                <Link href="/gdpr-policy" target="_blank" className="text-[var(--s-violet)] underline ml-1">Политиката за поверителност</Link>
-                <span className="text-[var(--s-red)]"> *</span>
+              <label htmlFor="termsAccepted" className="flex items-center cursor-pointer select-none">
+                <span className="relative flex items-center justify-center w-5 h-5 mr-2">
+                  <input
+                    id="termsAccepted"
+                    type="checkbox"
+                    checked={formData.termsAccepted}
+                    onChange={e => setFormData({ ...formData, termsAccepted: e.target.checked })}
+                    required
+                    className="peer appearance-none w-5 h-5 border-2 border-[var(--s-violet)] dark:border-[#a5b4fc] rounded-md bg-white dark:bg-[#181825] transition-colors duration-200 focus:ring-2 focus:ring-[var(--s-violet)] dark:focus:ring-[#a5b4fc] checked:bg-gradient-to-br checked:from-[var(--s-violet)] checked:to-[#7C3AED] checked:dark:from-[#a5b4fc] checked:dark:to-[#7C3AED] checked:border-transparent"
+                  />
+                  <svg className="absolute w-3 h-3 text-white opacity-0 peer-checked:opacity-100 transition-opacity duration-200 pointer-events-none" viewBox="0 0 20 20" fill="none">
+                    <path d="M5 10.5L9 14L15 7" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" />
+                  </svg>
+                </span>
+                <span className="text-xs text-[var(--s-muted2)]">
+                  Съгласен съм с
+                  <Link href="/terms" target="_blank" className="text-[var(--s-violet)] dark:text-[#a5b4fc] underline ml-1">Общите условия</Link>
+                  и
+                  <Link href="/gdpr-policy" target="_blank" className="text-[var(--s-violet)] dark:text-[#a5b4fc] underline ml-1">Политиката за поверителност</Link>
+                  <span className="text-[var(--s-red)]"> *</span>
+                </span>
               </label>
             </div>
 
-            <button type="submit" disabled={loading || !passwordValid || !formData.termsAccepted}
-              className="btn-site-primary w-full justify-center py-3.5 rounded-2xl text-sm"
-              style={{ background: 'linear-gradient(135deg, var(--s-violet), #7C3AED)', boxShadow: '0 0 28px var(--s-glow-v)' }}>
-              {loading ? 'Регистрация...' : 'Създай профил'}
+            <button
+              type="submit"
+              disabled={loading || !passwordValid || !formData.termsAccepted}
+              className="w-full py-3.5 rounded-2xl text-sm font-bold transition-all duration-200 shadow-lg bg-gradient-to-br from-[var(--s-violet)] to-[#7C3AED] dark:from-[#a5b4fc] dark:to-[#7C3AED] text-white hover:scale-[1.025] hover:shadow-xl focus:outline-none focus:ring-2 focus:ring-[var(--s-violet)] dark:focus:ring-[#a5b4fc] disabled:opacity-60 disabled:cursor-not-allowed"
+              style={{ boxShadow: '0 0 28px var(--s-glow-v)' }}
+            >
+              {loading ? (
+                <span className="flex items-center justify-center gap-2">
+                  <svg className="animate-spin h-5 w-5 text-white" viewBox="0 0 24 24">
+                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none" />
+                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z" />
+                  </svg>
+                  Регистрация...
+                </span>
+              ) : 'Създай профил'}
             </button>
           </form>
 
