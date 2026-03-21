@@ -221,9 +221,9 @@ export default function RegisterPage() {
               />
               <label htmlFor="termsAccepted" className="text-xs text-[var(--s-muted2)] select-none">
                 Съгласен съм с
-                <Link href="/terms-bg.md" target="_blank" className="text-[var(--s-violet)] underline ml-1">Общите условия</Link>
+                <Link href="/terms" target="_blank" className="text-[var(--s-violet)] underline ml-1">Общите условия</Link>
                 и
-                <Link href="/gdpr-policy-bg.md" target="_blank" className="text-[var(--s-violet)] underline ml-1">Политиката за поверителност</Link>
+                <Link href="/gdpr-policy" target="_blank" className="text-[var(--s-violet)] underline ml-1">Политиката за поверителност</Link>
                 <span className="text-[var(--s-red)]"> *</span>
               </label>
             </div>
