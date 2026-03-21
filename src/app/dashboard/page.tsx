@@ -401,7 +401,7 @@ export default function DashboardPage() {
             <span className="text-[9px] font-bold uppercase tracking-[0.5em] text-[var(--s-orange)]">Гражданин</span>
           </div>
           <h1 className="rc-display font-extrabold text-4xl md:text-5xl text-[var(--s-text)] leading-tight mb-3">
-            Твоето <span className="grad-orange">Табло</span>
+            Твоето <span className="grad-orange">табло</span>
           </h1>
           <p className="text-[var(--s-muted2)] text-sm max-w-lg">Управлявай сигналите си и следи статуса им в реално време.</p>
 
