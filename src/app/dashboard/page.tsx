@@ -485,14 +485,7 @@ export default function DashboardPage() {
             <p className="text-[var(--s-muted)] text-xs mt-1">MFA и Passkeys</p>
           </Link>
 
-          <Link href="/dashboard/company-search" className="site-card p-5 rounded-2xl block group"
-            style={{ borderColor: 'rgba(251,191,36,0.22)' }}>
-            <div className="w-10 h-10 rounded-xl flex items-center justify-center text-xl mb-3"
-              style={{ background: 'rgba(251,191,36,0.14)' }}>🏢</div>
-            <p className="text-[10px] uppercase tracking-[0.4em] text-[#FBBF24] mb-1 font-semibold">Справки</p>
-            <h3 className="font-semibold text-[var(--s-text)]">Търсене на фирми</h3>
-            <p className="text-[var(--s-muted)] text-xs mt-1">Фирми, ЕИК и свързани лица</p>
-          </Link>
+          {/* Преместено в меню 'Още' */}
         </div>
 
         {/* Reports list */}
@@ -579,6 +572,16 @@ export default function DashboardPage() {
                 <p className="font-semibold text-[var(--s-text)]">Здравноосигурителен статус</p>
                 <p className="text-xs text-[var(--s-muted)] mt-1">Проверка през НАП</p>
               </button>
+
+              <a
+                href="/dashboard/company-search"
+                className="w-full block text-left px-4 py-3 rounded-xl hover:bg-[var(--s-surface2)] transition-colors"
+                onClick={() => setMoreMenuOpen(false)}
+              >
+                <p className="text-[11px] uppercase tracking-[0.35em] text-[#FBBF24] mb-1">Справки</p>
+                <p className="font-semibold text-[var(--s-text)]">Търсене на фирми</p>
+                <p className="text-xs text-[var(--s-muted)] mt-1">Фирми, ЕИК и свързани лица</p>
+              </a>
             </div>
           )}
 

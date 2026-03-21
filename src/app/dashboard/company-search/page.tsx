@@ -497,7 +497,6 @@ export default function CompanySearchPage() {
                     <tr key={`${field.code}-${index}`} className="border-b border-[var(--s-border)]/60 align-top">
                       <td className="py-2 pr-3 text-[var(--s-muted2)] w-[240px]">
                         <p className="font-medium text-[var(--s-text)]">{field.label}</p>
-                        <p className="text-[11px] mt-0.5">{field.code}</p>
                       </td>
                       <td className="py-2 text-[var(--s-muted2)] whitespace-pre-wrap">{field.value}</td>
                     </tr>

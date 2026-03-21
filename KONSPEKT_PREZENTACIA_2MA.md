@@ -165,6 +165,9 @@
 - bcryptjs
 - Zod validation
 - 2FA (Speakeasy + QRCode)
+- MagicLink
+
+
 
 ### Какво казва Човек А
 "Използваме JWT за удостоверяване и bcryptjs за сигурно хеширане на пароли."

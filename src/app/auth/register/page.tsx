@@ -13,6 +13,7 @@ export default function RegisterPage() {
     firstName: '',
     lastName: '',
     phone: '',
+    termsAccepted: false,
   });
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
@@ -28,10 +29,14 @@ export default function RegisterPage() {
     e.preventDefault();
     setError('');
     if (!passwordValid) return;
+    if (!formData.termsAccepted) {
+      setError('Трябва да приемете Общите условия и Политиката за поверителност!');
+      return;
+    }
     setLoading(true);
 
     try {
-      const { confirmPassword: _, ...data } = formData;
+      const { confirmPassword: _, termsAccepted, ...data } = formData;
       const response = await axios.post('/api/auth/register', data);
       setRegisteredEmail(response.data.email);
       setEmailAlreadyVerified(response.data.emailVerified === true);
@@ -205,7 +210,25 @@ export default function RegisterPage() {
               showConfirm
             />
 
-            <button type="submit" disabled={loading || !passwordValid}
+            <div className="flex items-start gap-2">
+              <input
+                id="termsAccepted"
+                type="checkbox"
+                className="mt-1"
+                checked={formData.termsAccepted}
+                onChange={e => setFormData({ ...formData, termsAccepted: e.target.checked })}
+                required
+              />
+              <label htmlFor="termsAccepted" className="text-xs text-[var(--s-muted2)] select-none">
+                Съгласен съм с
+                <Link href="/terms-bg.md" target="_blank" className="text-[var(--s-violet)] underline ml-1">Общите условия</Link>
+                и
+                <Link href="/gdpr-policy-bg.md" target="_blank" className="text-[var(--s-violet)] underline ml-1">Политиката за поверителност</Link>
+                <span className="text-[var(--s-red)]"> *</span>
+              </label>
+            </div>
+
+            <button type="submit" disabled={loading || !passwordValid || !formData.termsAccepted}
               className="btn-site-primary w-full justify-center py-3.5 rounded-2xl text-sm"
               style={{ background: 'linear-gradient(135deg, var(--s-violet), #7C3AED)', boxShadow: '0 0 28px var(--s-glow-v)' }}>
               {loading ? 'Регистрация...' : 'Създай профил'}

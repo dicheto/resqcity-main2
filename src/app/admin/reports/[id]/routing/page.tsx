@@ -168,8 +168,8 @@ export default function ReportRoutingPage() {
               </label>
               {selectedIds.has(institution.id) && (
                 <textarea
-                  className="mt-3 admin-input rounded-xl border-[var(--a-border)]"
-                  rows={2}
+                  className="mt-3 admin-input rounded-xl border-[var(--a-border)] min-h-[56px] text-base px-4 py-3"
+                  rows={3}
                   value={notesByInstitutionId[institution.id] || ''}
                   onChange={(e) =>
                     setNotesByInstitutionId((prev) => ({
