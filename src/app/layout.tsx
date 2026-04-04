@@ -65,7 +65,7 @@ export const metadata: Metadata = {
     },
   },
   verification: {
-    google: 'google-site-verification-code-here', // Замени с реалния код от Search Console
+    google: 'WtGBk_8ApoCRqQ83tsru-liL4so9nREHUFar1jMDN3s',
   },
   icons: {
     icon: [
