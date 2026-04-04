@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:news="http://www.google.com/schemas/sitemap-news/0.9" xmlns:xhtml="http://www.w3.org/1999/xhtml" xmlns:mobile="http://www.google.com/schemas/sitemap-mobile/1.0" xmlns:image="http://www.google.com/schemas/sitemap-image/1.1" xmlns:video="http://www.google.com/schemas/sitemap-video/1.1">
+<url><loc>https://resq.tcom-sf.org/dashboard/new-report</loc><lastmod>2026-04-04T08:44:22.223Z</lastmod><changefreq>daily</changefreq><priority>0.7</priority></url>
+<url><loc>https://resq.tcom-sf.org/dashboard/company-search</loc><lastmod>2026-04-04T08:44:22.224Z</lastmod><changefreq>daily</changefreq><priority>0.7</priority></url>
+<url><loc>https://resq.tcom-sf.org/dashboard/reports</loc><lastmod>2026-04-04T08:44:22.224Z</lastmod><changefreq>daily</changefreq><priority>0.7</priority></url>
+<url><loc>https://resq.tcom-sf.org/dashboard</loc><lastmod>2026-04-04T08:44:22.224Z</lastmod><changefreq>daily</changefreq><priority>0.7</priority></url>
+<url><loc>https://resq.tcom-sf.org/dispatcher/incidents</loc><lastmod>2026-04-04T08:44:22.224Z</lastmod><changefreq>daily</changefreq><priority>0.7</priority></url>
+<url><loc>https://resq.tcom-sf.org/admin</loc><lastmod>2026-04-04T08:44:22.224Z</lastmod><changefreq>daily</changefreq><priority>0.7</priority></url>
+<url><loc>https://resq.tcom-sf.org/dashboard/security</loc><lastmod>2026-04-04T08:44:22.224Z</lastmod><changefreq>daily</changefreq><priority>0.7</priority></url>
+<url><loc>https://resq.tcom-sf.org/gdpr-policy</loc><lastmod>2026-04-04T08:44:22.224Z</lastmod><changefreq>daily</changefreq><priority>0.7</priority></url>
+<url><loc>https://resq.tcom-sf.org/institutions/auth/login</loc><lastmod>2026-04-04T08:44:22.224Z</lastmod><changefreq>daily</changefreq><priority>0.7</priority></url>
+<url><loc>https://resq.tcom-sf.org/institutions/auth/register</loc><lastmod>2026-04-04T08:44:22.224Z</lastmod><changefreq>daily</changefreq><priority>0.7</priority></url>
+<url><loc>https://resq.tcom-sf.org/institutions</loc><lastmod>2026-04-04T08:44:22.224Z</lastmod><changefreq>daily</changefreq><priority>0.7</priority></url>
+<url><loc>https://resq.tcom-sf.org/institutions/auth/setup-passkey</loc><lastmod>2026-04-04T08:44:22.224Z</lastmod><changefreq>daily</changefreq><priority>0.7</priority></url>
+<url><loc>https://resq.tcom-sf.org/map</loc><lastmod>2026-04-04T08:44:22.224Z</lastmod><changefreq>daily</changefreq><priority>0.7</priority></url>
+<url><loc>https://resq.tcom-sf.org/my-incidents</loc><lastmod>2026-04-04T08:44:22.224Z</lastmod><changefreq>daily</changefreq><priority>0.7</priority></url>
+<url><loc>https://resq.tcom-sf.org/my-incidents/new</loc><lastmod>2026-04-04T08:44:22.224Z</lastmod><changefreq>daily</changefreq><priority>0.7</priority></url>
+<url><loc>https://resq.tcom-sf.org/report-incident</loc><lastmod>2026-04-04T08:44:22.224Z</lastmod><changefreq>daily</changefreq><priority>0.7</priority></url>
+<url><loc>https://resq.tcom-sf.org</loc><lastmod>2026-04-04T08:44:22.224Z</lastmod><changefreq>daily</changefreq><priority>0.7</priority></url>
+<url><loc>https://resq.tcom-sf.org/terms</loc><lastmod>2026-04-04T08:44:22.224Z</lastmod><changefreq>daily</changefreq><priority>0.7</priority></url>
+<url><loc>https://resq.tcom-sf.org/vehicles</loc><lastmod>2026-04-04T08:44:22.224Z</lastmod><changefreq>daily</changefreq><priority>0.7</priority></url>
+<url><loc>https://resq.tcom-sf.org/signals</loc><lastmod>2026-04-04T08:44:22.224Z</lastmod><changefreq>daily</changefreq><priority>0.7</priority></url>
+<url><loc>https://resq.tcom-sf.org/statistics</loc><lastmod>2026-04-04T08:44:22.224Z</lastmod><changefreq>daily</changefreq><priority>0.7</priority></url>
+</urlset>

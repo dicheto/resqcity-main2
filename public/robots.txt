@@ -1,0 +1,12 @@
+# *
+User-agent: *
+Allow: /
+Disallow: /admin/
+Disallow: /api/
+Disallow: /auth/
+
+# Host
+Host: https://resq.tcom-sf.org
+
+# Sitemaps
+Sitemap: https://resq.tcom-sf.org/sitemap.xml

@@ -1,0 +1,42 @@
+<svg width="1200" height="630" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#1e40af;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#3b82f6;stop-opacity:1" />
+    </linearGradient>
+  </defs>
+
+  <!-- Background -->
+  <rect width="1200" height="630" fill="url(#bg)"/>
+
+  <!-- Emergency icon -->
+  <circle cx="150" cy="315" r="80" fill="#ef4444" opacity="0.9"/>
+  <path d="M130 295 L150 275 L170 295 L170 335 L150 355 L130 335 Z" fill="white"/>
+  <circle cx="150" cy="305" r="8" fill="#ef4444"/>
+  <rect x="148" y="313" width="4" height="12" fill="#ef4444"/>
+
+  <!-- Main title -->
+  <text x="300" y="280" font-family="Arial, sans-serif" font-size="48" font-weight="bold" fill="white">
+    ResQCity
+  </text>
+
+  <!-- Subtitle -->
+  <text x="300" y="340" font-family="Arial, sans-serif" font-size="24" fill="#e5e7eb">
+    Urban Emergency Management Platform
+  </text>
+
+  <!-- Tagline -->
+  <text x="300" y="380" font-family="Arial, sans-serif" font-size="18" fill="#d1d5db">
+    Бърза помощ в градска среда • Fast Urban Emergency Response
+  </text>
+
+  <!-- Website URL -->
+  <text x="300" y="450" font-family="Arial, sans-serif" font-size="16" fill="#9ca3af">
+    resq.tcom-sf.org
+  </text>
+
+  <!-- Decorative elements -->
+  <circle cx="1100" cy="100" r="30" fill="#10b981" opacity="0.6"/>
+  <circle cx="1050" cy="150" r="20" fill="#f59e0b" opacity="0.6"/>
+  <circle cx="1150" cy="180" r="25" fill="#8b5cf6" opacity="0.6"/>
+</svg>
