@@ -259,48 +259,75 @@ export default function ReportRoutingPage() {
                 {group.recipients.length === 0 ? (
                   <p className="text-sm admin-muted italic py-2">Няма институции в тази група за този сигнал.</p>
                 ) : (
-                  <ul className="space-y-3">
-                    {group.recipients.map((institution) => {
-                      const selected = selectedIds.has(institution.id);
-                      return (
-                        <li
-                          key={institution.id}
-                          className="flex flex-col gap-2 sm:flex-row sm:items-start sm:gap-4 pb-3 border-b border-[var(--a-border)]/50 last:border-0 last:pb-0"
-                        >
+                  <>
+                    <div
+                      role="group"
+                      aria-label={group.label}
+                      className="flex flex-wrap gap-2 sm:gap-2.5"
+                    >
+                      {group.recipients.map((institution) => {
+                        const selected = selectedIds.has(institution.id);
+                        const hint = [institution.email, institution.contactPerson]
+                          .filter(Boolean)
+                          .join(' · ');
+                        return (
                           <button
+                            key={institution.id}
                             type="button"
+                            title={hint || institution.name}
                             onClick={() => toggleInstitution(institution.id)}
-                            className={`text-left rounded-xl border px-4 py-2.5 text-sm font-medium transition-all duration-200 sm:max-w-[min(100%,20rem)] sm:shrink-0 ${
+                            className={`inline-flex max-w-full items-center gap-2 rounded-xl border px-3.5 py-2 text-left text-sm font-medium transition-all duration-200 ease-out focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--a-accent2)]/50 focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--a-bg)] active:scale-[0.98] ${
                               selected ? shell.chipOn : shell.chipOff
                             }`}
                           >
-                            <span className="block leading-snug">{institution.name}</span>
-                            {(institution.email || institution.contactPerson) && (
-                              <span className="mt-1 block text-xs font-normal opacity-80">
-                                {institution.email}
-                                {institution.email && institution.contactPerson ? ' · ' : ''}
-                                {institution.contactPerson}
+                            {selected && (
+                              <span
+                                className="flex h-5 w-5 shrink-0 items-center justify-center rounded-md bg-[var(--a-text)]/10 text-[0.65rem] font-bold leading-none text-[var(--a-text)]"
+                                aria-hidden
+                              >
+                                ✓
                               </span>
                             )}
+                            <span className="min-w-0 truncate leading-snug">{institution.name}</span>
                           </button>
-                          {selected && (
-                            <textarea
-                              className="flex-1 min-w-0 admin-input rounded-xl border-[var(--a-border)] min-h-[56px] text-base px-4 py-3 bg-[var(--a-surface)]/40 backdrop-blur-sm"
-                              rows={2}
-                              value={notesByInstitutionId[institution.id] || ''}
-                              onChange={(e) =>
-                                setNotesByInstitutionId((prev) => ({
-                                  ...prev,
-                                  [institution.id]: e.target.value,
-                                }))
-                              }
-                              placeholder="Бележка към институцията (по избор)"
-                            />
-                          )}
-                        </li>
-                      );
-                    })}
-                  </ul>
+                        );
+                      })}
+                    </div>
+
+                    {group.recipients.some((r) => selectedIds.has(r.id)) && (
+                      <div className="mt-5 rounded-xl bg-[var(--a-surface2)]/20 p-4 backdrop-blur-md sm:p-5">
+                        <p className="mb-3 text-[0.65rem] font-semibold uppercase tracking-[0.28em] admin-muted">
+                          Бележки към избраните
+                        </p>
+                        <div className="flex flex-wrap gap-3">
+                          {group.recipients
+                            .filter((r) => selectedIds.has(r.id))
+                            .map((institution) => (
+                              <label
+                                key={institution.id}
+                                className="block min-w-[min(100%,17.5rem)] flex-1 basis-[14rem]"
+                              >
+                                <span className="mb-1.5 block truncate text-xs font-medium admin-text">
+                                  {institution.name}
+                                </span>
+                                <textarea
+                                  className="w-full resize-y rounded-xl border border-[var(--a-border)]/60 bg-[var(--a-surface)]/35 px-3 py-2.5 text-sm text-[var(--a-text)] placeholder:text-[var(--a-muted)] backdrop-blur-sm transition focus:border-[var(--a-accent2)]/40 focus:outline-none focus:ring-1 focus:ring-[var(--a-accent2)]/30 min-h-[3.25rem]"
+                                  rows={2}
+                                  value={notesByInstitutionId[institution.id] || ''}
+                                  onChange={(e) =>
+                                    setNotesByInstitutionId((prev) => ({
+                                      ...prev,
+                                      [institution.id]: e.target.value,
+                                    }))
+                                  }
+                                  placeholder="По избор…"
+                                />
+                              </label>
+                            ))}
+                        </div>
+                      </div>
+                    )}
+                  </>
                 )}
               </div>
             </section>
