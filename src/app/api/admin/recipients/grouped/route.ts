@@ -149,7 +149,7 @@ export async function GET(request: NextRequest) {
     const groups: RecipientGroup[] = [
       {
         recommendation: 'SITUATION',
-        label: 'Препоръчано от ситуацията',
+        label: 'Институции свързани със сигнала',
         recipients: situationInstitutions.map((i) => ({
           id: i.id,
           name: i.name,
@@ -160,7 +160,7 @@ export async function GET(request: NextRequest) {
       },
       {
         recommendation: 'SUBCATEGORY',
-        label: 'Препоръчано от подкатегорията',
+        label: 'Институции, свързани с подкатегорията',
         recipients: subcategoryOnlyInstitutions.map((i) => ({
           id: i.id,
           name: i.name,
@@ -171,7 +171,7 @@ export async function GET(request: NextRequest) {
       },
       {
         recommendation: 'CATEGORY',
-        label: 'Препоръчано от категорията',
+        label: 'Институции, свързани с категорията',
         recipients: categoryOnlyInstitutions.map((i) => ({
           id: i.id,
           name: i.name,
