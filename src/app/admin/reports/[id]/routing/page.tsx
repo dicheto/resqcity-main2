@@ -43,33 +43,33 @@ const GROUP_SHELL: Record<
     ring: 'border-amber-400/25 shadow-[inset_0_1px_0_rgba(255,255,255,0.06)]',
     glow: 'from-amber-500/[0.12] via-transparent to-orange-500/[0.08]',
     chipOn:
-      'border-amber-400/45 bg-gradient-to-br from-amber-500/25 to-orange-600/15 text-[var(--a-text)] shadow-[0_4px_20px_rgba(245,158,11,0.15)]',
+      'border-amber-400/50 bg-gradient-to-br from-amber-400/30 to-orange-500/18 text-[var(--a-text)] shadow-[0_2px_16px_rgba(245,158,11,0.2),inset_0_1px_0_rgba(255,255,255,0.12)] ring-1 ring-amber-300/20',
     chipOff:
-      'border-[var(--a-border)] bg-[var(--a-surface2)]/35 text-[var(--a-muted)] hover:border-amber-400/25 hover:bg-amber-500/5',
+      'border-[var(--a-border)]/80 bg-[var(--a-surface2)]/30 text-[var(--a-muted)] hover:border-amber-400/35 hover:bg-amber-500/[0.08] hover:text-[var(--a-text)] shadow-[inset_0_1px_0_rgba(255,255,255,0.04)]',
   },
   SUBCATEGORY: {
     ring: 'border-emerald-400/22 shadow-[inset_0_1px_0_rgba(255,255,255,0.06)]',
     glow: 'from-emerald-500/[0.11] via-transparent to-teal-500/[0.07]',
     chipOn:
-      'border-emerald-400/40 bg-gradient-to-br from-emerald-500/22 to-teal-600/12 text-[var(--a-text)] shadow-[0_4px_20px_rgba(16,185,129,0.12)]',
+      'border-emerald-400/45 bg-gradient-to-br from-emerald-400/26 to-teal-600/14 text-[var(--a-text)] shadow-[0_2px_16px_rgba(16,185,129,0.16),inset_0_1px_0_rgba(255,255,255,0.1)] ring-1 ring-emerald-300/18',
     chipOff:
-      'border-[var(--a-border)] bg-[var(--a-surface2)]/35 text-[var(--a-muted)] hover:border-emerald-400/22 hover:bg-emerald-500/5',
+      'border-[var(--a-border)]/80 bg-[var(--a-surface2)]/30 text-[var(--a-muted)] hover:border-emerald-400/32 hover:bg-emerald-500/[0.07] hover:text-[var(--a-text)] shadow-[inset_0_1px_0_rgba(255,255,255,0.04)]',
   },
   CATEGORY: {
     ring: 'border-violet-400/25 shadow-[inset_0_1px_0_rgba(255,255,255,0.06)]',
     glow: 'from-violet-500/[0.12] via-transparent to-indigo-500/[0.08]',
     chipOn:
-      'border-violet-400/45 bg-gradient-to-br from-violet-500/22 to-indigo-600/14 text-[var(--a-text)] shadow-[0_4px_20px_rgba(139,92,246,0.14)]',
+      'border-violet-400/50 bg-gradient-to-br from-violet-400/28 to-indigo-600/16 text-[var(--a-text)] shadow-[0_2px_16px_rgba(139,92,246,0.18),inset_0_1px_0_rgba(255,255,255,0.1)] ring-1 ring-violet-300/20',
     chipOff:
-      'border-[var(--a-border)] bg-[var(--a-surface2)]/35 text-[var(--a-muted)] hover:border-violet-400/25 hover:bg-violet-500/5',
+      'border-[var(--a-border)]/80 bg-[var(--a-surface2)]/30 text-[var(--a-muted)] hover:border-violet-400/35 hover:bg-violet-500/[0.08] hover:text-[var(--a-text)] shadow-[inset_0_1px_0_rgba(255,255,255,0.04)]',
   },
   OTHER: {
     ring: 'border-[var(--a-border)] shadow-[inset_0_1px_0_rgba(255,255,255,0.05)]',
     glow: 'from-[var(--a-muted)]/[0.08] via-transparent to-transparent',
     chipOn:
-      'border-[var(--a-accent)]/40 bg-gradient-to-br from-[var(--a-accent)]/20 to-[var(--a-accent2)]/10 text-[var(--a-text)] shadow-[0_4px_18px_rgba(255,106,47,0.12)]',
+      'border-[var(--a-accent)]/45 bg-gradient-to-br from-[var(--a-accent)]/22 to-[var(--a-accent2)]/12 text-[var(--a-text)] shadow-[0_2px_14px_rgba(255,106,47,0.14),inset_0_1px_0_rgba(255,255,255,0.08)] ring-1 ring-[var(--a-accent)]/15',
     chipOff:
-      'border-[var(--a-border)] bg-[var(--a-surface2)]/35 text-[var(--a-muted)] hover:border-[var(--a-accent)]/22 hover:bg-[var(--a-surface2)]/55',
+      'border-[var(--a-border)]/80 bg-[var(--a-surface2)]/30 text-[var(--a-muted)] hover:border-[var(--a-accent)]/28 hover:bg-[var(--a-surface2)]/50 hover:text-[var(--a-text)] shadow-[inset_0_1px_0_rgba(255,255,255,0.04)]',
   },
 };
 
