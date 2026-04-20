@@ -1921,7 +1921,7 @@ function InteractiveMapComponent() {
                         <div className="rounded-xl p-2.5" style={{ background: 'rgba(255,107,43,0.08)', border: '1px solid rgba(255,107,43,0.15)' }}>
                           <p className="text-[var(--s-muted)] text-[10px] mb-0.5">{tr('Категория', 'Category', 'الفئة')}</p>
                           <p className="font-semibold text-[var(--s-text)] text-[11px] leading-tight">
-                            {formatCategoryLabel(selectedReportDetails?.category || selectedReport.category || null, tr('Без категория', 'No category', 'بدون فئة'))}
+                            {formatCategoryLabel(selectedReportDetails?.category || selectedReport.category || null, tr('Без категория', 'No category', 'بدون فئة'), locale)}
                           </p>
                         </div>
                       </div>

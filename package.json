@@ -11,6 +11,7 @@
     "prisma:migrate": "prisma migrate dev",
     "prisma:studio": "prisma studio",
     "prisma:seed": "tsx prisma/seed.ts",
+    "prisma:generate-taxonomy-i18n": "tsx prisma/generate-taxonomy-i18n.ts",
     "prisma:sync-taxonomy": "tsx prisma/sync-taxonomy.ts",
     "postbuild": "next-sitemap"
   },

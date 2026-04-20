@@ -1,22 +1,29 @@
 import { PrismaClient } from '@prisma/client';
 import { promises as fs } from 'fs';
 import path from 'path';
+import { getCategoryTranslations, getNodeTranslations } from './taxonomy-translations';
 
 const prisma = new PrismaClient();
 
 interface TaxonomySituation {
   name: string;
+  nameEn?: string;
+  nameAr?: string;
   responsible_bodies?: string[];
 }
 
 interface TaxonomySubcategory {
   name: string;
+  nameEn?: string;
+  nameAr?: string;
   responsible_bodies?: string[];
   situations?: TaxonomySituation[];
 }
 
 interface TaxonomyCategory {
   name: string;
+  nameEn?: string;
+  nameAr?: string;
   icon?: string;
   category_responsible_bodies?: string[];
   subcategories?: TaxonomySubcategory[];
@@ -68,7 +75,12 @@ function collectCategoryInstitutions(category: TaxonomyCategory): string[] {
 }
 
 async function main() {
-  const taxonomyPath = path.join(process.cwd(), 'signal_routing_taxonomy_bg.json');
+  const i18nTaxonomyPath = path.join(process.cwd(), 'signal_routing_taxonomy_i18n.json');
+  const fallbackTaxonomyPath = path.join(process.cwd(), 'signal_routing_taxonomy_bg.json');
+  const taxonomyPath = await fs
+    .access(i18nTaxonomyPath)
+    .then(() => i18nTaxonomyPath)
+    .catch(() => fallbackTaxonomyPath);
   const raw = await fs.readFile(taxonomyPath, 'utf8');
   const taxonomy = JSON.parse(raw) as TaxonomyFile;
 
@@ -101,10 +113,47 @@ async function main() {
   let updatedCategories = 0;
   let createdInstitutions = 0;
   let createdMappings = 0;
+  let syncedTaxonomyCategories = 0;
+  let syncedTaxonomySubcategories = 0;
+  let syncedTaxonomySituations = 0;
+  const taxonomyCategoryModel = (prisma as any).taxonomyCategory;
+  const taxonomySubcategoryModel = (prisma as any).taxonomySubcategory;
+  const taxonomySituationModel = (prisma as any).taxonomySituation;
+  const hasTaxonomyTables =
+    typeof taxonomyCategoryModel?.upsert === 'function' &&
+    typeof taxonomySubcategoryModel?.upsert === 'function' &&
+    typeof taxonomySituationModel?.upsert === 'function';
+
+  if (!hasTaxonomyTables) {
+    console.warn(
+      'Taxonomy i18n models are not available in Prisma Client. Run `npx prisma generate` and apply migrations, then rerun sync.'
+    );
+  }
+
+  const totalCategories = taxonomy.categories.length;
+  const totalSubcategories = taxonomy.categories.reduce(
+    (count, category) => count + (category.subcategories?.length ?? 0),
+    0
+  );
+  const totalSituations = taxonomy.categories.reduce(
+    (count, category) =>
+      count +
+      (category.subcategories?.reduce((subCount, sub) => subCount + (sub.situations?.length ?? 0), 0) ?? 0),
+    0
+  );
+
+  console.log(
+    `Taxonomy workload: ${totalCategories} categories, ${totalSubcategories} subcategories, ${totalSituations} situations`
+  );
 
   for (let index = 0; index < taxonomy.categories.length; index += 1) {
     const category = taxonomy.categories[index];
+    console.log(`[${index + 1}/${totalCategories}] Processing category: ${category.name}`);
     const generatedName = slugify(category.name) || `taxonomy_category_${index + 1}`;
+    const categoryTranslations = {
+      en: category.nameEn || getCategoryTranslations(category.name).en,
+      ar: category.nameAr || getCategoryTranslations(category.name).ar,
+    };
 
     const existingCategory = await prisma.reportCategory.findFirst({
       where: {
@@ -118,7 +167,7 @@ async function main() {
           data: {
             name: existingCategory.name || generatedName,
             nameBg: category.name,
-            nameEn: existingCategory.nameEn || category.name,
+            nameEn: categoryTranslations.en,
             icon: category.icon || existingCategory.icon,
             active: true,
           },
@@ -127,7 +176,7 @@ async function main() {
           data: {
             name: generatedName,
             nameBg: category.name,
-            nameEn: category.name,
+            nameEn: categoryTranslations.en,
             icon: category.icon,
             active: true,
           },
@@ -137,6 +186,99 @@ async function main() {
       updatedCategories += 1;
     } else {
       createdCategories += 1;
+    }
+
+    if (hasTaxonomyTables) {
+      const taxonomyCategory = await taxonomyCategoryModel.upsert({
+        where: { key: generatedName },
+        update: {
+          nameBg: category.name,
+          nameEn: categoryTranslations.en,
+          nameAr: categoryTranslations.ar,
+          icon: category.icon || null,
+          active: true,
+          sortOrder: index,
+          reportCategoryId: dbCategory.id,
+        },
+        create: {
+          key: generatedName,
+          nameBg: category.name,
+          nameEn: categoryTranslations.en,
+          nameAr: categoryTranslations.ar,
+          icon: category.icon || null,
+          active: true,
+          sortOrder: index,
+          reportCategoryId: dbCategory.id,
+        },
+      });
+      syncedTaxonomyCategories += 1;
+
+      for (let subIndex = 0; subIndex < (category.subcategories || []).length; subIndex += 1) {
+        const subcategory = category.subcategories![subIndex];
+        const subKey = `${generatedName}__${slugify(subcategory.name) || `subcategory_${subIndex + 1}`}`;
+        const subTranslations = {
+          en: subcategory.nameEn || getNodeTranslations(subcategory.name).en,
+          ar: subcategory.nameAr || getNodeTranslations(subcategory.name).ar,
+        };
+
+        const taxonomySubcategory = await taxonomySubcategoryModel.upsert({
+          where: { key: subKey },
+          update: {
+            nameBg: subcategory.name,
+            nameEn: subTranslations.en,
+            nameAr: subTranslations.ar,
+            active: true,
+            sortOrder: subIndex,
+            categoryId: taxonomyCategory.id,
+          },
+          create: {
+            key: subKey,
+            nameBg: subcategory.name,
+            nameEn: subTranslations.en,
+            nameAr: subTranslations.ar,
+            active: true,
+            sortOrder: subIndex,
+            categoryId: taxonomyCategory.id,
+          },
+        });
+        syncedTaxonomySubcategories += 1;
+        if ((subIndex + 1) % 5 === 0 || subIndex + 1 === (category.subcategories || []).length) {
+          console.log(
+            `   Subcategories: ${subIndex + 1}/${(category.subcategories || []).length} for "${category.name}"`
+          );
+        }
+
+        for (let sitIndex = 0; sitIndex < (subcategory.situations || []).length; sitIndex += 1) {
+          const situation = subcategory.situations![sitIndex];
+          const situationKey = `${subKey}__${slugify(situation.name) || `situation_${sitIndex + 1}`}`;
+          const situationTranslations = {
+            en: situation.nameEn || getNodeTranslations(situation.name).en,
+            ar: situation.nameAr || getNodeTranslations(situation.name).ar,
+          };
+
+          await taxonomySituationModel.upsert({
+            where: { key: situationKey },
+            update: {
+              nameBg: situation.name,
+              nameEn: situationTranslations.en,
+              nameAr: situationTranslations.ar,
+              active: true,
+              sortOrder: sitIndex,
+              subcategoryId: taxonomySubcategory.id,
+            },
+            create: {
+              key: situationKey,
+              nameBg: situation.name,
+              nameEn: situationTranslations.en,
+              nameAr: situationTranslations.ar,
+              active: true,
+              sortOrder: sitIndex,
+              subcategoryId: taxonomySubcategory.id,
+            },
+          });
+          syncedTaxonomySituations += 1;
+        }
+      }
     }
 
     const institutions = collectCategoryInstitutions(category);
@@ -166,12 +308,18 @@ async function main() {
       });
       createdMappings += 1;
     }
+    console.log(
+      `Category done [${index + 1}/${totalCategories}] | mappings so far: ${createdMappings}, taxonomy rows: C:${syncedTaxonomyCategories} S:${syncedTaxonomySubcategories} I:${syncedTaxonomySituations}`
+    );
   }
 
   console.log('Taxonomy sync completed.');
   console.log(`Categories: +${createdCategories} created, ${updatedCategories} updated`);
   console.log(`Institutions: +${createdInstitutions} created`);
   console.log(`Mappings: +${createdMappings} created`);
+  console.log(`Taxonomy categories synced: ${syncedTaxonomyCategories}`);
+  console.log(`Taxonomy subcategories synced: ${syncedTaxonomySubcategories}`);
+  console.log(`Taxonomy situations synced: ${syncedTaxonomySituations}`);
 }
 
 main()

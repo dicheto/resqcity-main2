@@ -1,0 +1,3938 @@
+{
+  "metadata": {
+    "title": "Таксономия за маршрутизация на сигнали",
+    "country": "България",
+    "language": "bg",
+    "schema_version": "1.0",
+    "notes": [
+      "Структурата е проектна таксономия за насочване на сигнали към компетентни институции.",
+      "На ниво категория полето category_responsible_bodies се използва за бутон 'изпрати до всички'.",
+      "На ниво подкатегория и ситуация responsible_bodies съдържа препоръчителните получатели за конкретния сигнал.",
+      "Таксономията не е правен акт и е добре да бъде валидирана с юрист или административен експерт преди продукционна употреба."
+    ]
+  },
+  "categories": [
+    {
+      "name": "Обществен ред, сигурност и извънредни ситуации",
+      "icon": "🚨",
+      "category_responsible_bodies": [
+        "МВР",
+        "Национална полиция",
+        "ГДПБЗН",
+        "ЦСМП / 112",
+        "Общинска полиция",
+        "Община / районна администрация",
+        "ДАНС",
+        "Областна администрация / кризисен щаб"
+      ],
+      "subcategories": [
+        {
+          "name": "Нарушаване на обществения ред",
+          "responsible_bodies": [
+            "МВР",
+            "Общинска полиция",
+            "Община"
+          ],
+          "situations": [
+            {
+              "name": "Силен шум през нощта",
+              "responsible_bodies": [
+                "Общинска полиция",
+                "МВР"
+              ],
+              "nameEn": "Loud noise at night",
+              "nameAr": "ضجيج عالي في الليل"
+            },
+            {
+              "name": "Масово сбиване",
+              "responsible_bodies": [
+                "МВР"
+              ],
+              "nameEn": "Mass brawl",
+              "nameAr": "شجار جماعي"
+            },
+            {
+              "name": "Агресивно поведение на публично място",
+              "responsible_bodies": [
+                "МВР",
+                "Общинска полиция"
+              ],
+              "nameEn": "Aggressive behavior in public",
+              "nameAr": "السلوك العدواني في الأماكن العامة"
+            },
+            {
+              "name": "Вандализъм върху общинско имущество",
+              "responsible_bodies": [
+                "МВР",
+                "Община"
+              ],
+              "nameEn": "Vandalism on municipal property",
+              "nameAr": "التخريب على ممتلكات البلدية"
+            },
+            {
+              "name": "Нерегламентирано масово събиране",
+              "responsible_bodies": [
+                "МВР",
+                "Община"
+              ],
+              "nameEn": "Unregulated mass gathering",
+              "nameAr": "التجمعات الجماهيرية غير المنظمة"
+            }
+          ],
+          "nameEn": "Violation of public order",
+          "nameAr": "انتهاك النظام العام"
+        },
+        {
+          "name": "Домашно насилие и насилие между лица",
+          "responsible_bodies": [
+            "МВР",
+            "Агенция за социално подпомагане",
+            "ДАЗД"
+          ],
+          "situations": [
+            {
+              "name": "Домашно насилие",
+              "responsible_bodies": [
+                "МВР",
+                "АСП"
+              ],
+              "nameEn": "Domestic violence",
+              "nameAr": "العنف المنزلي"
+            },
+            {
+              "name": "Насилие над дете",
+              "responsible_bodies": [
+                "МВР",
+                "ДАЗД",
+                "АСП"
+              ],
+              "nameEn": "Child abuse",
+              "nameAr": "إساءة معاملة الأطفال"
+            },
+            {
+              "name": "Заплахи между съседи",
+              "responsible_bodies": [
+                "МВР"
+              ],
+              "nameEn": "Threats between neighbors",
+              "nameAr": "التهديدات بين الجيران"
+            },
+            {
+              "name": "Преследване / stalking",
+              "responsible_bodies": [
+                "МВР"
+              ],
+              "nameEn": "Stalking",
+              "nameAr": "المطاردة"
+            }
+          ],
+          "nameEn": "Domestic and interpersonal violence",
+          "nameAr": "العنف المنزلي والعنف بين الأشخاص"
+        },
+        {
+          "name": "Престъпления и подозрителна дейност",
+          "responsible_bodies": [
+            "МВР",
+            "ГДБОП",
+            "Прокуратура"
+          ],
+          "situations": [
+            {
+              "name": "Кражба",
+              "responsible_bodies": [
+                "МВР"
+              ],
+              "nameEn": "Theft",
+              "nameAr": "سرقة"
+            },
+            {
+              "name": "Опит за взлом",
+              "responsible_bodies": [
+                "МВР"
+              ],
+              "nameEn": "Burglary attempt",
+              "nameAr": "محاولة السطو"
+            },
+            {
+              "name": "Подозрителни лица около сграда",
+              "responsible_bodies": [
+                "МВР"
+              ],
+              "nameEn": "Suspicious persons around a building",
+              "nameAr": "الأشخاص المشبوهون حول المبنى"
+            },
+            {
+              "name": "Измама на място",
+              "responsible_bodies": [
+                "МВР"
+              ],
+              "nameEn": "Fraud on the spot",
+              "nameAr": "الاحتيال على الفور"
+            },
+            {
+              "name": "Организирана престъпна дейност",
+              "responsible_bodies": [
+                "МВР",
+                "ГДБОП",
+                "Прокуратура"
+              ],
+              "nameEn": "Organized criminal activity",
+              "nameAr": "النشاط الإجرامي المنظم"
+            }
+          ],
+          "nameEn": "Crime and suspicious activity",
+          "nameAr": "الجريمة والنشاط المشبوه"
+        },
+        {
+          "name": "Терористични заплахи и сериозни рискове за сигурността",
+          "responsible_bodies": [
+            "МВР",
+            "ДАНС",
+            "ГДБОП"
+          ],
+          "situations": [
+            {
+              "name": "Заплаха за бомба",
+              "responsible_bodies": [
+                "МВР",
+                "ДАНС"
+              ],
+              "nameEn": "Bomb threat",
+              "nameAr": "التهديد بالقنابل"
+            },
+            {
+              "name": "Подозрителен пакет",
+              "responsible_bodies": [
+                "МВР",
+                "ДАНС"
+              ],
+              "nameEn": "Suspicious package",
+              "nameAr": "الحزمة المشبوهة"
+            },
+            {
+              "name": "Терористична заплаха",
+              "responsible_bodies": [
+                "МВР",
+                "ДАНС",
+                "ГДБОП"
+              ],
+              "nameEn": "Terrorist threat",
+              "nameAr": "التهديد الإرهابي"
+            },
+            {
+              "name": "Заплаха към институция",
+              "responsible_bodies": [
+                "МВР",
+                "ДАНС"
+              ],
+              "nameEn": "A threat to an institution",
+              "nameAr": "تهديد للمؤسسة"
+            }
+          ],
+          "nameEn": "Terrorist threats and serious security risks",
+          "nameAr": "التهديدات الإرهابية والمخاطر الأمنية الجسيمة"
+        },
+        {
+          "name": "Пожари и експлозии",
+          "responsible_bodies": [
+            "ГДПБЗН",
+            "МВР",
+            "ЦСМП",
+            "Газоразпределително дружество"
+          ],
+          "situations": [
+            {
+              "name": "Пожар в сграда",
+              "responsible_bodies": [
+                "ГДПБЗН",
+                "ЦСМП"
+              ],
+              "nameEn": "Building fire",
+              "nameAr": "حريق المبنى"
+            },
+            {
+              "name": "Пожар на открито",
+              "responsible_bodies": [
+                "ГДПБЗН"
+              ],
+              "nameEn": "Outdoor fire",
+              "nameAr": "حريق خارجي"
+            },
+            {
+              "name": "Пожар в автомобил",
+              "responsible_bodies": [
+                "ГДПБЗН",
+                "МВР"
+              ],
+              "nameEn": "Car fire",
+              "nameAr": "حريق سيارة"
+            },
+            {
+              "name": "Експлозия",
+              "responsible_bodies": [
+                "ГДПБЗН",
+                "МВР",
+                "ЦСМП"
+              ],
+              "nameEn": "Explosion",
+              "nameAr": "انفجار"
+            },
+            {
+              "name": "Миризма на газ",
+              "responsible_bodies": [
+                "ГДПБЗН",
+                "Газоразпределително дружество"
+              ],
+              "nameEn": "The smell of gas",
+              "nameAr": "رائحة الغاز"
+            }
+          ],
+          "nameEn": "Fires and explosions",
+          "nameAr": "الحرائق والانفجارات"
+        },
+        {
+          "name": "Природни бедствия и извънредни ситуации",
+          "responsible_bodies": [
+            "ГДПБЗН",
+            "Община",
+            "Областна администрация"
+          ],
+          "situations": [
+            {
+              "name": "Наводнение",
+              "responsible_bodies": [
+                "ГДПБЗН",
+                "Община"
+              ],
+              "nameEn": "A flood",
+              "nameAr": "فيضان"
+            },
+            {
+              "name": "Свлачище",
+              "responsible_bodies": [
+                "Община",
+                "ГДПБЗН"
+              ],
+              "nameEn": "Landslide",
+              "nameAr": "انهيار أرضي"
+            },
+            {
+              "name": "Паднали дървета след буря",
+              "responsible_bodies": [
+                "Община",
+                "ГДПБЗН"
+              ],
+              "nameEn": "Fallen trees after a storm",
+              "nameAr": "الأشجار المتساقطة بعد العاصفة"
+            },
+            {
+              "name": "Силен снеговалеж / блокирани райони",
+              "responsible_bodies": [
+                "Община",
+                "ГДПБЗН"
+              ],
+              "nameEn": "Heavy snowfall / blocked areas",
+              "nameAr": "تساقط الثلوج بغزارة / المناطق المحجوبة"
+            },
+            {
+              "name": "Земетресение",
+              "responsible_bodies": [
+                "ГДПБЗН",
+                "Областен кризисен щаб"
+              ],
+              "nameEn": "Earthquake",
+              "nameAr": "زلزال"
+            }
+          ],
+          "nameEn": "Natural disasters and emergencies",
+          "nameAr": "الكوارث الطبيعية وحالات الطوارئ"
+        },
+        {
+          "name": "Изчезнали лица",
+          "responsible_bodies": [
+            "МВР",
+            "ДАЗД",
+            "АСП"
+          ],
+          "situations": [
+            {
+              "name": "Изчезнало дете",
+              "responsible_bodies": [
+                "МВР",
+                "ДАЗД"
+              ],
+              "nameEn": "A missing child",
+              "nameAr": "طفل مفقود"
+            },
+            {
+              "name": "Изчезнал възрастен човек",
+              "responsible_bodies": [
+                "МВР"
+              ],
+              "nameEn": "Missing elderly person",
+              "nameAr": "شخص مسن مفقود"
+            },
+            {
+              "name": "Изчезнал човек с деменция",
+              "responsible_bodies": [
+                "МВР",
+                "АСП"
+              ],
+              "nameEn": "Missing person with dementia",
+              "nameAr": "شخص مفقود مصاب بالخرف"
+            },
+            {
+              "name": "Подозрение за отвличане",
+              "responsible_bodies": [
+                "МВР"
+              ],
+              "nameEn": "Suspected kidnapping",
+              "nameAr": "اختطاف مشتبه به"
+            }
+          ],
+          "nameEn": "Missing persons",
+          "nameAr": "الأشخاص المفقودين"
+        }
+      ],
+      "nameEn": "Public order, security and emergencies",
+      "nameAr": "النظام العام والأمن وحالات الطوارئ"
+    },
+    {
+      "name": "Пътища, движение и транспорт",
+      "icon": "🚗",
+      "category_responsible_bodies": [
+        "МВР - Пътна полиция",
+        "АПИ",
+        "Община",
+        "ИА Автомобилна администрация",
+        "НКЖИ",
+        "ГД ГВА",
+        "Морска администрация"
+      ],
+      "subcategories": [
+        {
+          "name": "Пътнотранспортни произшествия",
+          "responsible_bodies": [
+            "МВР - Пътна полиция",
+            "ЦСМП",
+            "АПИ",
+            "Община"
+          ],
+          "situations": [
+            {
+              "name": "Катастрофа с материални щети",
+              "responsible_bodies": [
+                "МВР - Пътна полиция"
+              ],
+              "nameEn": "Property damage accident",
+              "nameAr": "حادث اضرار بالممتلكات"
+            },
+            {
+              "name": "Катастрофа с пострадали",
+              "responsible_bodies": [
+                "МВР - Пътна полиция",
+                "ЦСМП"
+              ],
+              "nameEn": "Accident with casualties",
+              "nameAr": "حادث مع ضحايا"
+            },
+            {
+              "name": "Верижна катастрофа",
+              "responsible_bodies": [
+                "МВР - Пътна полиция",
+                "ЦСМП",
+                "АПИ"
+              ],
+              "nameEn": "Chain disaster",
+              "nameAr": "كارثة السلسلة"
+            },
+            {
+              "name": "Катастрофа с автобус",
+              "responsible_bodies": [
+                "МВР - Пътна полиция",
+                "ЦСМП",
+                "ИА Автомобилна администрация"
+              ],
+              "nameEn": "Bus accident",
+              "nameAr": "حادث الحافلة"
+            },
+            {
+              "name": "Катастрофа на жп прелез",
+              "responsible_bodies": [
+                "МВР - Пътна полиция",
+                "НКЖИ"
+              ],
+              "nameEn": "Accident at a railway crossing",
+              "nameAr": "حادث على معبر السكة الحديد"
+            }
+          ],
+          "nameEn": "Traffic accidents",
+          "nameAr": "حوادث المرور"
+        },
+        {
+          "name": "Опасна организация на движението",
+          "responsible_bodies": [
+            "Община",
+            "АПИ",
+            "МВР - Пътна полиция"
+          ],
+          "situations": [
+            {
+              "name": "Липсваща пътна маркировка",
+              "responsible_bodies": [
+                "Община",
+                "АПИ"
+              ],
+              "nameEn": "Missing road markings",
+              "nameAr": "علامات الطريق مفقودة"
+            },
+            {
+              "name": "Липсващ или повреден пътен знак",
+              "responsible_bodies": [
+                "Община",
+                "АПИ"
+              ],
+              "nameEn": "Missing or damaged traffic sign",
+              "nameAr": "إشارة مرور مفقودة أو تالفة"
+            },
+            {
+              "name": "Неработещ светофар",
+              "responsible_bodies": [
+                "Община"
+              ],
+              "nameEn": "Traffic light not working",
+              "nameAr": "إشارة المرور لا تعمل"
+            },
+            {
+              "name": "Опасно кръстовище",
+              "responsible_bodies": [
+                "Община",
+                "МВР - Пътна полиция"
+              ],
+              "nameEn": "Dangerous intersection",
+              "nameAr": "تقاطع خطير"
+            },
+            {
+              "name": "Неправилно въведена временна организация",
+              "responsible_bodies": [
+                "Община",
+                "АПИ",
+                "МВР - Пътна полиция"
+              ],
+              "nameEn": "Temporarily entered incorrectly",
+              "nameAr": "تم إدخاله مؤقتًا بشكل غير صحيح"
+            }
+          ],
+          "nameEn": "Dangerous traffic organization",
+          "nameAr": "تنظيم حركة المرور الخطرة"
+        },
+        {
+          "name": "Състояние на пътната настилка",
+          "responsible_bodies": [
+            "Община",
+            "АПИ"
+          ],
+          "situations": [
+            {
+              "name": "Дупка на пътя",
+              "responsible_bodies": [
+                "Община",
+                "АПИ"
+              ],
+              "nameEn": "A hole in the road",
+              "nameAr": "حفرة في الطريق"
+            },
+            {
+              "name": "Пропадане на платно",
+              "responsible_bodies": [
+                "Община",
+                "АПИ"
+              ],
+              "nameEn": "Canvas collapse",
+              "nameAr": "انهيار قماش"
+            },
+            {
+              "name": "Заледяване",
+              "responsible_bodies": [
+                "Община",
+                "АПИ"
+              ],
+              "nameEn": "Icing",
+              "nameAr": "تثليج"
+            },
+            {
+              "name": "Разлив или хлъзгава настилка",
+              "responsible_bodies": [
+                "Община",
+                "АПИ",
+                "МВР - Пътна полиция"
+              ],
+              "nameEn": "Spill or slippery pavement",
+              "nameAr": "انسكاب أو الرصيف الزلق"
+            }
+          ],
+          "nameEn": "Condition of the road surface",
+          "nameAr": "حالة سطح الطريق"
+        },
+        {
+          "name": "Нарушения от водачи",
+          "responsible_bodies": [
+            "МВР - Пътна полиция",
+            "ИА Автомобилна администрация"
+          ],
+          "situations": [
+            {
+              "name": "Шофиране в нетрезво състояние",
+              "responsible_bodies": [
+                "МВР - Пътна полиция"
+              ],
+              "nameEn": "Drunk driving",
+              "nameAr": "القيادة في حالة سكر"
+            },
+            {
+              "name": "Опасно шофиране",
+              "responsible_bodies": [
+                "МВР - Пътна полиция"
+              ],
+              "nameEn": "Dangerous driving",
+              "nameAr": "القيادة الخطرة"
+            },
+            {
+              "name": "Незаконен превоз на пътници",
+              "responsible_bodies": [
+                "МВР - Пътна полиция",
+                "ИА Автомобилна администрация"
+              ],
+              "nameEn": "Illegal carriage of passengers",
+              "nameAr": "النقل غير القانوني للركاب"
+            },
+            {
+              "name": "Претоварено товарно МПС",
+              "responsible_bodies": [
+                "ИА Автомобилна администрация",
+                "АПИ"
+              ],
+              "nameEn": "Overloaded cargo vehicle",
+              "nameAr": "مركبة بضائع مثقلة"
+            }
+          ],
+          "nameEn": "Violations by drivers",
+          "nameAr": "مخالفات السائقين"
+        },
+        {
+          "name": "Обществен транспорт",
+          "responsible_bodies": [
+            "Община",
+            "Превозвач",
+            "ИА Автомобилна администрация",
+            "МВР"
+          ],
+          "situations": [
+            {
+              "name": "Нередовен автобус / трамвай / тролей",
+              "responsible_bodies": [
+                "Превозвач",
+                "Община"
+              ],
+              "nameEn": "Irregular bus/tram/trolley",
+              "nameAr": "حافلة / ترام / عربة غير منتظمة"
+            },
+            {
+              "name": "Опасно поведение на водач в обществен транспорт",
+              "responsible_bodies": [
+                "Превозвач",
+                "МВР",
+                "ИА Автомобилна администрация"
+              ],
+              "nameEn": "Dangerous behavior of a driver in public transport",
+              "nameAr": "السلوك الخطير للسائق في وسائل النقل العام"
+            },
+            {
+              "name": "Лошо техническо състояние на превозно средство",
+              "responsible_bodies": [
+                "Превозвач",
+                "ИА Автомобилна администрация"
+              ],
+              "nameEn": "Bad technical condition of a vehicle",
+              "nameAr": "الحالة الفنية السيئة للمركبة"
+            },
+            {
+              "name": "Проблем с автобусна спирка",
+              "responsible_bodies": [
+                "Община"
+              ],
+              "nameEn": "Bus stop problem",
+              "nameAr": "مشكلة توقف الحافلات"
+            }
+          ],
+          "nameEn": "Public transport",
+          "nameAr": "وسائل النقل العام"
+        },
+        {
+          "name": "Железопътен, въздушен и воден транспорт",
+          "responsible_bodies": [
+            "НКЖИ",
+            "БДЖ / жп превозвач",
+            "ГД ГВА",
+            "Морска администрация"
+          ],
+          "situations": [
+            {
+              "name": "Опасност на жп прелез",
+              "responsible_bodies": [
+                "НКЖИ",
+                "МВР"
+              ],
+              "nameEn": "Danger at a railway crossing",
+              "nameAr": "خطر عند معبر السكة الحديد"
+            },
+            {
+              "name": "Инцидент във влак или гара",
+              "responsible_bodies": [
+                "БДЖ / жп превозвач",
+                "МВР",
+                "НКЖИ"
+              ],
+              "nameEn": "An accident in a train or station",
+              "nameAr": "حادث في قطار أو محطة"
+            },
+            {
+              "name": "Нарушение на летищна сигурност",
+              "responsible_bodies": [
+                "ГД ГВА",
+                "МВР",
+                "летищен оператор"
+              ],
+              "nameEn": "Violation of airport security",
+              "nameAr": "مخالفة أمن المطار"
+            },
+            {
+              "name": "Инцидент в пристанище",
+              "responsible_bodies": [
+                "Морска администрация",
+                "МВР",
+                "пристанищен оператор"
+              ],
+              "nameEn": "Accident in port",
+              "nameAr": "حادث في الميناء"
+            }
+          ],
+          "nameEn": "Rail, air and water transport",
+          "nameAr": "النقل بالسكك الحديدية والجوية والمائية"
+        }
+      ],
+      "nameEn": "Roads, traffic and transport",
+      "nameAr": "الطرق والمرور والنقل"
+    },
+    {
+      "name": "Паркиране, достъп и микромобилност",
+      "icon": "🅿️",
+      "category_responsible_bodies": [
+        "Община",
+        "Център за градска мобилност / местен оператор",
+        "МВР - Пътна полиция",
+        "Общинска полиция"
+      ],
+      "subcategories": [
+        {
+          "name": "Неправилно паркиране",
+          "responsible_bodies": [
+            "Община",
+            "ЦГМ / местен оператор",
+            "Общинска полиция",
+            "МВР - Пътна полиция"
+          ],
+          "situations": [
+            {
+              "name": "Паркиране на тротоар",
+              "responsible_bodies": [
+                "Общинска полиция",
+                "ЦГМ / местен оператор"
+              ],
+              "nameEn": "Sidewalk parking",
+              "nameAr": "وقوف السيارات على الرصيف"
+            },
+            {
+              "name": "Паркиране на пешеходна пътека",
+              "responsible_bodies": [
+                "МВР - Пътна полиция",
+                "Общинска полиция"
+              ],
+              "nameEn": "Parking on footpath",
+              "nameAr": "وقوف السيارات على ممر المشاة"
+            },
+            {
+              "name": "Паркиране пред гараж или вход",
+              "responsible_bodies": [
+                "Общинска полиция"
+              ],
+              "nameEn": "Parking in front of garage or entrance",
+              "nameAr": "وقوف السيارات أمام المرآب أو المدخل"
+            },
+            {
+              "name": "Изоставено МПС",
+              "responsible_bodies": [
+                "Община"
+              ],
+              "nameEn": "Abandoned vehicle",
+              "nameAr": "مركبة مهجورة"
+            }
+          ],
+          "nameEn": "Improper parking",
+          "nameAr": "وقوف السيارات غير لائق"
+        },
+        {
+          "name": "Режимни зони и платено паркиране",
+          "responsible_bodies": [
+            "ЦГМ / местен оператор",
+            "Община"
+          ],
+          "situations": [
+            {
+              "name": "Неправомерно ползване на инвалидно място",
+              "responsible_bodies": [
+                "Общинска полиция",
+                "МВР - Пътна полиция"
+              ],
+              "nameEn": "Illegal use of a disabled place",
+              "nameAr": "الاستخدام غير القانوني لمكان المعاقين"
+            },
+            {
+              "name": "Повреден паркомат",
+              "responsible_bodies": [
+                "ЦГМ / местен оператор"
+              ],
+              "nameEn": "Broken parking meter",
+              "nameAr": "عداد مواقف السيارات مكسور"
+            },
+            {
+              "name": "Грешно таксуване за паркиране",
+              "responsible_bodies": [
+                "ЦГМ / местен оператор",
+                "Община"
+              ],
+              "nameEn": "Wrong parking charge",
+              "nameAr": "رسوم وقوف السيارات خاطئة"
+            }
+          ],
+          "nameEn": "Regulated zones and paid parking",
+          "nameAr": "المناطق المنظمة ومواقف السيارات المدفوعة"
+        },
+        {
+          "name": "Достъпна среда и препятствия",
+          "responsible_bodies": [
+            "Община",
+            "Общинска полиция"
+          ],
+          "situations": [
+            {
+              "name": "Блокирана рампа за инвалидни колички",
+              "responsible_bodies": [
+                "Община",
+                "Общинска полиция"
+              ],
+              "nameEn": "Blocked wheelchair ramp",
+              "nameAr": "منحدر كرسي متحرك مسدود"
+            },
+            {
+              "name": "Препятствие на тротоар",
+              "responsible_bodies": [
+                "Община"
+              ],
+              "nameEn": "Obstacle on sidewalk",
+              "nameAr": "عائق على الرصيف"
+            },
+            {
+              "name": "Блокиран достъп до обществена сграда",
+              "responsible_bodies": [
+                "Община",
+                "собственик / ползвател на обекта"
+              ],
+              "nameEn": "Blocked access to a public building",
+              "nameAr": "منعت الوصول إلى مبنى عام"
+            }
+          ],
+          "nameEn": "Accessible environment and obstacles",
+          "nameAr": "البيئة التي يمكن الوصول إليها والعقبات"
+        },
+        {
+          "name": "Микромобилност",
+          "responsible_bodies": [
+            "Община",
+            "МВР - Пътна полиция",
+            "оператор на споделени устройства"
+          ],
+          "situations": [
+            {
+              "name": "Неправилно изоставена електрическа тротинетка",
+              "responsible_bodies": [
+                "оператор на споделени устройства",
+                "Община"
+              ],
+              "nameEn": "Improperly Abandoned Electric Scooter",
+              "nameAr": "سكوتر كهربائي مهجور بشكل غير صحيح"
+            },
+            {
+              "name": "Опасно каране на тротинетка",
+              "responsible_bodies": [
+                "МВР - Пътна полиция"
+              ],
+              "nameEn": "Dangerous scooter riding",
+              "nameAr": "ركوب سكوتر خطير"
+            },
+            {
+              "name": "Липсваща или опасна велоалея",
+              "responsible_bodies": [
+                "Община"
+              ],
+              "nameEn": "Missing or unsafe bike lane",
+              "nameAr": "ممر الدراجات مفقود أو غير آمن"
+            },
+            {
+              "name": "Повредено споделено колело / тротинетка",
+              "responsible_bodies": [
+                "оператор на споделени устройства"
+              ],
+              "nameEn": "Broken shared bike / scooter",
+              "nameAr": "دراجة / سكوتر مشتركة مكسورة"
+            }
+          ],
+          "nameEn": "Micromobility",
+          "nameAr": "التنقل الصغير"
+        }
+      ],
+      "nameEn": "Parking, access and micromobility",
+      "nameAr": "مواقف السيارات والوصول والتنقل الصغير"
+    },
+    {
+      "name": "Градска среда и инфраструктура",
+      "icon": "🏙️",
+      "category_responsible_bodies": [
+        "Община",
+        "районна администрация",
+        "Агенция по геодезия, картография и кадастър (при картен контекст)",
+        "експлоатационни дружества"
+      ],
+      "subcategories": [
+        {
+          "name": "Улична инфраструктура",
+          "responsible_bodies": [
+            "Община"
+          ],
+          "situations": [
+            {
+              "name": "Разбити тротоари",
+              "responsible_bodies": [
+                "Община"
+              ],
+              "nameEn": "Broken sidewalks",
+              "nameAr": "الأرصفة المكسورة"
+            },
+            {
+              "name": "Пропаднали шахти",
+              "responsible_bodies": [
+                "Община",
+                "експлоатационно дружество"
+              ],
+              "nameEn": "Collapsed shafts",
+              "nameAr": "مهاوي انهارت"
+            },
+            {
+              "name": "Повредени стълби и пасарелки",
+              "responsible_bodies": [
+                "Община"
+              ],
+              "nameEn": "Damaged stairs and walkways",
+              "nameAr": "السلالم والممرات المتضررة"
+            }
+          ],
+          "nameEn": "Street infrastructure",
+          "nameAr": "البنية التحتية للشوارع"
+        },
+        {
+          "name": "Улично осветление",
+          "responsible_bodies": [
+            "Община",
+            "оператор по поддръжка"
+          ],
+          "situations": [
+            {
+              "name": "Неработещо улично осветление",
+              "responsible_bodies": [
+                "Община",
+                "оператор по поддръжка"
+              ],
+              "nameEn": "Street lights not working",
+              "nameAr": "أضواء الشوارع لا تعمل"
+            },
+            {
+              "name": "Мигащо или опасно осветително тяло",
+              "responsible_bodies": [
+                "Община",
+                "оператор по поддръжка"
+              ],
+              "nameEn": "Flashing or dangerous light fixture",
+              "nameAr": "وامض أو تركيبات الإضاءة الخطيرة"
+            }
+          ],
+          "nameEn": "Street lighting",
+          "nameAr": "إنارة الشوارع"
+        },
+        {
+          "name": "Площади, паркове и обществени пространства",
+          "responsible_bodies": [
+            "Община"
+          ],
+          "situations": [
+            {
+              "name": "Повредени пейки",
+              "responsible_bodies": [
+                "Община"
+              ],
+              "nameEn": "Damaged benches",
+              "nameAr": "المقاعد المتضررة"
+            },
+            {
+              "name": "Опасни детски площадки",
+              "responsible_bodies": [
+                "Община"
+              ],
+              "nameEn": "Dangerous playgrounds",
+              "nameAr": "ملاعب خطيرة"
+            },
+            {
+              "name": "Повредени чешми или фонтани",
+              "responsible_bodies": [
+                "Община"
+              ],
+              "nameEn": "Damaged faucets or fountains",
+              "nameAr": "الحنفيات أو النوافير التالفة"
+            }
+          ],
+          "nameEn": "Squares, parks and public spaces",
+          "nameAr": "الساحات والحدائق والأماكن العامة"
+        },
+        {
+          "name": "Шахти, оттоци и водоотвеждане",
+          "responsible_bodies": [
+            "Община",
+            "ВиК оператор"
+          ],
+          "situations": [
+            {
+              "name": "Запушен дъждоприемник",
+              "responsible_bodies": [
+                "Община",
+                "ВиК оператор"
+              ],
+              "nameEn": "Clogged rain trap",
+              "nameAr": "مصيدة المطر مسدودة"
+            },
+            {
+              "name": "Липсващ капак на шахта",
+              "responsible_bodies": [
+                "Община",
+                "ВиК оператор"
+              ],
+              "nameEn": "Manhole cover missing",
+              "nameAr": "غطاء فتحة التفتيش مفقود"
+            },
+            {
+              "name": "Наводняване на улица от отводняване",
+              "responsible_bodies": [
+                "Община",
+                "ВиК оператор"
+              ],
+              "nameEn": "Street flooding from drainage",
+              "nameAr": "فيضانات الشوارع بسبب الصرف الصحي"
+            }
+          ],
+          "nameEn": "Shafts, drains and drainage",
+          "nameAr": "مهاوي والمصارف والصرف الصحي"
+        },
+        {
+          "name": "Подземна и надземна техническа инфраструктура",
+          "responsible_bodies": [
+            "Община",
+            "експлоатационни дружества"
+          ],
+          "situations": [
+            {
+              "name": "Отворен изкоп без обезопасяване",
+              "responsible_bodies": [
+                "Община",
+                "изпълнител / оператор"
+              ],
+              "nameEn": "Open trench without protection",
+              "nameAr": "خندق مفتوح بدون حماية"
+            },
+            {
+              "name": "Опасно надвиснал кабел",
+              "responsible_bodies": [
+                "оператор на мрежа",
+                "Община"
+              ],
+              "nameEn": "A dangerously overhanging cable",
+              "nameAr": "كابل متدلي بشكل خطير"
+            }
+          ],
+          "nameEn": "Underground and aboveground technical infrastructure",
+          "nameAr": "البنية التحتية التقنية تحت الأرض وفوق الأرض"
+        }
+      ],
+      "nameEn": "Urban environment and infrastructure",
+      "nameAr": "البيئة الحضرية والبنية التحتية"
+    },
+    {
+      "name": "Сгради, строителство и териториално устройство",
+      "icon": "🏗️",
+      "category_responsible_bodies": [
+        "Община",
+        "ДНСК",
+        "РДНСК",
+        "Камара на инженерите / архитекти (по професионален ред)",
+        "МВР / Пожарна при риск"
+      ],
+      "subcategories": [
+        {
+          "name": "Незаконно строителство",
+          "responsible_bodies": [
+            "Община",
+            "ДНСК",
+            "РДНСК"
+          ],
+          "situations": [
+            {
+              "name": "Строеж без разрешение",
+              "responsible_bodies": [
+                "Община",
+                "РДНСК"
+              ],
+              "nameEn": "Construction without permission",
+              "nameAr": "البناء دون إذن"
+            },
+            {
+              "name": "Надстрояване или пристрояване без съгласуване",
+              "responsible_bodies": [
+                "Община",
+                "РДНСК"
+              ],
+              "nameEn": "Upgrade or extension without consent",
+              "nameAr": "الترقية أو التمديد دون موافقة"
+            },
+            {
+              "name": "Строителство в чужд имот",
+              "responsible_bodies": [
+                "Община",
+                "РДНСК",
+                "съд / полиция при спор"
+              ],
+              "nameEn": "Construction on someone else's property",
+              "nameAr": "البناء على ملك الغير"
+            }
+          ],
+          "nameEn": "Illegal construction",
+          "nameAr": "البناء غير القانوني"
+        },
+        {
+          "name": "Опасни сгради и съоръжения",
+          "responsible_bodies": [
+            "Община",
+            "ДНСК",
+            "ГДПБЗН"
+          ],
+          "situations": [
+            {
+              "name": "Опасна фасада",
+              "responsible_bodies": [
+                "Община"
+              ],
+              "nameEn": "A dangerous facade",
+              "nameAr": "واجهة خطيرة"
+            },
+            {
+              "name": "Риск от срутване",
+              "responsible_bodies": [
+                "Община",
+                "ДНСК",
+                "ГДПБЗН"
+              ],
+              "nameEn": "Risk of collapse",
+              "nameAr": "خطر الانهيار"
+            },
+            {
+              "name": "Опасен асансьор",
+              "responsible_bodies": [
+                "ДАМТН",
+                "собственик / домоуправител"
+              ],
+              "nameEn": "Dangerous elevator",
+              "nameAr": "مصعد خطير"
+            }
+          ],
+          "nameEn": "Dangerous buildings and facilities",
+          "nameAr": "المباني والمرافق الخطرة"
+        },
+        {
+          "name": "Строителен процес и площадки",
+          "responsible_bodies": [
+            "Община",
+            "Главна инспекция по труда",
+            "РДНСК"
+          ],
+          "situations": [
+            {
+              "name": "Шум извън разрешените часове от строеж",
+              "responsible_bodies": [
+                "Община",
+                "МВР"
+              ],
+              "nameEn": "Noise outside permitted construction hours",
+              "nameAr": "الضوضاء خارج ساعات البناء المسموح بها"
+            },
+            {
+              "name": "Прах и замърсяване от строеж",
+              "responsible_bodies": [
+                "Община",
+                "РИОСВ"
+              ],
+              "nameEn": "Dust and pollution from construction",
+              "nameAr": "الغبار والتلوث الناتج عن أعمال البناء"
+            },
+            {
+              "name": "Необезопасена строителна площадка",
+              "responsible_bodies": [
+                "РДНСК",
+                "ГИТ",
+                "Община"
+              ],
+              "nameEn": "Unsecured construction site",
+              "nameAr": "موقع البناء غير المضمون"
+            }
+          ],
+          "nameEn": "Construction process and sites",
+          "nameAr": "عملية البناء والمواقع"
+        },
+        {
+          "name": "Териториално устройство и устройствени планове",
+          "responsible_bodies": [
+            "Община",
+            "МРРБ"
+          ],
+          "situations": [
+            {
+              "name": "Нарушение на устройствен план",
+              "responsible_bodies": [
+                "Община"
+              ],
+              "nameEn": "Violation of a development plan",
+              "nameAr": "مخالفة خطة التنمية"
+            },
+            {
+              "name": "Застрояване в зелени площи без ясно основание",
+              "responsible_bodies": [
+                "Община",
+                "РДНСК"
+              ],
+              "nameEn": "Building in green areas without a clear reason",
+              "nameAr": "البناء في المناطق الخضراء دون سبب واضح"
+            }
+          ],
+          "nameEn": "Territorial organization and development plans",
+          "nameAr": "التنظيم الإقليمي وخطط التنمية"
+        }
+      ],
+      "nameEn": "Buildings, construction and territorial planning",
+      "nameAr": "المباني والتشييد والتخطيط الإقليمي"
+    },
+    {
+      "name": "Комунални услуги и енергийна инфраструктура",
+      "icon": "⚡",
+      "category_responsible_bodies": [
+        "ВиК оператор",
+        "електроразпределително дружество",
+        "газоразпределително дружество",
+        "КЕВР",
+        "Община",
+        "ГДПБЗН"
+      ],
+      "subcategories": [
+        {
+          "name": "Водоснабдяване и канализация",
+          "responsible_bodies": [
+            "ВиК оператор",
+            "КЕВР",
+            "Община"
+          ],
+          "situations": [
+            {
+              "name": "Липса на вода",
+              "responsible_bodies": [
+                "ВиК оператор"
+              ],
+              "nameEn": "Lack of water",
+              "nameAr": "نقص الماء"
+            },
+            {
+              "name": "Ниско налягане на водата",
+              "responsible_bodies": [
+                "ВиК оператор"
+              ],
+              "nameEn": "Low water pressure",
+              "nameAr": "انخفاض ضغط الماء"
+            },
+            {
+              "name": "Спукана тръба",
+              "responsible_bodies": [
+                "ВиК оператор",
+                "Община"
+              ],
+              "nameEn": "A burst pipe",
+              "nameAr": "أنبوب متفجر"
+            },
+            {
+              "name": "Смесване на отпадни и питейни води",
+              "responsible_bodies": [
+                "ВиК оператор",
+                "РЗИ"
+              ],
+              "nameEn": "Mixing of waste water and drinking water",
+              "nameAr": "خلط مياه الصرف الصحي ومياه الشرب"
+            }
+          ],
+          "nameEn": "Water supply and sewerage",
+          "nameAr": "إمدادات المياه والصرف الصحي"
+        },
+        {
+          "name": "Електроснабдяване",
+          "responsible_bodies": [
+            "електроразпределително дружество",
+            "КЕВР"
+          ],
+          "situations": [
+            {
+              "name": "Спиране на тока",
+              "responsible_bodies": [
+                "електроразпределително дружество"
+              ],
+              "nameEn": "Power outage",
+              "nameAr": "انقطاع التيار الكهربائي"
+            },
+            {
+              "name": "Искрене или опасен електрически стълб",
+              "responsible_bodies": [
+                "електроразпределително дружество",
+                "ГДПБЗН"
+              ],
+              "nameEn": "A spark or a dangerous electric pole",
+              "nameAr": "شرارة أو عمود كهربائي خطير"
+            },
+            {
+              "name": "Колебания в напрежението",
+              "responsible_bodies": [
+                "електроразпределително дружество",
+                "КЕВР"
+              ],
+              "nameEn": "Fluctuations in voltage",
+              "nameAr": "التقلبات في الجهد"
+            }
+          ],
+          "nameEn": "Power supply",
+          "nameAr": "مزود الطاقة"
+        },
+        {
+          "name": "Топлоснабдяване и газоснабдяване",
+          "responsible_bodies": [
+            "топлофикационно дружество",
+            "газоразпределително дружество",
+            "КЕВР",
+            "ГДПБЗН"
+          ],
+          "situations": [
+            {
+              "name": "Липса на отопление / топла вода",
+              "responsible_bodies": [
+                "топлофикационно дружество"
+              ],
+              "nameEn": "Lack of heating / hot water",
+              "nameAr": "عدم وجود التدفئة / الماء الساخن"
+            },
+            {
+              "name": "Теч на газ",
+              "responsible_bodies": [
+                "газоразпределително дружество",
+                "ГДПБЗН"
+              ],
+              "nameEn": "Gas leak",
+              "nameAr": "تسرب الغاز"
+            },
+            {
+              "name": "Опасна газова инсталация",
+              "responsible_bodies": [
+                "газоразпределително дружество",
+                "ДАМТН",
+                "ГДПБЗН"
+              ],
+              "nameEn": "Dangerous gas installation",
+              "nameAr": "تركيب الغاز الخطير"
+            }
+          ],
+          "nameEn": "Heat supply and gas supply",
+          "nameAr": "إمدادات الحرارة وإمدادات الغاز"
+        },
+        {
+          "name": "Измерване, фактуриране и регулаторен контрол",
+          "responsible_bodies": [
+            "КЕВР",
+            "доставчик на услугата",
+            "КЗП"
+          ],
+          "situations": [
+            {
+              "name": "Спор по сметка за ток / вода / газ",
+              "responsible_bodies": [
+                "доставчик на услугата",
+                "КЕВР",
+                "КЗП"
+              ],
+              "nameEn": "Dispute over electricity / water / gas bill",
+              "nameAr": "خلاف على فاتورة الكهرباء/المياه/الغاز"
+            },
+            {
+              "name": "Съмнение за неточен електромер / водомер",
+              "responsible_bodies": [
+                "доставчик на услугата",
+                "БИМ",
+                "КЕВР"
+              ],
+              "nameEn": "Suspicion of an inaccurate electricity / water meter",
+              "nameAr": "الاشتباه في عدم دقة عداد الكهرباء / الماء"
+            }
+          ],
+          "nameEn": "Metering, billing and regulatory control",
+          "nameAr": "القياس والفواتير والرقابة التنظيمية"
+        }
+      ],
+      "nameEn": "Utilities and energy infrastructure",
+      "nameAr": "المرافق والبنية التحتية للطاقة"
+    },
+    {
+      "name": "Околна среда и природни ресурси",
+      "icon": "🌳",
+      "category_responsible_bodies": [
+        "МОСВ",
+        "РИОСВ",
+        "Басейнова дирекция",
+        "Община",
+        "ИАОС",
+        "Изпълнителна агенция по горите"
+      ],
+      "subcategories": [
+        {
+          "name": "Замърсяване на въздуха",
+          "responsible_bodies": [
+            "РИОСВ",
+            "Община",
+            "ИАОС"
+          ],
+          "situations": [
+            {
+              "name": "Силен промишлен дим",
+              "responsible_bodies": [
+                "РИОСВ"
+              ],
+              "nameEn": "Heavy industrial smoke",
+              "nameAr": "دخان صناعي كثيف"
+            },
+            {
+              "name": "Нерегламентирано горене на отпадъци",
+              "responsible_bodies": [
+                "РИОСВ",
+                "Община",
+                "МВР"
+              ],
+              "nameEn": "Unregulated burning of waste",
+              "nameAr": "حرق النفايات بطريقة غير منظمة"
+            },
+            {
+              "name": "Локално силно замърсяване от отопление",
+              "responsible_bodies": [
+                "Община",
+                "РИОСВ"
+              ],
+              "nameEn": "Local heavy pollution from heating",
+              "nameAr": "التلوث الشديد المحلي الناتج عن التدفئة"
+            }
+          ],
+          "nameEn": "Air pollution",
+          "nameAr": "تلوث الهواء"
+        },
+        {
+          "name": "Замърсяване на води",
+          "responsible_bodies": [
+            "РИОСВ",
+            "Басейнова дирекция",
+            "ВиК оператор"
+          ],
+          "situations": [
+            {
+              "name": "Изливане на отпадни води в река",
+              "responsible_bodies": [
+                "РИОСВ",
+                "Басейнова дирекция"
+              ],
+              "nameEn": "Discharge of waste water into a river",
+              "nameAr": "تصريف مياه الصرف الصحي في النهر"
+            },
+            {
+              "name": "Петролен разлив във воден обект",
+              "responsible_bodies": [
+                "РИОСВ",
+                "Басейнова дирекция",
+                "ГДПБЗН"
+              ],
+              "nameEn": "Oil spill in a body of water",
+              "nameAr": "تسرب الزيت في جسم مائي"
+            },
+            {
+              "name": "Мор на риба при замърсяване",
+              "responsible_bodies": [
+                "РИОСВ",
+                "Басейнова дирекция",
+                "БАБХ"
+              ],
+              "nameEn": "Plague of fish in pollution",
+              "nameAr": "طاعون الأسماك في التلوث"
+            }
+          ],
+          "nameEn": "Water pollution",
+          "nameAr": "تلوث المياه"
+        },
+        {
+          "name": "Почви и земни ресурси",
+          "responsible_bodies": [
+            "РИОСВ",
+            "МОСВ",
+            "Община"
+          ],
+          "situations": [
+            {
+              "name": "Незаконно замърсяване на терен",
+              "responsible_bodies": [
+                "РИОСВ",
+                "Община"
+              ],
+              "nameEn": "Illegal field pollution",
+              "nameAr": "التلوث الميداني غير القانوني"
+            },
+            {
+              "name": "Насипване на отпадъци в земеделска земя",
+              "responsible_bodies": [
+                "РИОСВ",
+                "Община",
+                "ОД Земеделие"
+              ],
+              "nameEn": "Landfilling of waste on agricultural land",
+              "nameAr": "دفن النفايات في الأراضي الزراعية"
+            }
+          ],
+          "nameEn": "Soils and land resources",
+          "nameAr": "التربة وموارد الأرض"
+        },
+        {
+          "name": "Защитени територии и биоразнообразие",
+          "responsible_bodies": [
+            "МОСВ",
+            "РИОСВ",
+            "дирекция на парк / защитена територия"
+          ],
+          "situations": [
+            {
+              "name": "Нарушение в защитена зона",
+              "responsible_bodies": [
+                "РИОСВ",
+                "дирекция на парк / защитена територия"
+              ],
+              "nameEn": "Violation in a protected area",
+              "nameAr": "انتهاك في منطقة محمية"
+            },
+            {
+              "name": "Унищожаване на местообитание",
+              "responsible_bodies": [
+                "РИОСВ",
+                "МОСВ"
+              ],
+              "nameEn": "Habitat destruction",
+              "nameAr": "تدمير الموائل"
+            }
+          ],
+          "nameEn": "Protected areas and biodiversity",
+          "nameAr": "المناطق المحمية والتنوع البيولوجي"
+        },
+        {
+          "name": "Шум и вибрации в околната среда",
+          "responsible_bodies": [
+            "Община",
+            "РИОСВ",
+            "РЗИ"
+          ],
+          "situations": [
+            {
+              "name": "Промишлен шум",
+              "responsible_bodies": [
+                "РИОСВ",
+                "РЗИ"
+              ],
+              "nameEn": "Industrial noise",
+              "nameAr": "الضوضاء الصناعية"
+            },
+            {
+              "name": "Постоянни вибрации от съоръжения",
+              "responsible_bodies": [
+                "РИОСВ",
+                "Община"
+              ],
+              "nameEn": "Constant vibrations from equipment",
+              "nameAr": "الاهتزازات المستمرة من المعدات"
+            }
+          ],
+          "nameEn": "Noise and vibration in the environment",
+          "nameAr": "الضوضاء والاهتزازات في البيئة"
+        }
+      ],
+      "nameEn": "Environment and natural resources",
+      "nameAr": "البيئة والموارد الطبيعية"
+    },
+    {
+      "name": "Отпадъци, чистота и рециклиране",
+      "icon": "♻️",
+      "category_responsible_bodies": [
+        "Община",
+        "РИОСВ",
+        "организация по оползотворяване",
+        "оператор по чистота"
+      ],
+      "subcategories": [
+        {
+          "name": "Сметосъбиране и сметоизвозване",
+          "responsible_bodies": [
+            "Община",
+            "оператор по чистота"
+          ],
+          "situations": [
+            {
+              "name": "Неприбрани контейнери",
+              "responsible_bodies": [
+                "оператор по чистота",
+                "Община"
+              ],
+              "nameEn": "Uncollected containers",
+              "nameAr": "الحاويات غير المجمعة"
+            },
+            {
+              "name": "Препълнени съдове за отпадъци",
+              "responsible_bodies": [
+                "оператор по чистота",
+                "Община"
+              ],
+              "nameEn": "Overflowing waste containers",
+              "nameAr": "فائض حاويات النفايات"
+            },
+            {
+              "name": "Разпилени отпадъци след обслужване",
+              "responsible_bodies": [
+                "оператор по чистота",
+                "Община"
+              ],
+              "nameEn": "Scattered waste after service",
+              "nameAr": "النفايات المتناثرة بعد الخدمة"
+            }
+          ],
+          "nameEn": "Garbage collection and garbage collection",
+          "nameAr": "جمع القمامة وجمع القمامة"
+        },
+        {
+          "name": "Нерегламентирани сметища",
+          "responsible_bodies": [
+            "Община",
+            "РИОСВ"
+          ],
+          "situations": [
+            {
+              "name": "Незаконно сметище на общински терен",
+              "responsible_bodies": [
+                "Община",
+                "РИОСВ"
+              ],
+              "nameEn": "Illegal dumping on municipal land",
+              "nameAr": "رمي النفايات بشكل غير قانوني على أراضي البلدية"
+            },
+            {
+              "name": "Изхвърляне на строителни отпадъци",
+              "responsible_bodies": [
+                "Община",
+                "РИОСВ"
+              ],
+              "nameEn": "Disposal of construction waste",
+              "nameAr": "التخلص من مخلفات البناء"
+            },
+            {
+              "name": "Изхвърляне на едрогабаритни отпадъци",
+              "responsible_bodies": [
+                "Община"
+              ],
+              "nameEn": "Disposal of bulky waste",
+              "nameAr": "التخلص من النفايات الضخمة"
+            }
+          ],
+          "nameEn": "Unregulated landfills",
+          "nameAr": "مدافن النفايات غير المنظمة"
+        },
+        {
+          "name": "Рециклиране и разделно събиране",
+          "responsible_bodies": [
+            "Община",
+            "организация по оползотворяване"
+          ],
+          "situations": [
+            {
+              "name": "Липсващи съдове за разделно събиране",
+              "responsible_bodies": [
+                "Община",
+                "организация по оползотворяване"
+              ],
+              "nameEn": "Missing containers for separate collection",
+              "nameAr": "حاويات مفقودة للتجميع المنفصل"
+            },
+            {
+              "name": "Неправилно обслужване на цветни контейнери",
+              "responsible_bodies": [
+                "организация по оползотворяване",
+                "Община"
+              ],
+              "nameEn": "Improper handling of colored containers",
+              "nameAr": "التعامل غير السليم مع الحاويات الملونة"
+            }
+          ],
+          "nameEn": "Recycling and separate collection",
+          "nameAr": "إعادة التدوير والجمع المنفصل"
+        },
+        {
+          "name": "Опасни и специални отпадъци",
+          "responsible_bodies": [
+            "РИОСВ",
+            "Община",
+            "БАБХ при биологичен риск"
+          ],
+          "situations": [
+            {
+              "name": "Изхвърлени медицински отпадъци",
+              "responsible_bodies": [
+                "РИОСВ",
+                "РЗИ"
+              ],
+              "nameEn": "Discarded medical waste",
+              "nameAr": "النفايات الطبية المهملة"
+            },
+            {
+              "name": "Изоставени батерии, масла, химикали",
+              "responsible_bodies": [
+                "РИОСВ",
+                "Община"
+              ],
+              "nameEn": "Abandoned batteries, oils, chemicals",
+              "nameAr": "البطاريات والزيوت والمواد الكيميائية المهجورة"
+            },
+            {
+              "name": "Неправилно съхраняване на опасни отпадъци от фирма",
+              "responsible_bodies": [
+                "РИОСВ"
+              ],
+              "nameEn": "Improper storage of hazardous waste by a company",
+              "nameAr": "التخزين غير السليم للنفايات الخطرة من قبل الشركة"
+            }
+          ],
+          "nameEn": "Hazardous and special waste",
+          "nameAr": "النفايات الخطرة والخاصة"
+        },
+        {
+          "name": "Улична чистота",
+          "responsible_bodies": [
+            "Община",
+            "оператор по чистота"
+          ],
+          "situations": [
+            {
+              "name": "Непочистена улица",
+              "responsible_bodies": [
+                "оператор по чистота",
+                "Община"
+              ],
+              "nameEn": "Unclean street",
+              "nameAr": "شارع غير نظيف"
+            },
+            {
+              "name": "Непочистени след събитие обществени площи",
+              "responsible_bodies": [
+                "организатор на събитие",
+                "Община"
+              ],
+              "nameEn": "Public areas not cleaned after an event",
+              "nameAr": "عدم تنظيف المناطق العامة بعد وقوع الحدث"
+            }
+          ],
+          "nameEn": "Street cleanliness",
+          "nameAr": "نظافة الشوارع"
+        }
+      ],
+      "nameEn": "Waste, cleanliness and recycling",
+      "nameAr": "النفايات والنظافة وإعادة التدوير"
+    },
+    {
+      "name": "Социални, здравни и уязвими групи",
+      "icon": "🏥",
+      "category_responsible_bodies": [
+        "АСП",
+        "МТСП",
+        "МЗ",
+        "РЗИ",
+        "НЗОК",
+        "Община",
+        "ДАЗД"
+      ],
+      "subcategories": [
+        {
+          "name": "Социално подпомагане",
+          "responsible_bodies": [
+            "АСП",
+            "Община"
+          ],
+          "situations": [
+            {
+              "name": "Отказ или забавяне на социална помощ",
+              "responsible_bodies": [
+                "АСП"
+              ],
+              "nameEn": "Refusal or delay of social assistance",
+              "nameAr": "رفض أو تأخير المساعدة الاجتماعية"
+            },
+            {
+              "name": "Липса на достъп до социална услуга",
+              "responsible_bodies": [
+                "АСП",
+                "Община"
+              ],
+              "nameEn": "Lack of access to social service",
+              "nameAr": "عدم القدرة على الوصول إلى الخدمة الاجتماعية"
+            }
+          ],
+          "nameEn": "Social assistance",
+          "nameAr": "المساعدة الاجتماعية"
+        },
+        {
+          "name": "Хора с увреждания и достъп до услуги",
+          "responsible_bodies": [
+            "АСП",
+            "Община",
+            "МЗ"
+          ],
+          "situations": [
+            {
+              "name": "Липса на достъпна среда за уязвими групи",
+              "responsible_bodies": [
+                "Община"
+              ],
+              "nameEn": "Lack of an accessible environment for vulnerable groups",
+              "nameAr": "عدم وجود بيئة يسهل الوصول إليها للفئات الضعيفة"
+            },
+            {
+              "name": "Проблем с помощни средства",
+              "responsible_bodies": [
+                "АСП",
+                "НЗОК"
+              ],
+              "nameEn": "Problem with utilities",
+              "nameAr": "مشكلة مع المرافق"
+            }
+          ],
+          "nameEn": "People with disabilities and access to services",
+          "nameAr": "الأشخاص ذوي الإعاقة والحصول على الخدمات"
+        },
+        {
+          "name": "Деца в риск и семейна подкрепа",
+          "responsible_bodies": [
+            "ДАЗД",
+            "АСП",
+            "МВР",
+            "Община"
+          ],
+          "situations": [
+            {
+              "name": "Дете оставено без надзор",
+              "responsible_bodies": [
+                "ДАЗД",
+                "МВР",
+                "АСП"
+              ],
+              "nameEn": "Child left unattended",
+              "nameAr": "ترك الطفل دون مراقبة"
+            },
+            {
+              "name": "Съмнение за неглижиране на дете",
+              "responsible_bodies": [
+                "ДАЗД",
+                "АСП"
+              ],
+              "nameEn": "Suspected child neglect",
+              "nameAr": "الاشتباه في إهمال الطفل"
+            }
+          ],
+          "nameEn": "Children at risk and family support",
+          "nameAr": "الأطفال المعرضون للخطر ودعم الأسرة"
+        },
+        {
+          "name": "Здравни услуги и пациентски права",
+          "responsible_bodies": [
+            "МЗ",
+            "РЗИ",
+            "НЗОК",
+            "ИА Медицински надзор"
+          ],
+          "situations": [
+            {
+              "name": "Отказ за спешна помощ",
+              "responsible_bodies": [
+                "ЦСМП",
+                "ИА Медицински надзор",
+                "МЗ"
+              ],
+              "nameEn": "Refusal of emergency assistance",
+              "nameAr": "رفض المساعدة الطارئة"
+            },
+            {
+              "name": "Лоши условия в лечебно заведение",
+              "responsible_bodies": [
+                "РЗИ",
+                "ИА Медицински надзор"
+              ],
+              "nameEn": "Bad conditions in a medical facility",
+              "nameAr": "ظروف سيئة في منشأة طبية"
+            },
+            {
+              "name": "Нарушени пациентски права",
+              "responsible_bodies": [
+                "ИА Медицински надзор",
+                "НЗОК"
+              ],
+              "nameEn": "Violated patient rights",
+              "nameAr": "انتهكت حقوق المريض"
+            }
+          ],
+          "nameEn": "Health services and patient rights",
+          "nameAr": "الخدمات الصحية وحقوق المرضى"
+        },
+        {
+          "name": "Бездомност и кризисни случаи",
+          "responsible_bodies": [
+            "Община",
+            "АСП",
+            "МВР",
+            "ЦСМП"
+          ],
+          "situations": [
+            {
+              "name": "Бездомен човек в риск за здравето",
+              "responsible_bodies": [
+                "Община",
+                "АСП",
+                "ЦСМП"
+              ],
+              "nameEn": "Homeless person at risk for health",
+              "nameAr": "شخص بلا مأوى في خطر على الصحة"
+            },
+            {
+              "name": "Човек в тежко психично състояние на улицата",
+              "responsible_bodies": [
+                "ЦСМП",
+                "МВР"
+              ],
+              "nameEn": "A man in a serious mental state on the street",
+              "nameAr": "رجل في حالة نفسية خطيرة في الشارع"
+            }
+          ],
+          "nameEn": "Homelessness and crisis cases",
+          "nameAr": "حالات التشرد والأزمات"
+        }
+      ],
+      "nameEn": "Social, health and vulnerable groups",
+      "nameAr": "الفئات الاجتماعية والصحية والضعيفة"
+    },
+    {
+      "name": "Образование, деца, младеж и спорт",
+      "icon": "📚",
+      "category_responsible_bodies": [
+        "МОН",
+        "РУО",
+        "Община",
+        "ММС",
+        "ДАЗД"
+      ],
+      "subcategories": [
+        {
+          "name": "Училищно и предучилищно образование",
+          "responsible_bodies": [
+            "МОН",
+            "РУО",
+            "Община"
+          ],
+          "situations": [
+            {
+              "name": "Лоши условия в училище / детска градина",
+              "responsible_bodies": [
+                "Община",
+                "РУО"
+              ],
+              "nameEn": "Bad conditions in school / kindergarten",
+              "nameAr": "الظروف السيئة في المدرسة / رياض الأطفال"
+            },
+            {
+              "name": "Отказ за прием при нарушение на правилата",
+              "responsible_bodies": [
+                "РУО",
+                "МОН"
+              ],
+              "nameEn": "Denial of admission in case of violation of the rules",
+              "nameAr": "رفض القبول في حالة انتهاك القواعد"
+            },
+            {
+              "name": "Системно отсъствие без реакция",
+              "responsible_bodies": [
+                "училище",
+                "РУО",
+                "АСП"
+              ],
+              "nameEn": "Systemic absence without response",
+              "nameAr": "غياب منهجي دون رد"
+            }
+          ],
+          "nameEn": "School and preschool education",
+          "nameAr": "التعليم المدرسي ومرحلة ما قبل المدرسة"
+        },
+        {
+          "name": "Тормоз, насилие и безопасност в училище",
+          "responsible_bodies": [
+            "училище",
+            "РУО",
+            "ДАЗД",
+            "МВР"
+          ],
+          "situations": [
+            {
+              "name": "Тормоз между ученици",
+              "responsible_bodies": [
+                "училище",
+                "РУО",
+                "ДАЗД"
+              ],
+              "nameEn": "Bullying between students",
+              "nameAr": "التنمر بين الطلاب"
+            },
+            {
+              "name": "Насилие от възрастен към дете в училище",
+              "responsible_bodies": [
+                "РУО",
+                "ДАЗД",
+                "МВР"
+              ],
+              "nameEn": "Adult-to-child violence at school",
+              "nameAr": "العنف من الكبار إلى الأطفال في المدرسة"
+            },
+            {
+              "name": "Опасен достъп до училищен двор",
+              "responsible_bodies": [
+                "училище",
+                "Община",
+                "МВР"
+              ],
+              "nameEn": "Dangerous access to school yard",
+              "nameAr": "الوصول الخطير إلى ساحة المدرسة"
+            }
+          ],
+          "nameEn": "Bullying, violence and school safety",
+          "nameAr": "التنمر والعنف والسلامة المدرسية"
+        },
+        {
+          "name": "Младежки дейности",
+          "responsible_bodies": [
+            "Община",
+            "ММС",
+            "МОН"
+          ],
+          "situations": [
+            {
+              "name": "Проблем с младежки център",
+              "responsible_bodies": [
+                "Община"
+              ],
+              "nameEn": "Youth center problem",
+              "nameAr": "مشكلة مركز الشباب"
+            },
+            {
+              "name": "Непрозрачно разпределяне на младежко финансиране",
+              "responsible_bodies": [
+                "Община",
+                "ММС"
+              ],
+              "nameEn": "Non-transparent distribution of youth funding",
+              "nameAr": "عدم شفافية توزيع تمويل الشباب"
+            }
+          ],
+          "nameEn": "Youth activities",
+          "nameAr": "أنشطة الشباب"
+        },
+        {
+          "name": "Спортни обекти и спортна безопасност",
+          "responsible_bodies": [
+            "Община",
+            "ММС",
+            "спортен клуб / федерация"
+          ],
+          "situations": [
+            {
+              "name": "Опасен спортен обект",
+              "responsible_bodies": [
+                "Община",
+                "собственик / оператор"
+              ],
+              "nameEn": "Dangerous sports facility",
+              "nameAr": "منشأة رياضية خطيرة"
+            },
+            {
+              "name": "Нарушения при детски спортни занимания",
+              "responsible_bodies": [
+                "спортен клуб / федерация",
+                "ММС",
+                "ДАЗД"
+              ],
+              "nameEn": "Violations in children's sports activities",
+              "nameAr": "الانتهاكات في الأنشطة الرياضية للأطفال"
+            }
+          ],
+          "nameEn": "Sports facilities and sports safety",
+          "nameAr": "المنشآت الرياضية والسلامة الرياضية"
+        }
+      ],
+      "nameEn": "Education, children, youth and sports",
+      "nameAr": "التعليم والأطفال والشباب والرياضة"
+    },
+    {
+      "name": "Животни и ветеринарен контрол",
+      "icon": "🐕",
+      "category_responsible_bodies": [
+        "БАБХ",
+        "Община",
+        "МВР",
+        "РИОСВ"
+      ],
+      "subcategories": [
+        {
+          "name": "Безстопанствени животни",
+          "responsible_bodies": [
+            "Община",
+            "БАБХ"
+          ],
+          "situations": [
+            {
+              "name": "Агресивно бездомно куче",
+              "responsible_bodies": [
+                "Община",
+                "БАБХ"
+              ],
+              "nameEn": "Aggressive stray dog",
+              "nameAr": "كلب ضال عدواني"
+            },
+            {
+              "name": "Глутница в жилищен район",
+              "responsible_bodies": [
+                "Община",
+                "БАБХ"
+              ],
+              "nameEn": "A cluster in a residential area",
+              "nameAr": "كتلة في منطقة سكنية"
+            },
+            {
+              "name": "Ранено безстопанствено животно",
+              "responsible_bodies": [
+                "Община",
+                "БАБХ",
+                "ветеринарен лекар"
+              ],
+              "nameEn": "Wounded stray animal",
+              "nameAr": "حيوان ضال مجروح"
+            }
+          ],
+          "nameEn": "Stray animals",
+          "nameAr": "حيوانات ضالة"
+        },
+        {
+          "name": "Отглеждане и хуманно отношение",
+          "responsible_bodies": [
+            "БАБХ",
+            "МВР",
+            "Община"
+          ],
+          "situations": [
+            {
+              "name": "Жестокост към животно",
+              "responsible_bodies": [
+                "МВР",
+                "БАБХ"
+              ],
+              "nameEn": "Cruelty to an animal",
+              "nameAr": "القسوة على الحيوان"
+            },
+            {
+              "name": "Лоши условия за отглеждане",
+              "responsible_bodies": [
+                "БАБХ"
+              ],
+              "nameEn": "Poor growing conditions",
+              "nameAr": "ظروف النمو السيئة"
+            },
+            {
+              "name": "Опасно домашно животно без контрол",
+              "responsible_bodies": [
+                "Община",
+                "МВР",
+                "БАБХ"
+              ],
+              "nameEn": "Dangerous pet out of control",
+              "nameAr": "حيوان أليف خطير خارج نطاق السيطرة"
+            }
+          ],
+          "nameEn": "Breeding and humane treatment",
+          "nameAr": "التربية والمعاملة الإنسانية"
+        },
+        {
+          "name": "Ветеринарно-санитарен контрол",
+          "responsible_bodies": [
+            "БАБХ"
+          ],
+          "situations": [
+            {
+              "name": "Съмнение за заразно заболяване по животни",
+              "responsible_bodies": [
+                "БАБХ"
+              ],
+              "nameEn": "Suspected infectious animal disease",
+              "nameAr": "الاشتباه في الإصابة بأمراض حيوانية معدية"
+            },
+            {
+              "name": "Нерегламентирана търговия с животни",
+              "responsible_bodies": [
+                "БАБХ",
+                "МВР"
+              ],
+              "nameEn": "Unregulated trade in animals",
+              "nameAr": "التجارة غير المنظمة في الحيوانات"
+            }
+          ],
+          "nameEn": "Veterinary-sanitary control",
+          "nameAr": "الرقابة الصحية البيطرية"
+        },
+        {
+          "name": "Диви животни в населени места",
+          "responsible_bodies": [
+            "РИОСВ",
+            "Община",
+            "МВР",
+            "БАБХ"
+          ],
+          "situations": [
+            {
+              "name": "Диво животно в градска среда",
+              "responsible_bodies": [
+                "РИОСВ",
+                "Община",
+                "МВР"
+              ],
+              "nameEn": "A wild animal in an urban environment",
+              "nameAr": "حيوان بري في بيئة حضرية"
+            },
+            {
+              "name": "Незаконно държане на защитен вид",
+              "responsible_bodies": [
+                "РИОСВ",
+                "МВР"
+              ],
+              "nameEn": "Illegal possession of a protected species",
+              "nameAr": "الحيازة غير القانونية للأنواع المحمية"
+            }
+          ],
+          "nameEn": "Wild animals in populated areas",
+          "nameAr": "الحيوانات البرية في المناطق المأهولة بالسكان"
+        }
+      ],
+      "nameEn": "Animals and veterinary control",
+      "nameAr": "الحيوانات والرقابة البيطرية"
+    },
+    {
+      "name": "Търговия, услуги и потребителски права",
+      "icon": "🛒",
+      "category_responsible_bodies": [
+        "КЗП",
+        "БАБХ",
+        "НАП",
+        "Община",
+        "МВР",
+        "КЗК"
+      ],
+      "subcategories": [
+        {
+          "name": "Потребителски спорове",
+          "responsible_bodies": [
+            "КЗП"
+          ],
+          "situations": [
+            {
+              "name": "Отказ за рекламация",
+              "responsible_bodies": [
+                "КЗП"
+              ],
+              "nameEn": "Denial of claim",
+              "nameAr": "إنكار المطالبة"
+            },
+            {
+              "name": "Подвеждаща информация за продукт",
+              "responsible_bodies": [
+                "КЗП"
+              ],
+              "nameEn": "Misleading product information",
+              "nameAr": "معلومات مضللة عن المنتج"
+            },
+            {
+              "name": "Нелоялна търговска практика",
+              "responsible_bodies": [
+                "КЗП"
+              ],
+              "nameEn": "Unfair trade practice",
+              "nameAr": "ممارسات تجارية غير عادلة"
+            }
+          ],
+          "nameEn": "User Disputes",
+          "nameAr": "نزاعات المستخدم"
+        },
+        {
+          "name": "Храни и заведения",
+          "responsible_bodies": [
+            "БАБХ",
+            "КЗП",
+            "РЗИ",
+            "Община"
+          ],
+          "situations": [
+            {
+              "name": "Негодна храна",
+              "responsible_bodies": [
+                "БАБХ",
+                "КЗП"
+              ],
+              "nameEn": "Junk food",
+              "nameAr": "الوجبات السريعة"
+            },
+            {
+              "name": "Лоша хигиена в заведение",
+              "responsible_bodies": [
+                "БАБХ",
+                "РЗИ"
+              ],
+              "nameEn": "Poor hygiene in an establishment",
+              "nameAr": "سوء النظافة في المؤسسة"
+            },
+            {
+              "name": "Разлика между меню и таксуване",
+              "responsible_bodies": [
+                "КЗП",
+                "НАП"
+              ],
+              "nameEn": "Difference between menu and billing",
+              "nameAr": "الفرق بين القائمة والفواتير"
+            }
+          ],
+          "nameEn": "Food and restaurants",
+          "nameAr": "الطعام والمطاعم"
+        },
+        {
+          "name": "Търговски обекти и разрешителни",
+          "responsible_bodies": [
+            "Община",
+            "НАП",
+            "МВР"
+          ],
+          "situations": [
+            {
+              "name": "Търговски обект без работно време или обозначения",
+              "responsible_bodies": [
+                "Община",
+                "КЗП"
+              ],
+              "nameEn": "Commercial establishment without opening hours or signage",
+              "nameAr": "منشأة تجارية بدون ساعات عمل أو لافتات"
+            },
+            {
+              "name": "Неправомерна продажба без касов бон",
+              "responsible_bodies": [
+                "НАП"
+              ],
+              "nameEn": "Illegal sale without receipt",
+              "nameAr": "بيع غير قانوني دون استلام"
+            },
+            {
+              "name": "Нощен обект в нарушение на режима",
+              "responsible_bodies": [
+                "Община",
+                "МВР"
+              ],
+              "nameEn": "Night object in violation of the regime",
+              "nameAr": "كائن ليلي مخالف للنظام"
+            }
+          ],
+          "nameEn": "Commercial establishments and permits",
+          "nameAr": "المنشآت التجارية والتصاريح"
+        },
+        {
+          "name": "Електронна търговия и услуги",
+          "responsible_bodies": [
+            "КЗП",
+            "КЗЛД",
+            "ГДБОП"
+          ],
+          "situations": [
+            {
+              "name": "Онлайн магазин не доставя поръчка",
+              "responsible_bodies": [
+                "КЗП"
+              ],
+              "nameEn": "Online store does not deliver an order",
+              "nameAr": "المتجر الإلكتروني لا يقوم بتوصيل الطلب"
+            },
+            {
+              "name": "Измамна онлайн обява / сайт",
+              "responsible_bodies": [
+                "ГДБОП",
+                "КЗП"
+              ],
+              "nameEn": "Fraudulent online ad / site",
+              "nameAr": "إعلان/موقع احتيالي عبر الإنترنت"
+            },
+            {
+              "name": "Неправомерно използване на лични данни от търговец",
+              "responsible_bodies": [
+                "КЗЛД",
+                "КЗП"
+              ],
+              "nameEn": "Misuse of personal data by a merchant",
+              "nameAr": "إساءة استخدام البيانات الشخصية من قبل التاجر"
+            }
+          ],
+          "nameEn": "Electronic commerce and services",
+          "nameAr": "التجارة والخدمات الإلكترونية"
+        }
+      ],
+      "nameEn": "Trade, services and consumer rights",
+      "nameAr": "التجارة والخدمات وحقوق المستهلك"
+    },
+    {
+      "name": "Финанси, банки, застраховане и дигитални плащания",
+      "icon": "💳",
+      "category_responsible_bodies": [
+        "БНБ",
+        "КФН",
+        "КЗП",
+        "ГДБОП",
+        "банка / платежна институция",
+        "застраховател"
+      ],
+      "subcategories": [
+        {
+          "name": "Банкови услуги",
+          "responsible_bodies": [
+            "банка",
+            "БНБ",
+            "КЗП"
+          ],
+          "situations": [
+            {
+              "name": "Неоторизирана банкова операция",
+              "responsible_bodies": [
+                "банка",
+                "ГДБОП"
+              ],
+              "nameEn": "Unauthorized banking operation",
+              "nameAr": "العمليات المصرفية غير المصرح بها"
+            },
+            {
+              "name": "Отказ за информация по сметка",
+              "responsible_bodies": [
+                "банка",
+                "БНБ"
+              ],
+              "nameEn": "Denial of account information",
+              "nameAr": "رفض معلومات الحساب"
+            },
+            {
+              "name": "Непрозрачни банкови такси",
+              "responsible_bodies": [
+                "банка",
+                "БНБ",
+                "КЗП"
+              ],
+              "nameEn": "Opaque bank fees",
+              "nameAr": "رسوم مصرفية مبهمة"
+            }
+          ],
+          "nameEn": "Banking services",
+          "nameAr": "الخدمات المصرفية"
+        },
+        {
+          "name": "Кредити и дългове",
+          "responsible_bodies": [
+            "банка / кредитор",
+            "КЗП",
+            "БНБ"
+          ],
+          "situations": [
+            {
+              "name": "Нелоялни условия по потребителски кредит",
+              "responsible_bodies": [
+                "КЗП",
+                "БНБ"
+              ],
+              "nameEn": "Unfair terms on consumer credit",
+              "nameAr": "شروط غير عادلة على الائتمان الاستهلاكي"
+            },
+            {
+              "name": "Агресивно събиране на вземания",
+              "responsible_bodies": [
+                "КЗП",
+                "МВР"
+              ],
+              "nameEn": "Aggressive debt collection",
+              "nameAr": "تحصيل الديون العدوانية"
+            }
+          ],
+          "nameEn": "Loans and debts",
+          "nameAr": "القروض والديون"
+        },
+        {
+          "name": "Застраховане",
+          "responsible_bodies": [
+            "застраховател",
+            "КФН",
+            "КЗП"
+          ],
+          "situations": [
+            {
+              "name": "Отказ за изплащане на обезщетение",
+              "responsible_bodies": [
+                "застраховател",
+                "КФН"
+              ],
+              "nameEn": "Refusal to pay compensation",
+              "nameAr": "رفض دفع التعويضات"
+            },
+            {
+              "name": "Подвеждащи условия по полица",
+              "responsible_bodies": [
+                "КФН",
+                "КЗП"
+              ],
+              "nameEn": "Misleading policy terms",
+              "nameAr": "مصطلحات سياسية مضللة"
+            }
+          ],
+          "nameEn": "Insurance",
+          "nameAr": "تأمين"
+        },
+        {
+          "name": "Дигитални плащания и fintech",
+          "responsible_bodies": [
+            "платежна институция",
+            "БНБ",
+            "ГДБОП",
+            "КЗП"
+          ],
+          "situations": [
+            {
+              "name": "Неоторизирано картово плащане",
+              "responsible_bodies": [
+                "платежна институция",
+                "банка",
+                "ГДБОП"
+              ],
+              "nameEn": "Unauthorized card payment",
+              "nameAr": "الدفع بالبطاقة غير المصرح بها"
+            },
+            {
+              "name": "Блокирани електронни пари / wallet",
+              "responsible_bodies": [
+                "платежна институция",
+                "БНБ"
+              ],
+              "nameEn": "Blocked electronic money / wallet",
+              "nameAr": "الأموال / المحفظة الإلكترونية المحظورة"
+            },
+            {
+              "name": "Фишинг за банкови данни",
+              "responsible_bodies": [
+                "ГДБОП",
+                "банка",
+                "КЗЛД"
+              ],
+              "nameEn": "Phishing for bank details",
+              "nameAr": "التصيد للحصول على تفاصيل البنك"
+            }
+          ],
+          "nameEn": "Digital payments and fintech",
+          "nameAr": "المدفوعات الرقمية والتكنولوجيا المالية"
+        },
+        {
+          "name": "Инвестиции и финансови измами",
+          "responsible_bodies": [
+            "КФН",
+            "ГДБОП",
+            "Прокуратура"
+          ],
+          "situations": [
+            {
+              "name": "Измамна инвестиционна платформа",
+              "responsible_bodies": [
+                "КФН",
+                "ГДБОП"
+              ],
+              "nameEn": "Fraudulent investment platform",
+              "nameAr": "منصة استثمارية احتيالية"
+            },
+            {
+              "name": "Нелицензиран инвестиционен посредник",
+              "responsible_bodies": [
+                "КФН"
+              ],
+              "nameEn": "Unlicensed investment intermediary",
+              "nameAr": "وسيط استثماري غير مرخص"
+            }
+          ],
+          "nameEn": "Investments and financial fraud",
+          "nameAr": "الاستثمارات والاحتيال المالي"
+        }
+      ],
+      "nameEn": "Finance, banking, insurance and digital payments",
+      "nameAr": "المالية والمصرفية والتأمين والمدفوعات الرقمية"
+    },
+    {
+      "name": "Дигитална среда, данни и киберсигурност",
+      "icon": "🔐",
+      "category_responsible_bodies": [
+        "КЗЛД",
+        "ГДБОП",
+        "ДАНС",
+        "Държавна агенция Електронно управление",
+        "CERT Bulgaria",
+        "доставчик на услуга"
+      ],
+      "subcategories": [
+        {
+          "name": "Лични данни",
+          "responsible_bodies": [
+            "КЗЛД",
+            "администратор на данни"
+          ],
+          "situations": [
+            {
+              "name": "Изтичане на лични данни",
+              "responsible_bodies": [
+                "КЗЛД",
+                "администратор на данни"
+              ],
+              "nameEn": "Leakage of personal data",
+              "nameAr": "تسرب البيانات الشخصية"
+            },
+            {
+              "name": "Неправомерно публикуване на лични данни",
+              "responsible_bodies": [
+                "КЗЛД",
+                "доставчик на платформата"
+              ],
+              "nameEn": "Illegal publication of personal data",
+              "nameAr": "النشر غير القانوني للبيانات الشخصية"
+            },
+            {
+              "name": "Отказ за упражняване на права по GDPR",
+              "responsible_bodies": [
+                "КЗЛД"
+              ],
+              "nameEn": "Waiver of exercising rights under GDPR",
+              "nameAr": "التنازل عن ممارسة الحقوق بموجب اللائحة العامة لحماية البيانات"
+            }
+          ],
+          "nameEn": "Personal data",
+          "nameAr": "البيانات الشخصية"
+        },
+        {
+          "name": "Киберпрестъпления",
+          "responsible_bodies": [
+            "ГДБОП",
+            "МВР",
+            "Прокуратура"
+          ],
+          "situations": [
+            {
+              "name": "Хакване на профил",
+              "responsible_bodies": [
+                "ГДБОП",
+                "доставчик на услугата"
+              ],
+              "nameEn": "Account Hacking",
+              "nameAr": "اختراق الحساب"
+            },
+            {
+              "name": "Зловреден софтуер / ransomware",
+              "responsible_bodies": [
+                "ГДБОП",
+                "CERT Bulgaria"
+              ],
+              "nameEn": "Malware / ransomware",
+              "nameAr": "البرامج الضارة / برامج الفدية"
+            },
+            {
+              "name": "Онлайн изнудване",
+              "responsible_bodies": [
+                "ГДБОП",
+                "МВР"
+              ],
+              "nameEn": "Online blackmail",
+              "nameAr": "الابتزاز عبر الإنترنت"
+            }
+          ],
+          "nameEn": "Cyber ​​crimes",
+          "nameAr": "الجرائم السيبرانية"
+        },
+        {
+          "name": "Електронна идентичност и е-услуги",
+          "responsible_bodies": [
+            "ДАЕУ",
+            "доставчик на е-услугата",
+            "КЗЛД"
+          ],
+          "situations": [
+            {
+              "name": "Недостъпна държавна е-услуга",
+              "responsible_bodies": [
+                "ДАЕУ",
+                "съответната администрация"
+              ],
+              "nameEn": "Unavailable government e-service",
+              "nameAr": "عدم توفر الخدمات الإلكترونية الحكومية"
+            },
+            {
+              "name": "Грешни данни в електронен регистър",
+              "responsible_bodies": [
+                "администратор на регистъра",
+                "ДАЕУ"
+              ],
+              "nameEn": "Incorrect data in an electronic register",
+              "nameAr": "بيانات غير صحيحة في السجل الإلكتروني"
+            }
+          ],
+          "nameEn": "Electronic identity and e-services",
+          "nameAr": "الهوية الإلكترونية والخدمات الإلكترونية"
+        },
+        {
+          "name": "Онлайн профили и платформи",
+          "responsible_bodies": [
+            "доставчик на платформата",
+            "ГДБОП",
+            "КЗЛД"
+          ],
+          "situations": [
+            {
+              "name": "Кражба на акаунт",
+              "responsible_bodies": [
+                "доставчик на платформата",
+                "ГДБОП"
+              ],
+              "nameEn": "Account theft",
+              "nameAr": "سرقة الحساب"
+            },
+            {
+              "name": "Имперсонация / фалшив профил",
+              "responsible_bodies": [
+                "доставчик на платформата",
+                "ГДБОП"
+              ],
+              "nameEn": "Impersonation / fake profile",
+              "nameAr": "انتحال شخصية / ملف شخصي مزيف"
+            },
+            {
+              "name": "Неправомерно модериране с данни",
+              "responsible_bodies": [
+                "доставчик на платформата",
+                "КЗЛД"
+              ],
+              "nameEn": "Illegal data moderation",
+              "nameAr": "الإشراف غير القانوني على البيانات"
+            }
+          ],
+          "nameEn": "Online profiles and platforms",
+          "nameAr": "الملفات الشخصية والمنصات عبر الإنترنت"
+        }
+      ],
+      "nameEn": "Digital environment, data and cyber security",
+      "nameAr": "البيئة الرقمية والبيانات والأمن السيبراني"
+    },
+    {
+      "name": "Култура, туризъм, събития и религиозни дейности",
+      "icon": "🎭",
+      "category_responsible_bodies": [
+        "Министерство на културата",
+        "Община",
+        "Министерство на туризма",
+        "МВР",
+        "ГДПБЗН",
+        "регистрирана вероизповедна общност"
+      ],
+      "subcategories": [
+        {
+          "name": "Културно наследство",
+          "responsible_bodies": [
+            "Министерство на културата",
+            "НИНКН",
+            "Община"
+          ],
+          "situations": [
+            {
+              "name": "Повреда на паметник на културата",
+              "responsible_bodies": [
+                "Министерство на културата",
+                "НИНКН",
+                "Община"
+              ],
+              "nameEn": "Damage to a cultural monument",
+              "nameAr": "الأضرار التي لحقت النصب الثقافي"
+            },
+            {
+              "name": "Незаконна намеса в културна ценност",
+              "responsible_bodies": [
+                "Министерство на културата",
+                "МВР"
+              ],
+              "nameEn": "Unlawful interference with cultural property",
+              "nameAr": "التدخل غير القانوني في الممتلكات الثقافية"
+            }
+          ],
+          "nameEn": "Cultural heritage",
+          "nameAr": "التراث الثقافي"
+        },
+        {
+          "name": "Туристически услуги",
+          "responsible_bodies": [
+            "Министерство на туризма",
+            "КЗП",
+            "Община"
+          ],
+          "situations": [
+            {
+              "name": "Нерегистриран туристически обект",
+              "responsible_bodies": [
+                "Министерство на туризма",
+                "Община"
+              ],
+              "nameEn": "Unregistered tourist site",
+              "nameAr": "موقع سياحي غير مسجل"
+            },
+            {
+              "name": "Подвеждаща туристическа услуга",
+              "responsible_bodies": [
+                "КЗП",
+                "Министерство на туризма"
+              ],
+              "nameEn": "Misleading travel service",
+              "nameAr": "خدمة السفر المضللة"
+            }
+          ],
+          "nameEn": "Tourist services",
+          "nameAr": "الخدمات السياحية"
+        },
+        {
+          "name": "Събития и масови прояви",
+          "responsible_bodies": [
+            "Община",
+            "МВР",
+            "ГДПБЗН"
+          ],
+          "situations": [
+            {
+              "name": "Събитие без разрешение",
+              "responsible_bodies": [
+                "Община",
+                "МВР"
+              ],
+              "nameEn": "Event without permission",
+              "nameAr": "الحدث دون إذن"
+            },
+            {
+              "name": "Липса на мерки за безопасност на събитие",
+              "responsible_bodies": [
+                "ГДПБЗН",
+                "МВР",
+                "Община"
+              ],
+              "nameEn": "Lack of event safety measures",
+              "nameAr": "عدم وجود تدابير سلامة الحدث"
+            },
+            {
+              "name": "Шум или безредици при събитие",
+              "responsible_bodies": [
+                "МВР",
+                "Община"
+              ],
+              "nameEn": "Noise or disturbance at an event",
+              "nameAr": "الضوضاء أو الإزعاج في الحدث"
+            }
+          ],
+          "nameEn": "Events and mass events",
+          "nameAr": "الأحداث والأحداث الجماهيرية"
+        },
+        {
+          "name": "Религиозни дейности и обекти",
+          "responsible_bodies": [
+            "Община",
+            "МВР",
+            "регистрирана вероизповедна общност"
+          ],
+          "situations": [
+            {
+              "name": "Нарушения при религиозно събитие на публично място",
+              "responsible_bodies": [
+                "Община",
+                "МВР"
+              ],
+              "nameEn": "Violations at a religious event in a public place",
+              "nameAr": "الانتهاكات في مناسبة دينية في مكان عام"
+            },
+            {
+              "name": "Повреждане на религиозен обект",
+              "responsible_bodies": [
+                "МВР",
+                "собственик / религиозна общност"
+              ],
+              "nameEn": "Damage to a religious object",
+              "nameAr": "الأضرار التي لحقت كائن ديني"
+            }
+          ],
+          "nameEn": "Religious activities and sites",
+          "nameAr": "الأنشطة والمواقع الدينية"
+        }
+      ],
+      "nameEn": "Culture, tourism, events and religious activities",
+      "nameAr": "الثقافة والسياحة والفعاليات والأنشطة الدينية"
+    },
+    {
+      "name": "Земеделие, гори, лов, риболов и селски райони",
+      "icon": "🌾",
+      "category_responsible_bodies": [
+        "МЗм",
+        "ОД Земеделие",
+        "Изпълнителна агенция по горите",
+        "ИАРА",
+        "БАБХ",
+        "Община"
+      ],
+      "subcategories": [
+        {
+          "name": "Земеделски земи и ползване",
+          "responsible_bodies": [
+            "ОД Земеделие",
+            "Община"
+          ],
+          "situations": [
+            {
+              "name": "Неправомерно ползване на земеделска земя",
+              "responsible_bodies": [
+                "ОД Земеделие"
+              ],
+              "nameEn": "Illegal use of agricultural land",
+              "nameAr": "الاستخدام غير القانوني للأراضي الزراعية"
+            },
+            {
+              "name": "Увреждане на посеви",
+              "responsible_bodies": [
+                "ОД Земеделие",
+                "МВР при умисъл"
+              ],
+              "nameEn": "Damage to crops",
+              "nameAr": "الأضرار التي لحقت المحاصيل"
+            }
+          ],
+          "nameEn": "Agricultural lands and use",
+          "nameAr": "الأراضي الزراعية واستخدامها"
+        },
+        {
+          "name": "Гори и дърводобив",
+          "responsible_bodies": [
+            "Изпълнителна агенция по горите",
+            "РДГ",
+            "МВР"
+          ],
+          "situations": [
+            {
+              "name": "Незаконна сеч",
+              "responsible_bodies": [
+                "РДГ",
+                "МВР"
+              ],
+              "nameEn": "Illegal logging",
+              "nameAr": "قطع الأشجار غير القانوني"
+            },
+            {
+              "name": "Извозване на дървесина без документи",
+              "responsible_bodies": [
+                "РДГ",
+                "МВР"
+              ],
+              "nameEn": "Export of wood without documents",
+              "nameAr": "تصدير الخشب بدون وثائق"
+            },
+            {
+              "name": "Пожар в горски фонд",
+              "responsible_bodies": [
+                "ГДПБЗН",
+                "РДГ"
+              ],
+              "nameEn": "Fire in a forest fund",
+              "nameAr": "حريق في صندوق الغابات"
+            }
+          ],
+          "nameEn": "Forests and logging",
+          "nameAr": "الغابات وقطع الأشجار"
+        },
+        {
+          "name": "Лов и дивеч",
+          "responsible_bodies": [
+            "Изпълнителна агенция по горите",
+            "ловно сдружение",
+            "МВР"
+          ],
+          "situations": [
+            {
+              "name": "Бракониерство",
+              "responsible_bodies": [
+                "РДГ",
+                "МВР"
+              ],
+              "nameEn": "Poaching",
+              "nameAr": "الصيد الجائر"
+            },
+            {
+              "name": "Лов в забранена зона",
+              "responsible_bodies": [
+                "РДГ",
+                "МВР"
+              ],
+              "nameEn": "Hunting in a restricted area",
+              "nameAr": "الصيد في منطقة محظورة"
+            }
+          ],
+          "nameEn": "Hunting and game",
+          "nameAr": "الصيد واللعبة"
+        },
+        {
+          "name": "Риболов и водни ресурси",
+          "responsible_bodies": [
+            "ИАРА",
+            "Басейнова дирекция",
+            "МВР"
+          ],
+          "situations": [
+            {
+              "name": "Незаконен риболов",
+              "responsible_bodies": [
+                "ИАРА"
+              ],
+              "nameEn": "Illegal fishing",
+              "nameAr": "الصيد غير المشروع"
+            },
+            {
+              "name": "Използване на забранени средства за улов",
+              "responsible_bodies": [
+                "ИАРА",
+                "МВР"
+              ],
+              "nameEn": "Use of prohibited means of catching",
+              "nameAr": "استخدام وسائل الصيد المحظورة"
+            }
+          ],
+          "nameEn": "Fisheries and water resources",
+          "nameAr": "مصايد الأسماك والموارد المائية"
+        },
+        {
+          "name": "Селски райони и напояване",
+          "responsible_bodies": [
+            "Община",
+            "Напоителни системи",
+            "ОД Земеделие"
+          ],
+          "situations": [
+            {
+              "name": "Повреден напоителен канал",
+              "responsible_bodies": [
+                "Напоителни системи",
+                "Община"
+              ],
+              "nameEn": "Damaged irrigation channel",
+              "nameAr": "قناة الري التالفة"
+            },
+            {
+              "name": "Липса на достъп до селскостопански път",
+              "responsible_bodies": [
+                "Община",
+                "ОД Земеделие"
+              ],
+              "nameEn": "Lack of access to agricultural road",
+              "nameAr": "- عدم الوصول إلى الطريق الزراعي"
+            }
+          ],
+          "nameEn": "Rural areas and irrigation",
+          "nameAr": "المناطق الريفية والري"
+        }
+      ],
+      "nameEn": "Agriculture, forestry, hunting, fishing and rural areas",
+      "nameAr": "الزراعة والغابات والصيد وصيد الأسماك والمناطق الريفية"
+    },
+    {
+      "name": "Индустрия, опасни вещества и технически надзор",
+      "icon": "🏭",
+      "category_responsible_bodies": [
+        "ДАМТН",
+        "ГДПБЗН",
+        "РИОСВ",
+        "Главна инспекция по труда",
+        "МВР",
+        "Община"
+      ],
+      "subcategories": [
+        {
+          "name": "Промишлена безопасност",
+          "responsible_bodies": [
+            "ДАМТН",
+            "ГИТ",
+            "ГДПБЗН"
+          ],
+          "situations": [
+            {
+              "name": "Опасно промишлено оборудване",
+              "responsible_bodies": [
+                "ДАМТН",
+                "ГИТ"
+              ],
+              "nameEn": "Hazardous industrial equipment",
+              "nameAr": "المعدات الصناعية الخطرة"
+            },
+            {
+              "name": "Липса на обезопасяване в производствен обект",
+              "responsible_bodies": [
+                "ГИТ",
+                "ДАМТН"
+              ],
+              "nameEn": "Lack of security in a production site",
+              "nameAr": "انعدام الأمن في موقع الإنتاج"
+            }
+          ],
+          "nameEn": "Industrial safety",
+          "nameAr": "السلامة الصناعية"
+        },
+        {
+          "name": "Опасни химични вещества",
+          "responsible_bodies": [
+            "РИОСВ",
+            "ГДПБЗН",
+            "МВР"
+          ],
+          "situations": [
+            {
+              "name": "Изтичане на опасно вещество",
+              "responsible_bodies": [
+                "ГДПБЗН",
+                "РИОСВ",
+                "МВР"
+              ],
+              "nameEn": "Hazardous substance spill",
+              "nameAr": "انسكاب مادة خطرة"
+            },
+            {
+              "name": "Неправилно съхранение на химикали",
+              "responsible_bodies": [
+                "РИОСВ",
+                "ДАМТН"
+              ],
+              "nameEn": "Improper storage of chemicals",
+              "nameAr": "التخزين غير السليم للمواد الكيميائية"
+            }
+          ],
+          "nameEn": "Hazardous chemicals",
+          "nameAr": "المواد الكيميائية الخطرة"
+        },
+        {
+          "name": "Съоръжения с повишена опасност",
+          "responsible_bodies": [
+            "ДАМТН",
+            "ГДПБЗН"
+          ],
+          "situations": [
+            {
+              "name": "Проблем с котел, съд под налягане или подемно съоръжение",
+              "responsible_bodies": [
+                "ДАМТН"
+              ],
+              "nameEn": "Boiler, pressure vessel or lifting equipment problem",
+              "nameAr": "مشكلة في الغلاية أو وعاء الضغط أو معدات الرفع"
+            },
+            {
+              "name": "Опасен асансьор в производствена сграда",
+              "responsible_bodies": [
+                "ДАМТН"
+              ],
+              "nameEn": "Dangerous elevator in a manufacturing building",
+              "nameAr": "مصعد خطير في مبنى التصنيع"
+            }
+          ],
+          "nameEn": "High-risk facilities",
+          "nameAr": "مرافق عالية المخاطر"
+        },
+        {
+          "name": "Трудова безопасност в индустрията",
+          "responsible_bodies": [
+            "ГИТ",
+            "НОИ",
+            "МВР при тежък инцидент"
+          ],
+          "situations": [
+            {
+              "name": "Трудова злополука",
+              "responsible_bodies": [
+                "ГИТ",
+                "НОИ",
+                "МВР"
+              ],
+              "nameEn": "Occupational accident",
+              "nameAr": "حادث عمل"
+            },
+            {
+              "name": "Системни нарушения на правилата за безопасност",
+              "responsible_bodies": [
+                "ГИТ"
+              ],
+              "nameEn": "Systematic violations of safety rules",
+              "nameAr": "الانتهاكات المنهجية لقواعد السلامة"
+            }
+          ],
+          "nameEn": "Occupational safety in industry",
+          "nameAr": "السلامة المهنية في الصناعة"
+        }
+      ],
+      "nameEn": "Industry, hazardous substances and technical supervision",
+      "nameAr": "الصناعة والمواد الخطرة والإشراف الفني"
+    },
+    {
+      "name": "Администрация, регистри, избори и публична власт",
+      "icon": "🏛️",
+      "category_responsible_bodies": [
+        "съответната администрация",
+        "МС / ИИСДА контекст",
+        "омбудсман",
+        "ЦИК",
+        "КЗЛД",
+        "съд"
+      ],
+      "subcategories": [
+        {
+          "name": "Административно обслужване",
+          "responsible_bodies": [
+            "съответната администрация",
+            "омбудсман"
+          ],
+          "situations": [
+            {
+              "name": "Забавяне на административна услуга",
+              "responsible_bodies": [
+                "съответната администрация",
+                "омбудсман"
+              ],
+              "nameEn": "Administrative service delay",
+              "nameAr": "تأخير الخدمة الإدارية"
+            },
+            {
+              "name": "Неправомерен отказ за услуга",
+              "responsible_bodies": [
+                "съответната администрация",
+                "съд"
+              ],
+              "nameEn": "Wrongful Denial of Service",
+              "nameAr": "الحرمان غير المشروع من الخدمة"
+            }
+          ],
+          "nameEn": "Administrative service",
+          "nameAr": "الخدمة الإدارية"
+        },
+        {
+          "name": "Публични регистри",
+          "responsible_bodies": [
+            "администратор на регистъра",
+            "КЗЛД",
+            "ДАЕУ"
+          ],
+          "situations": [
+            {
+              "name": "Грешни данни в публичен регистър",
+              "responsible_bodies": [
+                "администратор на регистъра"
+              ],
+              "nameEn": "Wrong data in public register",
+              "nameAr": "بيانات خاطئة في السجل العام"
+            },
+            {
+              "name": "Неоторизиран достъп до регистър",
+              "responsible_bodies": [
+                "администратор на регистъра",
+                "КЗЛД",
+                "ГДБОП"
+              ],
+              "nameEn": "Unauthorized access to a registry",
+              "nameAr": "الوصول غير المصرح به إلى التسجيل"
+            }
+          ],
+          "nameEn": "Public records",
+          "nameAr": "السجلات العامة"
+        },
+        {
+          "name": "Избори и изборен процес",
+          "responsible_bodies": [
+            "ЦИК",
+            "РИК / ОИК",
+            "МВР",
+            "Прокуратура"
+          ],
+          "situations": [
+            {
+              "name": "Нарушение в изборна секция",
+              "responsible_bodies": [
+                "СИК",
+                "РИК / ОИК",
+                "МВР"
+              ],
+              "nameEn": "Violation in a polling station",
+              "nameAr": "مخالفة في مركز الاقتراع"
+            },
+            {
+              "name": "Купуване на гласове",
+              "responsible_bodies": [
+                "МВР",
+                "Прокуратура"
+              ],
+              "nameEn": "Buying votes",
+              "nameAr": "شراء الأصوات"
+            },
+            {
+              "name": "Агитация в забранено време",
+              "responsible_bodies": [
+                "РИК / ОИК",
+                "ЦИК"
+              ],
+              "nameEn": "Agitation in prohibited time",
+              "nameAr": "الانفعال في وقت محظور"
+            }
+          ],
+          "nameEn": "Elections and electoral process",
+          "nameAr": "الانتخابات والعملية الانتخابية"
+        },
+        {
+          "name": "Корупционни и етични сигнали",
+          "responsible_bodies": [
+            "КПК",
+            "Инспекторат",
+            "Прокуратура"
+          ],
+          "situations": [
+            {
+              "name": "Съмнение за конфликт на интереси",
+              "responsible_bodies": [
+                "КПК"
+              ],
+              "nameEn": "Suspected conflict of interest",
+              "nameAr": "الاشتباه في تضارب المصالح"
+            },
+            {
+              "name": "Подкуп или искане на облага от длъжностно лице",
+              "responsible_bodies": [
+                "КПК",
+                "Прокуратура",
+                "МВР"
+              ],
+              "nameEn": "Bribery or solicitation of a favor from an official",
+              "nameAr": "الرشوة أو طلب خدمة من مسؤول"
+            }
+          ],
+          "nameEn": "Corruption and ethical signals",
+          "nameAr": "الفساد والإشارات الأخلاقية"
+        }
+      ],
+      "nameEn": "Administration, registers, elections and public authority",
+      "nameAr": "الإدارة والسجلات والانتخابات والسلطة العامة"
+    },
+    {
+      "name": "Собственост, имоти, кадастър и регистрационни режими",
+      "icon": "📋",
+      "category_responsible_bodies": [
+        "АГКК",
+        "Имотен регистър / Агенция по вписванията",
+        "Община",
+        "съд",
+        "нотариус",
+        "МВР при измама"
+      ],
+      "subcategories": [
+        {
+          "name": "Кадастър и граници",
+          "responsible_bodies": [
+            "АГКК",
+            "Община"
+          ],
+          "situations": [
+            {
+              "name": "Грешка в кадастрална карта",
+              "responsible_bodies": [
+                "АГКК"
+              ],
+              "nameEn": "Error in cadastral map",
+              "nameAr": "خطأ في الخريطة المساحية"
+            },
+            {
+              "name": "Спор за граници на имот",
+              "responsible_bodies": [
+                "АГКК",
+                "съд"
+              ],
+              "nameEn": "Property boundary dispute",
+              "nameAr": "نزاع حدود الملكية"
+            }
+          ],
+          "nameEn": "Cadastre and boundaries",
+          "nameAr": "المساحة والحدود"
+        },
+        {
+          "name": "Имотен регистър и вписвания",
+          "responsible_bodies": [
+            "Агенция по вписванията",
+            "съд"
+          ],
+          "situations": [
+            {
+              "name": "Грешка във вписан акт",
+              "responsible_bodies": [
+                "Агенция по вписванията"
+              ],
+              "nameEn": "Error in registered deed",
+              "nameAr": "خطأ في الصك المسجل"
+            },
+            {
+              "name": "Съмнение за измамно вписване",
+              "responsible_bodies": [
+                "Агенция по вписванията",
+                "МВР",
+                "Прокуратура"
+              ],
+              "nameEn": "Suspected fraudulent entry",
+              "nameAr": "الاشتباه في دخول احتيالي"
+            }
+          ],
+          "nameEn": "Property register and entries",
+          "nameAr": "سجل الملكية والقيود"
+        },
+        {
+          "name": "Данъчна и административна регистрация на имоти",
+          "responsible_bodies": [
+            "Община",
+            "НАП при специфични казуси"
+          ],
+          "situations": [
+            {
+              "name": "Грешен данък сгради / такса смет",
+              "responsible_bodies": [
+                "Община"
+              ],
+              "nameEn": "Wrong building tax / garbage fee",
+              "nameAr": "ضريبة البناء / رسوم القمامة خاطئة"
+            },
+            {
+              "name": "Проблем при деклариране на имот",
+              "responsible_bodies": [
+                "Община"
+              ],
+              "nameEn": "Property declaration problem",
+              "nameAr": "مشكلة إعلان الملكية"
+            }
+          ],
+          "nameEn": "Tax and administrative registration of properties",
+          "nameAr": "التسجيل الضريبي والإداري للعقارات"
+        },
+        {
+          "name": "Ползване и владение",
+          "responsible_bodies": [
+            "съд",
+            "МВР при самоуправство",
+            "Община при общински имот"
+          ],
+          "situations": [
+            {
+              "name": "Незаконно завземане на общи части",
+              "responsible_bodies": [
+                "Община",
+                "съд"
+              ],
+              "nameEn": "Unlawful seizure of common parts",
+              "nameAr": "الاستيلاء غير القانوني على الأجزاء المشتركة"
+            },
+            {
+              "name": "Самоуправство в имот",
+              "responsible_bodies": [
+                "МВР",
+                "съд"
+              ],
+              "nameEn": "Self-management in property",
+              "nameAr": "الإدارة الذاتية في الممتلكات"
+            }
+          ],
+          "nameEn": "Use and Possession",
+          "nameAr": "الاستخدام والحيازة"
+        }
+      ],
+      "nameEn": "Ownership, properties, cadastre and registration regimes",
+      "nameAr": "أنظمة الملكية والعقارات والمساحة والتسجيل"
+    },
+    {
+      "name": "Медии, реклама, онлайн платформи и дезинформация",
+      "icon": "📺",
+      "category_responsible_bodies": [
+        "СЕМ",
+        "КЗП",
+        "КЗК",
+        "ГДБОП",
+        "ЦИК при изборен контекст",
+        "доставчик на платформата"
+      ],
+      "subcategories": [
+        {
+          "name": "Медийно съдържание и регулация",
+          "responsible_bodies": [
+            "СЕМ"
+          ],
+          "situations": [
+            {
+              "name": "Нарушение в радио- или телевизионно съдържание",
+              "responsible_bodies": [
+                "СЕМ"
+              ],
+              "nameEn": "Infringement of radio or television content",
+              "nameAr": "انتهاك المحتوى الإذاعي أو التلفزيوني"
+            },
+            {
+              "name": "Език на омразата в регулиран медиен доставчик",
+              "responsible_bodies": [
+                "СЕМ"
+              ],
+              "nameEn": "Hate speech in a regulated media provider",
+              "nameAr": "خطاب الكراهية في مزود وسائل الإعلام المنظم"
+            }
+          ],
+          "nameEn": "Media content and regulation",
+          "nameAr": "المحتوى الإعلامي وتنظيمه"
+        },
+        {
+          "name": "Реклама и търговски съобщения",
+          "responsible_bodies": [
+            "КЗП",
+            "КЗК",
+            "СЕМ"
+          ],
+          "situations": [
+            {
+              "name": "Подвеждаща реклама",
+              "responsible_bodies": [
+                "КЗП",
+                "КЗК"
+              ],
+              "nameEn": "Misleading advertising",
+              "nameAr": "الإعلانات المضللة"
+            },
+            {
+              "name": "Скрита реклама в медия",
+              "responsible_bodies": [
+                "СЕМ",
+                "КЗП"
+              ],
+              "nameEn": "Hidden advertising in media",
+              "nameAr": "الإعلانات الخفية في وسائل الإعلام"
+            }
+          ],
+          "nameEn": "Advertising and commercial communications",
+          "nameAr": "الإعلان والاتصالات التجارية"
+        },
+        {
+          "name": "Онлайн платформи и съдържание",
+          "responsible_bodies": [
+            "доставчик на платформата",
+            "ГДБОП",
+            "КЗЛД"
+          ],
+          "situations": [
+            {
+              "name": "Фалшив профил, вредящ на репутация",
+              "responsible_bodies": [
+                "доставчик на платформата",
+                "ГДБОП"
+              ],
+              "nameEn": "A fake profile that damages reputation",
+              "nameAr": "ملف تعريف مزيف يضر بالسمعة"
+            },
+            {
+              "name": "Незаконно съдържание онлайн",
+              "responsible_bodies": [
+                "доставчик на платформата",
+                "ГДБОП"
+              ],
+              "nameEn": "Illegal content online",
+              "nameAr": "المحتوى غير القانوني على الإنترنت"
+            }
+          ],
+          "nameEn": "Online platforms and content",
+          "nameAr": "المنصات والمحتوى عبر الإنترنت"
+        },
+        {
+          "name": "Дезинформация и изборна манипулация",
+          "responsible_bodies": [
+            "ЦИК",
+            "СЕМ",
+            "доставчик на платформата",
+            "ГДБОП"
+          ],
+          "situations": [
+            {
+              "name": "Координирана дезинформация по време на избори",
+              "responsible_bodies": [
+                "ЦИК",
+                "СЕМ",
+                "доставчик на платформата"
+              ],
+              "nameEn": "Coordinated disinformation during elections",
+              "nameAr": "التضليل المنسق خلال الانتخابات"
+            },
+            {
+              "name": "Фалшиво съдържание с измамна цел",
+              "responsible_bodies": [
+                "ГДБОП",
+                "доставчик на платформата"
+              ],
+              "nameEn": "Fake content with fraudulent intent",
+              "nameAr": "محتوى مزيف بقصد احتيالي"
+            }
+          ],
+          "nameEn": "Disinformation and election manipulation",
+          "nameAr": "التضليل والتلاعب بالانتخابات"
+        }
+      ],
+      "nameEn": "Media, advertising, online platforms and disinformation",
+      "nameAr": "وسائل الإعلام والإعلان والمنصات عبر الإنترنت والمعلومات المضللة"
+    },
+    {
+      "name": "Международни, гранични и миграционни въпроси",
+      "icon": "🌍",
+      "category_responsible_bodies": [
+        "Гранична полиция",
+        "МВнР",
+        "Дирекция Миграция - МВР",
+        "ДАБ",
+        "Агенция Митници",
+        "БАБХ"
+      ],
+      "subcategories": [
+        {
+          "name": "Граничен контрол",
+          "responsible_bodies": [
+            "Гранична полиция",
+            "Агенция Митници",
+            "БАБХ"
+          ],
+          "situations": [
+            {
+              "name": "Нарушение на граничния режим",
+              "responsible_bodies": [
+                "Гранична полиция"
+              ],
+              "nameEn": "Violation of the border regime",
+              "nameAr": "انتهاك نظام الحدود"
+            },
+            {
+              "name": "Проблем при преминаване с животни или храни",
+              "responsible_bodies": [
+                "БАБХ",
+                "Агенция Митници"
+              ],
+              "nameEn": "Problem with passing animals or food",
+              "nameAr": "مشكلة في تمرير الحيوانات أو الطعام"
+            }
+          ],
+          "nameEn": "Border control",
+          "nameAr": "مراقبة الحدود"
+        },
+        {
+          "name": "Миграция и пребиваване",
+          "responsible_bodies": [
+            "Дирекция Миграция - МВР",
+            "ДАБ"
+          ],
+          "situations": [
+            {
+              "name": "Проблем с разрешение за пребиваване",
+              "responsible_bodies": [
+                "Дирекция Миграция - МВР"
+              ],
+              "nameEn": "Residence permit problem",
+              "nameAr": "مشكلة تصريح الإقامة"
+            },
+            {
+              "name": "Сигнал за незаконно пребиваване",
+              "responsible_bodies": [
+                "Дирекция Миграция - МВР",
+                "МВР"
+              ],
+              "nameEn": "Illegal stay alert",
+              "nameAr": "تنبيه البقاء غير القانوني"
+            },
+            {
+              "name": "Търсещо международна закрила лице в риск",
+              "responsible_bodies": [
+                "ДАБ",
+                "МВР"
+              ],
+              "nameEn": "A person at risk seeking international protection",
+              "nameAr": "شخص معرض للخطر ويطلب الحماية الدولية"
+            }
+          ],
+          "nameEn": "Migration and residence",
+          "nameAr": "الهجرة والإقامة"
+        },
+        {
+          "name": "Консулски и международни услуги",
+          "responsible_bodies": [
+            "МВнР",
+            "консулска служба"
+          ],
+          "situations": [
+            {
+              "name": "Проблем с консулска услуга",
+              "responsible_bodies": [
+                "МВнР",
+                "консулска служба"
+              ],
+              "nameEn": "Problem with consular service",
+              "nameAr": "مشكلة في الخدمة القنصلية"
+            },
+            {
+              "name": "Сигнал за български гражданин в бедствие в чужбина",
+              "responsible_bodies": [
+                "МВнР"
+              ],
+              "nameEn": "Report of a Bulgarian citizen in distress abroad",
+              "nameAr": "تقرير عن مواطن بلغاري في محنة بالخارج"
+            }
+          ],
+          "nameEn": "Consular and international services",
+          "nameAr": "الخدمات القنصلية والدولية"
+        },
+        {
+          "name": "Митнически нарушения",
+          "responsible_bodies": [
+            "Агенция Митници",
+            "МВР",
+            "Прокуратура"
+          ],
+          "situations": [
+            {
+              "name": "Контрабанда",
+              "responsible_bodies": [
+                "Агенция Митници",
+                "МВР"
+              ],
+              "nameEn": "Contraband",
+              "nameAr": "التهريب"
+            },
+            {
+              "name": "Невярно деклариране на стоки на граница",
+              "responsible_bodies": [
+                "Агенция Митници"
+              ],
+              "nameEn": "False declaration of goods at the border",
+              "nameAr": "إعلان كاذب عن البضائع على الحدود"
+            }
+          ],
+          "nameEn": "Customs violations",
+          "nameAr": "المخالفات الجمركية"
+        }
+      ],
+      "nameEn": "International, border and migration issues",
+      "nameAr": "القضايا الدولية والحدود والهجرة"
+    },
+    {
+      "name": "Специализирани високорискови отрасли",
+      "icon": "⚠️",
+      "category_responsible_bodies": [
+        "ядрен регулатор",
+        "ГДПБЗН",
+        "МОСВ",
+        "ДАМТН",
+        "МВР",
+        "секторен регулатор / оператор"
+      ],
+      "subcategories": [
+        {
+          "name": "Ядрена и радиационна безопасност",
+          "responsible_bodies": [
+            "АЯР",
+            "МЗ",
+            "ГДПБЗН"
+          ],
+          "situations": [
+            {
+              "name": "Съмнение за радиационен инцидент",
+              "responsible_bodies": [
+                "АЯР",
+                "ГДПБЗН",
+                "МЗ"
+              ],
+              "nameEn": "Suspected radiation incident",
+              "nameAr": "حادثة إشعاعية مشتبه بها"
+            },
+            {
+              "name": "Неправилно съхранение на източници на йонизиращи лъчения",
+              "responsible_bodies": [
+                "АЯР",
+                "МЗ"
+              ],
+              "nameEn": "Improper storage of ionizing radiation sources",
+              "nameAr": "التخزين غير السليم لمصادر الإشعاع المؤين"
+            }
+          ],
+          "nameEn": "Nuclear and radiation safety",
+          "nameAr": "السلامة النووية والإشعاعية"
+        },
+        {
+          "name": "Военни и стратегически обекти",
+          "responsible_bodies": [
+            "Министерство на отбраната",
+            "Военна полиция",
+            "МВР"
+          ],
+          "situations": [
+            {
+              "name": "Инцидент във военен район",
+              "responsible_bodies": [
+                "Военна полиция",
+                "Министерство на отбраната"
+              ],
+              "nameEn": "Incident in a military area",
+              "nameAr": "حادث في منطقة عسكرية"
+            },
+            {
+              "name": "Нерегламентиран достъп до стратегически обект",
+              "responsible_bodies": [
+                "Военна полиция",
+                "МВР"
+              ],
+              "nameEn": "Unregulated access to a strategic site",
+              "nameAr": "الوصول غير المنظم إلى موقع استراتيجي"
+            }
+          ],
+          "nameEn": "Military and strategic sites",
+          "nameAr": "المواقع العسكرية والاستراتيجية"
+        },
+        {
+          "name": "Критична инфраструктура",
+          "responsible_bodies": [
+            "секторен оператор",
+            "ДАНС",
+            "МВР",
+            "ГДПБЗН"
+          ],
+          "situations": [
+            {
+              "name": "Саботаж или тежък инцидент в критична инфраструктура",
+              "responsible_bodies": [
+                "секторен оператор",
+                "ДАНС",
+                "МВР"
+              ],
+              "nameEn": "Sabotage or major incident in critical infrastructure",
+              "nameAr": "التخريب أو الحوادث الكبرى في البنية التحتية الحيوية"
+            },
+            {
+              "name": "Пробив в сигурността на критичен обект",
+              "responsible_bodies": [
+                "секторен оператор",
+                "ДАНС"
+              ],
+              "nameEn": "A breach in the security of a critical object",
+              "nameAr": "خرق لأمن كائن بالغ الأهمية"
+            }
+          ],
+          "nameEn": "Critical infrastructure",
+          "nameAr": "البنية التحتية الحيوية"
+        },
+        {
+          "name": "Високорискови производства и логистика",
+          "responsible_bodies": [
+            "ДАМТН",
+            "ГДПБЗН",
+            "РИОСВ",
+            "МВР"
+          ],
+          "situations": [
+            {
+              "name": "Авария в склад за опасни материали",
+              "responsible_bodies": [
+                "ГДПБЗН",
+                "РИОСВ",
+                "МВР"
+              ],
+              "nameEn": "Hazardous materials warehouse accident",
+              "nameAr": "حادث مستودع المواد الخطرة"
+            },
+            {
+              "name": "Опасен превоз на опасни товари",
+              "responsible_bodies": [
+                "МВР - Пътна полиция",
+                "ИА Автомобилна администрация",
+                "ГДПБЗН"
+              ],
+              "nameEn": "Dangerous transport of dangerous goods",
+              "nameAr": "النقل الخطير للبضائع الخطرة"
+            }
+          ],
+          "nameEn": "High-risk production and logistics",
+          "nameAr": "الإنتاج والخدمات اللوجستية عالية المخاطر"
+        }
+      ],
+      "nameEn": "Specialized high-risk industries",
+      "nameAr": "الصناعات المتخصصة عالية المخاطر"
+    }
+  ]
+}

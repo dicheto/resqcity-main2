@@ -123,7 +123,7 @@ export default function ReportDetailPage({ params }: { params: { id: string } })
         <div className="site-card rounded-2xl p-6">
           <div className="grid md:grid-cols-2 gap-4 mb-6 text-sm">
             {[
-              { label: tr('Категория', 'Category', 'الفئة'), value: formatCategoryLabel(report.category || report.categoryId, tr('Без категория', 'No category', 'بدون فئة')) },
+              { label: tr('Категория', 'Category', 'الفئة'), value: formatCategoryLabel(report.category || report.categoryId, tr('Без категория', 'No category', 'بدون فئة'), locale) },
               { label: tr('Приоритет', 'Priority', 'الأولوية'), value: report.priority },
               { label: tr('Създаден', 'Created', 'تم الإنشاء'), value: new Date(report.createdAt).toLocaleString(locale === 'bg' ? 'bg-BG' : locale === 'ar' ? 'ar-SA' : 'en-US') },
               { label: tr('Координати', 'Coordinates', 'الإحداثيات'), value: `${report.latitude.toFixed(4)}, ${report.longitude.toFixed(4)}` },

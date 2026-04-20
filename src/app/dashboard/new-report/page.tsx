@@ -25,15 +25,24 @@ interface Category {
 
 interface TaxonomySituation {
   name: string;
+  nameBg?: string;
+  nameEn?: string;
+  nameAr?: string;
 }
 
 interface TaxonomySubcategory {
   name: string;
+  nameBg?: string;
+  nameEn?: string;
+  nameAr?: string;
   situations?: TaxonomySituation[];
 }
 
 interface TaxonomyCategory {
   name: string;
+  nameBg?: string;
+  nameEn?: string;
+  nameAr?: string;
   subcategories?: TaxonomySubcategory[];
 }
 
@@ -122,6 +131,12 @@ export default function NewReportPage() {
   const selectedTaxonomyCategory = taxonomyCategories.find(
     (item) => item.name === formData.taxonomyCategoryName
   );
+  const localizedTaxonomyName = (node?: { name?: string; nameBg?: string; nameEn?: string; nameAr?: string } | null) => {
+    if (!node) return '';
+    if (locale === 'en') return node.nameEn || node.nameBg || node.name || '';
+    if (locale === 'ar') return node.nameAr || node.nameBg || node.name || '';
+    return node.nameBg || node.nameEn || node.name || '';
+  };
   const showOtherSubcategoryField = formData.taxonomySubcategory === 'Друго';
   const showOtherSituationField = formData.taxonomySituation === 'Друго';
 
@@ -131,6 +146,7 @@ export default function NewReportPage() {
     (item) => item.name === formData.taxonomySubcategory
   );
   const availableSituations = selectedSubcategory?.situations || [];
+  const selectedSituation = availableSituations.find((item) => item.name === formData.taxonomySituation);
 
   const handleCategorySelection = (categoryId: string) => {
     const matchedCategory = categories.find((item) => item.id === categoryId);
@@ -325,7 +341,7 @@ export default function NewReportPage() {
                   >
                     <option value="">{tr('Избери подкатегория', 'Select subcategory', 'اختر فئة فرعية')}</option>
                     {availableSubcategories.map((subcat) => (
-                      <option key={subcat.name} value={subcat.name}>{subcat.name}</option>
+                      <option key={subcat.name} value={subcat.name}>{localizedTaxonomyName(subcat)}</option>
                     ))}
                     <option value="Друго">{tr('📝 Друго', '📝 Other', '📝 أخرى')}</option>
                   </select>
@@ -353,7 +369,7 @@ export default function NewReportPage() {
                   >
                     <option value="">{tr('Избери ситуация', 'Select situation', 'اختر حالة')}</option>
                     {availableSituations.map((situation) => (
-                      <option key={situation.name} value={situation.name}>{situation.name}</option>
+                      <option key={situation.name} value={situation.name}>{localizedTaxonomyName(situation)}</option>
                     ))}
                     <option value="Друго">{tr('📝 Друго', '📝 Other', '📝 أخرى')}</option>
                   </select>
@@ -553,9 +569,9 @@ export default function NewReportPage() {
           {step === 3 && (
             <div className="space-y-4 text-sm text-[var(--s-muted2)]">
               <div className="rounded-2xl border border-[var(--s-border)] p-5 bg-[var(--s-surface2)] space-y-2">
-                <p><span className="text-[var(--s-muted)] uppercase tracking-[0.2em] text-xs">{tr('Категория:', 'Category:', 'الفئة:')}</span> <span className="font-medium text-[var(--s-text)]">{formData.taxonomyCategoryName}</span></p>
-                <p><span className="text-[var(--s-muted)] uppercase tracking-[0.2em] text-xs">{tr('Подкатегория:', 'Subcategory:', 'الفئة الفرعية:')}</span> <span className="font-medium text-[var(--s-text)]">{formData.taxonomySubcategory}</span></p>
-                <p><span className="text-[var(--s-muted)] uppercase tracking-[0.2em] text-xs">{tr('Ситуация:', 'Situation:', 'الحالة:')}</span> <span className="font-medium text-[var(--s-text)]">{formData.taxonomySituation}</span></p>
+                <p><span className="text-[var(--s-muted)] uppercase tracking-[0.2em] text-xs">{tr('Категория:', 'Category:', 'الفئة:')}</span> <span className="font-medium text-[var(--s-text)]">{localizedTaxonomyName(selectedTaxonomyCategory as any) || formData.taxonomyCategoryName}</span></p>
+                <p><span className="text-[var(--s-muted)] uppercase tracking-[0.2em] text-xs">{tr('Подкатегория:', 'Subcategory:', 'الفئة الفرعية:')}</span> <span className="font-medium text-[var(--s-text)]">{localizedTaxonomyName(selectedSubcategory as any) || formData.taxonomySubcategory}</span></p>
+                <p><span className="text-[var(--s-muted)] uppercase tracking-[0.2em] text-xs">{tr('Ситуация:', 'Situation:', 'الحالة:')}</span> <span className="font-medium text-[var(--s-text)]">{localizedTaxonomyName(selectedSituation as any) || formData.taxonomySituation}</span></p>
                 <p><span className="text-[var(--s-muted)] uppercase tracking-[0.2em] text-xs">{tr('Заглавие:', 'Title:', 'العنوان:')}</span> <span className="font-medium text-[var(--s-text)]">{formData.title}</span></p>
                 <p><span className="text-[var(--s-muted)] uppercase tracking-[0.2em] text-xs">{tr('Описание:', 'Description:', 'الوصف:')}</span> <span className="font-medium text-[var(--s-text)]">{formData.description}</span></p>
                 <p><span className="text-[var(--s-muted)] uppercase tracking-[0.2em] text-xs">{tr('Приоритет:', 'Priority:', 'الأولوية:')}</span> <span className="font-medium text-[var(--s-text)]">{formData.priority}</span></p>

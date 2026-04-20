@@ -35,6 +35,13 @@ interface PublicSignal {
   createdAt: string;
 }
 
+type CategoryOption = {
+  id: string;
+  name?: string;
+  nameBg?: string;
+  nameEn?: string;
+};
+
 function getStatusColor(status: string): { bg: string; text: string; icon: React.ReactNode } {
   switch (status) {
     case 'RESOLVED':
@@ -114,7 +121,7 @@ export default function SignalsPage() {
   const [categoryFilter, setCategoryFilter] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState('');
   const [sortBy, setSortBy] = useState<'newest' | 'oldest' | 'status'>('newest');
-  const [categories, setCategories] = useState<Array<{ id: string; nameBg: string }>>([]);
+  const [categories, setCategories] = useState<CategoryOption[]>([]);
 
   // Fetch categories
   useEffect(() => {
@@ -125,7 +132,7 @@ export default function SignalsPage() {
           const data = await response.json();
           const activeCategories = (data.categories || [])
             .filter((cat: any) => cat.active)
-            .map((cat: any) => ({ id: cat.id, nameBg: cat.nameBg }))
+            .map((cat: any) => ({ id: cat.id, name: cat.name, nameBg: cat.nameBg, nameEn: cat.nameEn }))
             .sort((a: any, b: any) => a.nameBg.localeCompare(b.nameBg, 'bg'));
           setCategories(activeCategories);
         }
@@ -283,7 +290,7 @@ export default function SignalsPage() {
               <option value="">{locale === 'bg' ? 'Всички категории' : locale === 'en' ? 'All categories' : 'كل الفئات'}</option>
               {categories.map((cat) => (
                 <option key={cat.id} value={cat.nameBg}>
-                  {cat.nameBg}
+                  {formatCategoryLabel(cat, cat.nameBg || '', locale)}
                 </option>
               ))}
             </select>

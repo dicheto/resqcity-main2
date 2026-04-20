@@ -3,17 +3,23 @@ import path from 'path';
 
 interface TaxonomySituation {
   name: string;
+  nameEn?: string;
+  nameAr?: string;
   responsible_bodies?: string[];
 }
 
 interface TaxonomySubcategory {
   name: string;
+  nameEn?: string;
+  nameAr?: string;
   responsible_bodies?: string[];
   situations?: TaxonomySituation[];
 }
 
 interface TaxonomyCategory {
   name: string;
+  nameEn?: string;
+  nameAr?: string;
   icon?: string;
   category_responsible_bodies?: string[];
   subcategories?: TaxonomySubcategory[];
@@ -23,10 +29,16 @@ interface TaxonomyFile {
   categories: TaxonomyCategory[];
 }
 
-const TAXONOMY_FILE_NAME = 'signal_routing_taxonomy_bg.json';
+const I18N_TAXONOMY_FILE_NAME = 'signal_routing_taxonomy_i18n.json';
+const FALLBACK_TAXONOMY_FILE_NAME = 'signal_routing_taxonomy_bg.json';
 
 export async function loadSignalRoutingTaxonomy(): Promise<TaxonomyFile> {
-  const taxonomyPath = path.join(process.cwd(), TAXONOMY_FILE_NAME);
+  const i18nTaxonomyPath = path.join(process.cwd(), I18N_TAXONOMY_FILE_NAME);
+  const fallbackTaxonomyPath = path.join(process.cwd(), FALLBACK_TAXONOMY_FILE_NAME);
+  const taxonomyPath = await fs
+    .access(i18nTaxonomyPath)
+    .then(() => i18nTaxonomyPath)
+    .catch(() => fallbackTaxonomyPath);
   const raw = await fs.readFile(taxonomyPath, 'utf8');
   return JSON.parse(raw) as TaxonomyFile;
 }

@@ -140,8 +140,69 @@ model ReportCategory {
   responsiblePersons ResponsiblePerson[]
   responsiblePersonSubcategories ResponsiblePersonSubcategory[]
   institutionMappings CategoryInstitution[]
+  taxonomyNodes   TaxonomyCategory[]
   
   @@map("report_categories")
+}
+
+model TaxonomyCategory {
+  id          String   @id @default(uuid())
+  key         String   @unique
+  nameBg      String
+  nameEn      String
+  nameAr      String
+  icon        String?
+  active      Boolean  @default(true)
+  sortOrder   Int      @default(0)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  reportCategoryId String?
+  reportCategory   ReportCategory? @relation(fields: [reportCategoryId], references: [id], onDelete: SetNull)
+
+  subcategories TaxonomySubcategory[]
+
+  @@index([active, sortOrder])
+  @@index([reportCategoryId])
+  @@map("taxonomy_categories")
+}
+
+model TaxonomySubcategory {
+  id          String   @id @default(uuid())
+  key         String   @unique
+  nameBg      String
+  nameEn      String
+  nameAr      String
+  active      Boolean  @default(true)
+  sortOrder   Int      @default(0)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  categoryId  String
+  category    TaxonomyCategory @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+
+  situations  TaxonomySituation[]
+
+  @@index([categoryId, active, sortOrder])
+  @@map("taxonomy_subcategories")
+}
+
+model TaxonomySituation {
+  id            String   @id @default(uuid())
+  key           String   @unique
+  nameBg        String
+  nameEn        String
+  nameAr        String
+  active        Boolean  @default(true)
+  sortOrder     Int      @default(0)
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  subcategoryId String
+  subcategory   TaxonomySubcategory @relation(fields: [subcategoryId], references: [id], onDelete: Cascade)
+
+  @@index([subcategoryId, active, sortOrder])
+  @@map("taxonomy_situations")
 }
 
 model ResponsiblePerson {
