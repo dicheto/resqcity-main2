@@ -1,7 +1,6 @@
 'use client';
 
 import { useEffect, useState, useRef } from 'react';
-import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
 import axios from 'axios';
 import { useI18n } from '@/i18n';
@@ -28,9 +27,10 @@ export default function HeatmapPage() {
     loading: locale === 'bg' ? 'Зареждане на картата...' : locale === 'en' ? 'Loading map...' : 'جار تحميل الخريطة...',
     legend: locale === 'bg' ? 'Легенда' : locale === 'en' ? 'Legend' : 'مفتاح الألوان',
   };
-  const map = useRef<L.Map | null>(null);
-  const heatLayersRef = useRef<L.Layer[]>([]);
-  const pointLayersRef = useRef<L.Layer[]>([]);
+  const map = useRef<any>(null);
+  const leafletRef = useRef<any>(null);
+  const heatLayersRef = useRef<any[]>([]);
+  const pointLayersRef = useRef<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [heatmapData, setHeatmapData] = useState<HeatmapPoint[]>([]);
 
@@ -39,25 +39,36 @@ export default function HeatmapPage() {
   }, []);
 
   useEffect(() => {
-    if (!mapContainer.current || map.current) return;
+    let isCancelled = false;
 
-    map.current = L.map(mapContainer.current, {
-      zoomControl: true,
-    });
+    const initMap = async () => {
+      if (!mapContainer.current || map.current || typeof window === 'undefined') return;
 
-    map.current.setView([42.6977, 23.3219], 12);
+      const L = (await import('leaflet')).default;
+      if (isCancelled) return;
+      leafletRef.current = L;
 
-    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-      attribution: '&copy; OpenStreetMap contributors',
-      maxZoom: 19,
-    }).addTo(map.current);
+      map.current = L.map(mapContainer.current, {
+        zoomControl: true,
+      });
 
-    map.current.whenReady(() => {
-      renderHeatmap(heatmapData);
-      setLoading(false);
-    });
+      map.current.setView([42.6977, 23.3219], 12);
+
+      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        attribution: '&copy; OpenStreetMap contributors',
+        maxZoom: 19,
+      }).addTo(map.current);
+
+      map.current.whenReady(() => {
+        renderHeatmap(heatmapData);
+        setLoading(false);
+      });
+    };
+
+    initMap();
 
     return () => {
+      isCancelled = true;
       if (map.current) {
         map.current.remove();
         map.current = null;
@@ -84,7 +95,8 @@ export default function HeatmapPage() {
   };
 
   const renderHeatmap = (data: HeatmapPoint[]) => {
-    if (!map.current) return;
+    const L = leafletRef.current;
+    if (!map.current || !L) return;
 
     heatLayersRef.current.forEach((layer) => map.current?.removeLayer(layer));
     pointLayersRef.current.forEach((layer) => map.current?.removeLayer(layer));

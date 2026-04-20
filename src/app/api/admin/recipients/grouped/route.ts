@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { PrismaClient } from '@prisma/client';
 import { loadSignalRoutingTaxonomy } from '@/hooks/lib/taxonomy';
+export const dynamic = 'force-dynamic';
 
 const prisma = new PrismaClient();
 

@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getAuth } from "@/hooks/lib/auth";
 import { prisma } from "@/hooks/lib/prisma";
+export const dynamic = 'force-dynamic';
 
 /**
  * Debug endpoint to check vehicle incidents in database

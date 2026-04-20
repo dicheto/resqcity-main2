@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/hooks/lib/prisma';
 import { generateToken, setAuthCookie } from '@/hooks/lib/auth';
+export const dynamic = 'force-dynamic';
 
 export async function GET(request: NextRequest) {
   try {

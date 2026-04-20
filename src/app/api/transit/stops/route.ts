@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { parseGTFSStops, getStopsInBounds, getSampleStops, getAllStops } from '@/hooks/lib/gtfs';
+export const dynamic = 'force-dynamic';
 
 export async function GET(request: NextRequest) {
   try {

@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import axios from 'axios';
+export const dynamic = 'force-dynamic';
 
 const OPENWEATHER_API_KEY = process.env.OPENWEATHER_API_KEY || process.env.NEXT_PUBLIC_OPENWEATHER_KEY;
 const OPENWEATHER_BASE = 'https://api.openweathermap.org/data/2.5';
