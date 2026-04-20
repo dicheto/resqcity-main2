@@ -8,20 +8,8 @@ import { PasswordRequirements } from '@/components/PasswordRequirements';
 import { useI18n } from '@/i18n';
 
 function ResetPasswordForm() {
-  const { locale } = useI18n();
+  const { t } = useI18n();
   const searchParams = useSearchParams();
-  const copy = {
-    invalidLink: locale === 'bg' ? 'Невалиден линк' : locale === 'en' ? 'Invalid link' : 'رابط غير صالح',
-    forgot: locale === 'bg' ? 'Забравена парола' : locale === 'en' ? 'Forgot password' : 'نسيت كلمة المرور',
-    toLogin: locale === 'bg' ? 'Към вход' : locale === 'en' ? 'Back to login' : 'العودة لتسجيل الدخول',
-    changed: locale === 'bg' ? 'Паролата е сменена!' : locale === 'en' ? 'Password changed!' : 'تم تغيير كلمة المرور!',
-    chooseNew: locale === 'bg' ? 'Избери нова парола' : locale === 'en' ? 'Choose new password' : 'اختر كلمة مرور جديدة',
-    newPassword: locale === 'bg' ? 'Нова парола' : locale === 'en' ? 'New password' : 'كلمة المرور الجديدة',
-    confirmPassword: locale === 'bg' ? 'Потвърди парола' : locale === 'en' ? 'Confirm password' : 'تأكيد كلمة المرور',
-    changing: locale === 'bg' ? 'Смяна...' : locale === 'en' ? 'Changing...' : 'جار التغيير...',
-    changeBtn: locale === 'bg' ? 'Смени паролата' : locale === 'en' ? 'Change password' : 'تغيير كلمة المرور',
-    loading: locale === 'bg' ? 'Зареждане...' : locale === 'en' ? 'Loading...' : 'جار التحميل...',
-  };
   const token = searchParams.get('token');
 
   const [password, setPassword] = useState('');
@@ -46,7 +34,7 @@ function ResetPasswordForm() {
       await axios.post('/api/auth/reset-password', { token, password });
       setSuccess(true);
     } catch (err: any) {
-      setError(err.response?.data?.error || 'Нещо се обърка. Опитай отново.');
+      setError(err.response?.data?.error || t('auth.verify.failed'));
     } finally {
       setLoading(false);
     }
@@ -62,17 +50,17 @@ function ResetPasswordForm() {
         <div className="relative w-full max-w-lg">
           <div className="site-card-glass rounded-3xl p-10 text-center" data-cursor-loupe>
             <p className="text-[10px] uppercase tracking-[0.5em] text-[var(--s-orange)] font-bold mb-3">ResQCity</p>
-            <h2 className="text-2xl font-extrabold rc-display text-[var(--s-text)] mb-3">{copy.invalidLink}</h2>
+            <h2 className="text-2xl font-extrabold rc-display text-[var(--s-text)] mb-3">{t('auth.reset.invalidLink')}</h2>
             <p className="text-[var(--s-muted2)] text-sm leading-relaxed mb-8">
-              Линкът за смяна на парола е невалиден или е изтекъл. Заяви нов линк от страницата за забравена парола.
+              {t('auth.reset.invalidInfo')}
             </p>
             <Link href="/auth/forgot-password"
               className="btn-site-primary w-full justify-center py-3 rounded-2xl text-sm inline-flex">
-              {copy.forgot}
+              {t('auth.reset.forgot')}
             </Link>
             <Link href="/auth/login"
               className="mt-3 w-full block text-center text-sm text-[var(--s-muted)] hover:text-[var(--s-orange)]">
-              {copy.toLogin}
+              {t('auth.verify.backToLogin')}
             </Link>
           </div>
         </div>
@@ -94,14 +82,14 @@ function ResetPasswordForm() {
               <span className="text-4xl">✓</span>
             </div>
             <p className="text-[10px] uppercase tracking-[0.5em] text-[var(--s-teal)] font-bold mb-3">ResQCity</p>
-            <h2 className="text-2xl font-extrabold rc-display text-[var(--s-text)] mb-3">{copy.changed}</h2>
+            <h2 className="text-2xl font-extrabold rc-display text-[var(--s-text)] mb-3">{t('auth.reset.changed')}</h2>
             <p className="text-[var(--s-muted2)] text-sm leading-relaxed mb-8">
-              Паролата ти е успешно обновена. Вече можеш да влезеш с новата си парола.
+              {t('auth.reset.changedInfo')}
             </p>
             <Link href="/auth/login"
               className="btn-site-primary w-full justify-center py-3 rounded-2xl text-sm inline-flex"
               style={{ background: 'linear-gradient(135deg, var(--s-teal), #059669)' }}>
-              {copy.toLogin}
+              {t('auth.verify.backToLogin')}
             </Link>
           </div>
         </div>
@@ -119,8 +107,8 @@ function ResetPasswordForm() {
         <div className="site-card-glass rounded-3xl p-8" data-cursor-loupe>
           <div className="mb-8">
             <p className="text-[10px] uppercase tracking-[0.5em] text-[var(--s-orange)] font-bold">ResQCity</p>
-            <h2 className="text-2xl font-bold rc-display text-[var(--s-text)] mt-1">{copy.chooseNew}</h2>
-            <p className="text-[var(--s-muted2)] text-sm mt-2">Въведи и потвърди новата си парола.</p>
+            <h2 className="text-2xl font-bold rc-display text-[var(--s-text)] mt-1">{t('auth.reset.chooseNew')}</h2>
+            <p className="text-[var(--s-muted2)] text-sm mt-2">{t('auth.reset.enterNew')}</p>
           </div>
 
           {error && (
@@ -131,7 +119,7 @@ function ResetPasswordForm() {
 
           <form onSubmit={handleSubmit} className="space-y-4">
             <div>
-              <label className="block text-[10px] font-semibold uppercase tracking-[0.4em] text-[var(--s-muted)] mb-2">{copy.newPassword}</label>
+              <label className="block text-[10px] font-semibold uppercase tracking-[0.4em] text-[var(--s-muted)] mb-2">{t('auth.reset.newPassword')}</label>
               <input
                 type="password"
                 className="site-input"
@@ -142,7 +130,7 @@ function ResetPasswordForm() {
               />
             </div>
             <div>
-              <label className="block text-[10px] font-semibold uppercase tracking-[0.4em] text-[var(--s-muted)] mb-2">{copy.confirmPassword}</label>
+              <label className="block text-[10px] font-semibold uppercase tracking-[0.4em] text-[var(--s-muted)] mb-2">{t('auth.reset.confirmPassword')}</label>
               <input
                 type="password"
                 className="site-input"
@@ -165,14 +153,14 @@ function ResetPasswordForm() {
               className="btn-site-primary w-full justify-center py-3.5 rounded-2xl text-sm"
               style={{ background: 'linear-gradient(135deg, #f97316, #ea580c)' }}
             >
-              {loading ? copy.changing : copy.changeBtn}
+              {loading ? t('auth.reset.changing') : t('auth.reset.changeBtn')}
             </button>
           </form>
 
           <p className="text-center mt-6 text-sm text-[var(--s-muted)]">
-            {locale === 'bg' ? 'Помниш си паролата?' : locale === 'en' ? 'Remember your password?' : 'تتذكر كلمة المرور؟'}{' '}
+            {t('auth.reset.remember')}{' '}
             <Link href="/auth/login" className="text-[var(--s-orange)] font-semibold hover:underline">
-              {copy.toLogin}
+              {t('auth.verify.backToLogin')}
             </Link>
           </p>
         </div>
@@ -182,14 +170,13 @@ function ResetPasswordForm() {
 }
 
 export default function ResetPasswordPage() {
-  const { locale } = useI18n();
-  const loading = locale === 'bg' ? 'Зареждане...' : locale === 'en' ? 'Loading...' : 'جار التحميل...';
+  const { t } = useI18n();
   return (
     <Suspense fallback={
       <div className="min-h-screen flex items-center justify-center" style={{ background: 'var(--s-bg)' }}>
         <div className="flex flex-col items-center gap-4">
           <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-teal-400 to-emerald-500 animate-pulse" />
-          <p className="text-xs text-[var(--s-muted)] uppercase tracking-[0.4em]">{loading}</p>
+          <p className="text-xs text-[var(--s-muted)] uppercase tracking-[0.4em]">{t('auth.loading')}</p>
         </div>
       </div>
     }>

@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react';
 import axios from 'axios';
 import { Plus, Trash2, Edit2, ChevronDown, ChevronUp } from 'lucide-react';
+import { useI18n } from '@/i18n';
 
 interface RecipientGroup {
   recommendation: 'SITUATION' | 'SUBCATEGORY' | 'CATEGORY' | 'OTHER';
@@ -33,6 +34,8 @@ interface RecipientCustomization {
 }
 
 export default function SignalRoutingComponent({ reportId }: { reportId: string }) {
+  const { locale } = useI18n();
+  const tr = (bg: string, en: string, ar: string) => (locale === 'ar' ? ar : locale === 'en' ? en : bg);
   const [groups, setGroups] = useState<RecipientGroup[]>([]);
   const [selectedRecipients, setSelectedRecipients] = useState<SelectedRecipient[]>([]);
   const [customizations, setCustomizations] = useState<RecipientCustomization[]>([]);
@@ -115,7 +118,7 @@ export default function SignalRoutingComponent({ reportId }: { reportId: string 
       await fetchGroupedRecipients();
     } catch (error) {
       console.error('Error adding ad-hoc institution:', error);
-      alert('Грешка при добавяне');
+      alert(tr('Грешка при добавяне', 'Error while adding', 'خطأ أثناء الإضافة'));
     }
   };
 
@@ -203,7 +206,7 @@ export default function SignalRoutingComponent({ reportId }: { reportId: string 
   };
 
   if (loading) {
-    return <div className="p-4">Зареждане...</div>;
+    return <div className="p-4">{tr('Зареждане...', 'Loading...', 'جار التحميل...')}</div>;
   }
 
   return (
@@ -211,7 +214,7 @@ export default function SignalRoutingComponent({ reportId }: { reportId: string 
       {/* Selected Recipients Summary */}
       {selectedRecipients.length > 0 && (
         <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
-          <h3 className="font-semibold text-blue-900 mb-2">Избрани получатели ({selectedRecipients.length})</h3>
+          <h3 className="font-semibold text-blue-900 mb-2">{tr('Избрани получатели', 'Selected recipients', 'المستلمون المحددون')} ({selectedRecipients.length})</h3>
           <div className="flex flex-wrap gap-2">
             {selectedRecipients.map((sel) => {
               const group = groups.find((g) =>
@@ -237,11 +240,11 @@ export default function SignalRoutingComponent({ reportId }: { reportId: string 
       {/* Ad-hoc Institutions Form */}
       {showAdHocForm ? (
         <div className="bg-white border border-gray-200 rounded-lg p-4">
-          <h3 className="font-semibold mb-4">Добави допълнителна институция</h3>
+          <h3 className="font-semibold mb-4">{tr('Добави допълнителна институция', 'Add additional institution', 'إضافة مؤسسة إضافية')}</h3>
           <form onSubmit={handleAddAdHoc} className="space-y-3">
             <input
               type="text"
-              placeholder="Име на институцията"
+              placeholder={tr('Име на институцията', 'Institution name', 'اسم المؤسسة')}
               value={adHocData.name}
               onChange={(e) => setAdHocData({ ...adHocData, name: e.target.value })}
               className="w-full border rounded px-3 py-2"
@@ -249,33 +252,33 @@ export default function SignalRoutingComponent({ reportId }: { reportId: string 
             />
             <input
               type="email"
-              placeholder="Имейл"
+              placeholder={tr('Имейл', 'Email', 'البريد الإلكتروني')}
               value={adHocData.email}
               onChange={(e) => setAdHocData({ ...adHocData, email: e.target.value })}
               className="w-full border rounded px-3 py-2"
             />
             <input
               type="tel"
-              placeholder="Телефон"
+              placeholder={tr('Телефон', 'Phone', 'الهاتف')}
               value={adHocData.phone}
               onChange={(e) => setAdHocData({ ...adHocData, phone: e.target.value })}
               className="w-full border rounded px-3 py-2"
             />
             <input
               type="text"
-              placeholder="Контактно лице"
+              placeholder={tr('Контактно лице', 'Contact person', 'جهة الاتصال')}
               value={adHocData.contactPerson}
               onChange={(e) => setAdHocData({ ...adHocData, contactPerson: e.target.value })}
               className="w-full border rounded px-3 py-2"
             />
             <textarea
-              placeholder="Адреса"
+              placeholder={tr('Адрес', 'Address', 'العنوان')}
               value={adHocData.address}
               onChange={(e) => setAdHocData({ ...adHocData, address: e.target.value })}
               className="w-full border rounded px-3 py-2"
             />
             <textarea
-              placeholder="Бележки"
+              placeholder={tr('Бележки', 'Notes', 'ملاحظات')}
               value={adHocData.notes}
               onChange={(e) => setAdHocData({ ...adHocData, notes: e.target.value })}
               className="w-full border rounded px-3 py-2"
@@ -286,13 +289,13 @@ export default function SignalRoutingComponent({ reportId }: { reportId: string 
                 onClick={() => setShowAdHocForm(false)}
                 className="flex-1 bg-gray-300 text-gray-700 px-3 py-2 rounded hover:bg-gray-400"
               >
-                Отказ
+                {tr('Отказ', 'Cancel', 'إلغاء')}
               </button>
               <button
                 type="submit"
                 className="flex-1 bg-green-600 text-white px-3 py-2 rounded hover:bg-green-700"
               >
-                Добави
+                {tr('Добави', 'Add', 'إضافة')}
               </button>
             </div>
           </form>
@@ -302,7 +305,7 @@ export default function SignalRoutingComponent({ reportId }: { reportId: string 
           onClick={() => setShowAdHocForm(true)}
           className="w-full border-2 border-dashed border-gray-300 rounded-lg p-3 text-gray-600 hover:border-gray-400 hover:text-gray-700 flex items-center justify-center gap-2"
         >
-          <Plus size={20} /> Добави допълнителна институция
+          <Plus size={20} /> {tr('Добави допълнителна институция', 'Add additional institution', 'إضافة مؤسسة إضافية')}
         </button>
       )}
 
@@ -352,7 +355,7 @@ export default function SignalRoutingComponent({ reportId }: { reportId: string 
                 <div className="bg-white divide-y">
                   {group.recipients.length === 0 ? (
                     <div className="p-4 text-center text-gray-500 italic">
-                      Няма институции в тази група
+                      {tr('Няма институции в тази група', 'No institutions in this group', 'لا توجد مؤسسات في هذه المجموعة')}
                     </div>
                   ) : (
                     group.recipients.map((recipient) => {
@@ -424,7 +427,7 @@ export default function SignalRoutingComponent({ reportId }: { reportId: string 
                                   }
                                 }}
                                 className="bg-blue-100 text-blue-600 p-2 rounded hover:bg-blue-200"
-                                title="Промени данни за този сигнал"
+                                title={tr('Промени данни за този сигнал', 'Change data for this report', 'تعديل البيانات لهذا البلاغ')}
                               >
                                 <Edit2 size={16} />
                               </button>
@@ -436,16 +439,15 @@ export default function SignalRoutingComponent({ reportId }: { reportId: string 
                               <div className="flex items-center gap-2 mb-3">
                                 <Edit2 size={16} className="text-blue-600" />
                                 <p className="text-sm font-semibold text-blue-700">
-                                  Индивидуална промяна само за този сигнал
+                                  {tr('Индивидуална промяна само за този сигнал', 'Custom override for this report only', 'تعديل مخصص لهذا البلاغ فقط')}
                                 </p>
                               </div>
                               <p className="text-xs text-blue-600 mb-3">
-                                Променените данни ще се използват само за този сигнал при подписване и изпращане.
-                                Оригиналните данни на институцията остават непроменени.
+                                {tr('Променените данни ще се използват само за този сигнал при подписване и изпращане. Оригиналните данни на институцията остават непроменени.', 'Changed data will be used only for this report during signing and sending. Original institution data stays unchanged.', 'سيتم استخدام البيانات المعدلة لهذا البلاغ فقط عند التوقيع والإرسال. بيانات المؤسسة الأصلية تبقى بدون تغيير.')}
                               </p>
                               <input
                                 type="text"
-                                placeholder={`Име (оригинал: ${recipient.name})`}
+                                placeholder={`${tr('Име', 'Name', 'الاسم')} (${tr('оригинал', 'original', 'الأصلي')}: ${recipient.name})`}
                                 value={customData.customName}
                                 onChange={(e) =>
                                   setCustomData({ ...customData, customName: e.target.value })
@@ -454,7 +456,7 @@ export default function SignalRoutingComponent({ reportId }: { reportId: string 
                               />
                               <input
                                 type="email"
-                                placeholder={`Email (оригинал: ${recipient.email || 'няма'})`}
+                                placeholder={`Email (${tr('оригинал', 'original', 'الأصلي')}: ${recipient.email || tr('няма', 'none', 'لا يوجد')})`}
                                 value={customData.customEmail}
                                 onChange={(e) =>
                                   setCustomData({ ...customData, customEmail: e.target.value })
@@ -463,7 +465,7 @@ export default function SignalRoutingComponent({ reportId }: { reportId: string 
                               />
                               <input
                                 type="tel"
-                                placeholder={`Телефон (оригинал: ${recipient.phone || 'няма'})`}
+                                placeholder={`${tr('Телефон', 'Phone', 'الهاتف')} (${tr('оригинал', 'original', 'الأصلي')}: ${recipient.phone || tr('няма', 'none', 'لا يوجد')})`}
                                 value={customData.customPhone}
                                 onChange={(e) =>
                                   setCustomData({ ...customData, customPhone: e.target.value })
@@ -471,7 +473,7 @@ export default function SignalRoutingComponent({ reportId }: { reportId: string 
                                 className="w-full border border-blue-200 rounded px-3 py-2 mb-2 text-sm focus:ring-2 focus:ring-blue-400 focus:border-blue-400"
                               />
                               <textarea
-                                placeholder="Допълнителни бележки"
+                                placeholder={tr('Допълнителни бележки', 'Additional notes', 'ملاحظات إضافية')}
                                 value={customData.customNotes}
                                 onChange={(e) =>
                                   setCustomData({ ...customData, customNotes: e.target.value })
@@ -492,7 +494,7 @@ export default function SignalRoutingComponent({ reportId }: { reportId: string 
                                   }}
                                   className="flex-1 bg-gray-300 text-gray-700 px-3 py-2 rounded hover:bg-gray-400 font-medium"
                                 >
-                                  Отказ
+                                  {tr('Отказ', 'Cancel', 'إلغاء')}
                                 </button>
                                 <button
                                   onClick={() =>
@@ -500,7 +502,7 @@ export default function SignalRoutingComponent({ reportId }: { reportId: string 
                                   }
                                   className="flex-1 bg-blue-600 text-white px-3 py-2 rounded hover:bg-blue-700 font-medium"
                                 >
-                                  💾 Запази промените
+                                  💾 {tr('Запази промените', 'Save changes', 'حفظ التغييرات')}
                                 </button>
                               </div>
                             </div>
@@ -509,17 +511,17 @@ export default function SignalRoutingComponent({ reportId }: { reportId: string 
                           {customization && editingCustomization !== selectedDatum?.id && (
                             <div className="mt-2 pt-2 border-t bg-amber-50 rounded p-2 text-sm">
                               <p className="text-amber-700 font-medium flex items-center gap-1">
-                                ⚠️ Има специфични промени за този сигнал
+                                ⚠️ {tr('Има специфични промени за този сигнал', 'There are custom changes for this report', 'توجد تغييرات مخصصة لهذا البلاغ')}
                               </p>
                               <div className="mt-1 text-xs text-amber-600 space-y-0.5">
                                 {customization.customName && (
-                                  <p>• Променено име: {customization.customName}</p>
+                                  <p>• {tr('Променено име', 'Changed name', 'تم تغيير الاسم')}: {customization.customName}</p>
                                 )}
                                 {customization.customEmail && (
-                                  <p>• Променен email: {customization.customEmail}</p>
+                                  <p>• {tr('Променен email', 'Changed email', 'تم تغيير البريد الإلكتروني')}: {customization.customEmail}</p>
                                 )}
                                 {customization.customPhone && (
-                                  <p>• Променен телефон: {customization.customPhone}</p>
+                                  <p>• {tr('Променен телефон', 'Changed phone', 'تم تغيير الهاتف')}: {customization.customPhone}</p>
                                 )}
                               </div>
                             </div>

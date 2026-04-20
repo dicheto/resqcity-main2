@@ -21,6 +21,7 @@ function getStatusLabel(status: string): string {
 
 export default function ReportsPage() {
   const { locale } = useI18n();
+  const tr = (bg: string, en: string, ar: string) => (locale === 'ar' ? ar : locale === 'en' ? en : bg);
   const [reports, setReports] = useState<any[]>([]);
   const copy = {
     section: locale === 'bg' ? 'Сигнали' : locale === 'en' ? 'Reports' : 'البلاغات',
@@ -57,11 +58,11 @@ export default function ReportsPage() {
 
   const getStatusCfg = (status: string) => {
     const map: Record<string, { label: string; style: React.CSSProperties }> = {
-      PENDING:     { label: 'В обработка', style: { background: 'rgba(255,167,38,0.12)', color: '#FFA726', borderColor: 'rgba(255,167,38,0.25)' } },
-      IN_REVIEW:   { label: 'Преглеждан',   style: { background: 'rgba(99,179,237,0.12)', color: '#63B3ED', borderColor: 'rgba(99,179,237,0.25)' } },
-      IN_PROGRESS: { label: 'В процес', style: { background: 'rgba(139,92,246,0.12)', color: '#A78BFA', borderColor: 'rgba(139,92,246,0.25)' } },
-      RESOLVED:    { label: 'Решен',    style: { background: 'rgba(6,214,160,0.12)',  color: '#06D6A0', borderColor: 'rgba(6,214,160,0.25)' } },
-      REJECTED:    { label: 'Отхвърлен',    style: { background: 'rgba(255,71,87,0.12)',  color: '#FF4757', borderColor: 'rgba(255,71,87,0.25)' } },
+      PENDING:     { label: tr('В обработка', 'Pending', 'قيد المعالجة'), style: { background: 'rgba(255,167,38,0.12)', color: '#FFA726', borderColor: 'rgba(255,167,38,0.25)' } },
+      IN_REVIEW:   { label: tr('Преглеждан', 'In review', 'قيد المراجعة'), style: { background: 'rgba(99,179,237,0.12)', color: '#63B3ED', borderColor: 'rgba(99,179,237,0.25)' } },
+      IN_PROGRESS: { label: tr('В процес', 'In progress', 'قيد التنفيذ'), style: { background: 'rgba(139,92,246,0.12)', color: '#A78BFA', borderColor: 'rgba(139,92,246,0.25)' } },
+      RESOLVED:    { label: tr('Решен', 'Resolved', 'تم الحل'), style: { background: 'rgba(6,214,160,0.12)',  color: '#06D6A0', borderColor: 'rgba(6,214,160,0.25)' } },
+      REJECTED:    { label: tr('Отхвърлен', 'Rejected', 'مرفوض'), style: { background: 'rgba(255,71,87,0.12)',  color: '#FF4757', borderColor: 'rgba(255,71,87,0.25)' } },
     };
     return map[status] || { label: status, style: {} };
   };
@@ -92,11 +93,11 @@ export default function ReportsPage() {
               onChange={(e) => setFilter({ ...filter, status: e.target.value })}
             >
               <option value="">{copy.allStatuses}</option>
-              <option value="PENDING">В обработка</option>
-              <option value="IN_REVIEW">Преглеждан</option>
-              <option value="IN_PROGRESS">В процес</option>
-              <option value="RESOLVED">Решен</option>
-              <option value="REJECTED">Отхвърлен</option>
+              <option value="PENDING">{tr('В обработка', 'Pending', 'قيد المعالجة')}</option>
+              <option value="IN_REVIEW">{tr('Преглеждан', 'In review', 'قيد المراجعة')}</option>
+              <option value="IN_PROGRESS">{tr('В процес', 'In progress', 'قيد التنفيذ')}</option>
+              <option value="RESOLVED">{tr('Решен', 'Resolved', 'تم الحل')}</option>
+              <option value="REJECTED">{tr('Отхвърлен', 'Rejected', 'مرفوض')}</option>
             </select>
             <select
               className="site-input flex-1"
@@ -104,16 +105,16 @@ export default function ReportsPage() {
               onChange={(e) => setFilter({ ...filter, category: e.target.value })}
             >
               <option value="">{copy.allCategories}</option>
-              <option value="POTHOLE">Дупки по пътя</option>
-              <option value="STREET_LIGHT">Улично осветление</option>
-              <option value="GARBAGE">Отпадъци</option>
-              <option value="GRAFFITI">Графити</option>
-              <option value="TRAFFIC_SIGNAL">Светофар</option>
-              <option value="WATER_LEAK">Теч на вода</option>
-              <option value="PARK_MAINTENANCE">Поддръжка на парк</option>
-              <option value="NOISE_COMPLAINT">Шум</option>
-              <option value="ILLEGAL_PARKING">Незаконно паркиране</option>
-              <option value="OTHER">Друго</option>
+              <option value="POTHOLE">{tr('Дупки по пътя', 'Potholes', 'حفر في الطريق')}</option>
+              <option value="STREET_LIGHT">{tr('Улично осветление', 'Street lighting', 'إنارة الشوارع')}</option>
+              <option value="GARBAGE">{tr('Отпадъци', 'Waste', 'نفايات')}</option>
+              <option value="GRAFFITI">{tr('Графити', 'Graffiti', 'غرافيتي')}</option>
+              <option value="TRAFFIC_SIGNAL">{tr('Светофар', 'Traffic signal', 'إشارة مرور')}</option>
+              <option value="WATER_LEAK">{tr('Теч на вода', 'Water leak', 'تسرب مياه')}</option>
+              <option value="PARK_MAINTENANCE">{tr('Поддръжка на парк', 'Park maintenance', 'صيانة الحديقة')}</option>
+              <option value="NOISE_COMPLAINT">{tr('Шум', 'Noise', 'ضوضاء')}</option>
+              <option value="ILLEGAL_PARKING">{tr('Незаконно паркиране', 'Illegal parking', 'وقوف غير قانوني')}</option>
+              <option value="OTHER">{tr('Друго', 'Other', 'أخرى')}</option>
             </select>
           </div>
         </div>
@@ -128,7 +129,7 @@ export default function ReportsPage() {
           <div className="site-card rounded-2xl p-12 text-center">
             <p className="text-4xl mb-3">📭</p>
             <p className="font-semibold text-[var(--s-muted2)]">{copy.noFound}</p>
-            <p className="text-sm text-[var(--s-muted)] mt-1">Смени филтрите или подай нов сигнал</p>
+            <p className="text-sm text-[var(--s-muted)] mt-1">{tr('Смени филтрите или подай нов сигнал', 'Change filters or submit a new report', 'غيّر الفلاتر أو أرسل بلاغا جديدا')}</p>
             <Link href="/dashboard/new-report" className="inline-block mt-5 btn-site-primary text-xs py-2.5 px-5 rounded-2xl">
               {copy.newReport}
             </Link>
@@ -155,11 +156,11 @@ export default function ReportsPage() {
                   </div>
 
                   <div className="flex flex-wrap items-center gap-3 text-xs text-[var(--s-muted)] uppercase tracking-[0.25em]">
-                    <span className="font-medium">{formatCategoryLabel(report.category || report.categoryId, 'Без категория')}</span>
+                    <span className="font-medium">{formatCategoryLabel(report.category || report.categoryId, tr('Без категория', 'No category', 'بدون فئة'), locale)}</span>
                     <span>•</span>
                     <span>{report.priority}</span>
                     <span>•</span>
-                    <span>{new Date(report.createdAt).toLocaleDateString('bg-BG')}</span>
+                    <span>{new Date(report.createdAt).toLocaleDateString(locale === 'bg' ? 'bg-BG' : locale === 'en' ? 'en-US' : 'ar-SA')}</span>
                   </div>
                 </Link>
               );

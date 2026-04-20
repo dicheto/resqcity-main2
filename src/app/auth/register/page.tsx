@@ -21,6 +21,18 @@ export default function RegisterPage() {
   const [loading, setLoading] = useState(false);
   const [registeredEmail, setRegisteredEmail] = useState('');
   const [emailAlreadyVerified, setEmailAlreadyVerified] = useState(false);
+  const localizeError = (message: string) => {
+    if (message === 'REGISTER_TERMS_REQUIRED') {
+      return `${t('auth.register.acceptTermsPrefix')} ${t('auth.register.terms')} ${t('auth.register.and')} ${t('auth.register.privacy')}!`;
+    }
+    if (message === 'REGISTER_FAILED') {
+      return t('authmsg.REGISTER_FAILED', 'Registration failed');
+    }
+    if (message.startsWith('REGISTER_FAILED_DETAILS:')) {
+      return message.replace('REGISTER_FAILED_DETAILS:', `${t('authmsg.REGISTER_FAILED', 'Registration failed')} Details: `);
+    }
+    return message;
+  };
 
   const passwordValid = formData.password.length >= 8 &&
     /[A-ZА-Я]/.test(formData.password) &&
@@ -32,7 +44,7 @@ export default function RegisterPage() {
     setError('');
     if (!passwordValid) return;
     if (!formData.termsAccepted) {
-      setError('Трябва да приемете Общите условия и Политиката за поверителност!');
+      setError('REGISTER_TERMS_REQUIRED');
       return;
     }
     setLoading(true);
@@ -43,9 +55,9 @@ export default function RegisterPage() {
       setRegisteredEmail(response.data.email);
       setEmailAlreadyVerified(response.data.emailVerified === true);
     } catch (err: any) {
-      const msg = err.response?.data?.error || 'Регистрацията е неуспешна';
+      const msg = err.response?.data?.error || 'REGISTER_FAILED';
       const smtpDetail = err.response?.data?.smtpError;
-      setError(smtpDetail ? `${msg} Детайли: ${smtpDetail}` : msg);
+      setError(smtpDetail ? `REGISTER_FAILED_DETAILS:${smtpDetail}` : msg);
     } finally {
       setLoading(false);
     }
@@ -69,31 +81,29 @@ export default function RegisterPage() {
             <p className="text-[10px] uppercase tracking-[0.5em] text-[var(--s-teal)] font-bold mb-3">ResQCity</p>
             {emailAlreadyVerified ? (
               <>
-                <h2 className="text-2xl font-extrabold rc-display text-[var(--s-text)] mb-3">Акаунтът е създаден!</h2>
+                <h2 className="text-2xl font-extrabold rc-display text-[var(--s-text)] mb-3">{t('auth.register.success')}</h2>
                 <p className="text-[var(--s-muted2)] text-sm leading-relaxed mb-2">
-                  Регистрацията е успешна за:
+                  {t('auth.register.successLead')}
                 </p>
                 <p className="text-[var(--s-violet)] font-semibold mb-6">{registeredEmail}</p>
                 <p className="text-[var(--s-muted)] text-xs leading-relaxed mb-8">
-                  Може да се впишеш веднага без потвърждение на имейл.
+                  {t('auth.register.successInfo')}
                 </p>
               </>
             ) : (
               <>
-                <h2 className="text-2xl font-extrabold rc-display text-[var(--s-text)] mb-3">Провери имейла си!</h2>
+                <h2 className="text-2xl font-extrabold rc-display text-[var(--s-text)] mb-3">{t('auth.register.emailTitle')}</h2>
                 <p className="text-[var(--s-muted2)] text-sm leading-relaxed mb-2">
-                  Изпратихме потвърдителен линк на:
+                  {t('auth.register.emailLead')}
                 </p>
                 <p className="text-[var(--s-violet)] font-semibold mb-6">{registeredEmail}</p>
-                <p className="text-[var(--s-muted)] text-xs leading-relaxed mb-8">
-                  Линкът е валиден 24 часа. Провери и папката <strong>Нежелана поща</strong>, ако не виждаш имейла.
-                </p>
+                <p className="text-[var(--s-muted)] text-xs leading-relaxed mb-8">{t('auth.register.emailInfo')}</p>
               </>
             )}
             <Link href="/auth/login"
               className="btn-site-primary w-full justify-center py-3 rounded-2xl text-sm inline-flex"
               style={{ background: 'linear-gradient(135deg, var(--s-violet), #7C3AED)', boxShadow: '0 0 28px var(--s-glow-v)' }}>
-              Към вход
+              {t('auth.register.toLogin')}
             </Link>
           </div>
         </div>
@@ -109,24 +119,24 @@ export default function RegisterPage() {
           <div className="relative">
             <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full border border-[var(--s-border)] bg-[var(--s-surface2)] mb-8">
               <span className="w-2 h-2 rounded-full bg-[var(--s-teal)] animate-pulse shadow-[0_0_8px_var(--s-teal)]" />
-              <span className="text-[10px] font-bold uppercase tracking-[0.4em] text-[var(--s-teal)]">Нов акаунт</span>
+              <span className="text-[10px] font-bold uppercase tracking-[0.4em] text-[var(--s-teal)]">{t('auth.register.newAccount')}</span>
             </div>
 
             <h1 className="rc-display font-extrabold text-4xl text-[var(--s-text)] leading-tight mb-4">
-              Присъедини<br />
-              <span className="grad-violet">се към</span><br />
-              мрежата!
+              {t('auth.register.join1')}<br />
+              <span className="grad-violet">{t('auth.register.join2')}</span><br />
+              {t('auth.register.join3')}
             </h1>
             <p className="text-[var(--s-muted2)] text-sm leading-relaxed">
-              Създай безплатен гражданин профил и подавай сигнали директно до общинската управа.
+              {t('auth.register.lead')}
             </p>
           </div>
 
           <div className="relative space-y-3 mt-8">
             {[
-              { icon: '📮', tag: 'Сигнали', info: 'Подавай и следи статуси' },
-              { icon: '🗺️', tag: 'Карта', info: 'Виж всички инциденти на живо' },
-              { icon: '🔔', tag: 'Нотификации', info: 'Известия при промяна' },
+              { icon: '📮', tag: t('auth.register.card.reports'), info: t('auth.register.card.reportsInfo') },
+              { icon: '🗺️', tag: t('auth.register.card.map'), info: t('auth.register.card.mapInfo') },
+              { icon: '🔔', tag: t('auth.register.card.notifications'), info: t('auth.register.card.notificationsInfo') },
             ].map(({ icon, tag, info }) => (
               <div key={tag}
                 className="flex items-center gap-3 px-4 py-3 rounded-xl border border-[var(--s-border)] bg-[var(--s-surface2)]">
@@ -152,25 +162,25 @@ export default function RegisterPage() {
 
           {error && (
             <div className="mb-5 px-4 py-3 rounded-xl border border-[var(--s-red)]/30 bg-[var(--s-red)]/10 text-[var(--s-red)] text-sm">
-              {error}
+              {localizeError(error)}
             </div>
           )}
 
           <form onSubmit={handleSubmit} className="space-y-4">
             <div className="grid grid-cols-2 gap-3">
               <div>
-                <label className="block text-[10px] font-semibold uppercase tracking-[0.4em] text-[var(--s-muted)] mb-2">Име</label>
+                <label className="block text-[10px] font-semibold uppercase tracking-[0.4em] text-[var(--s-muted)] mb-2">{t('auth.register.firstName')}</label>
                 <input type="text" className="site-input"
                   value={formData.firstName}
                   onChange={(e) => setFormData({ ...formData, firstName: e.target.value })}
-                  required placeholder="Иван" />
+                  required placeholder={t('auth.register.firstName')} />
               </div>
               <div>
-                <label className="block text-[10px] font-semibold uppercase tracking-[0.4em] text-[var(--s-muted)] mb-2">Фамилия</label>
+                <label className="block text-[10px] font-semibold uppercase tracking-[0.4em] text-[var(--s-muted)] mb-2">{t('auth.register.lastName')}</label>
                 <input type="text" className="site-input"
                   value={formData.lastName}
                   onChange={(e) => setFormData({ ...formData, lastName: e.target.value })}
-                  required placeholder="Иванов" />
+                  required placeholder={t('auth.register.lastName')} />
               </div>
             </div>
 
@@ -183,7 +193,7 @@ export default function RegisterPage() {
             </div>
 
             <div>
-              <label className="block text-[10px] font-semibold uppercase tracking-[0.4em] text-[var(--s-muted)] mb-2">Телефон <span className="normal-case">(незадължително)</span></label>
+              <label className="block text-[10px] font-semibold uppercase tracking-[0.4em] text-[var(--s-muted)] mb-2">{t('auth.register.phone')} <span className="normal-case">{t('auth.register.optional')}</span></label>
               <input type="tel" className="site-input"
                 value={formData.phone}
                 onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
@@ -199,7 +209,7 @@ export default function RegisterPage() {
             </div>
 
             <div>
-              <label className="block text-[10px] font-semibold uppercase tracking-[0.4em] text-[var(--s-muted)] mb-2">Потвърди парола</label>
+              <label className="block text-[10px] font-semibold uppercase tracking-[0.4em] text-[var(--s-muted)] mb-2">{t('auth.register.confirmPassword')}</label>
               <input type="password" className="site-input"
                 value={formData.confirmPassword}
                 onChange={(e) => setFormData({ ...formData, confirmPassword: e.target.value })}
@@ -228,10 +238,10 @@ export default function RegisterPage() {
                   </svg>
                 </span>
                 <span className="text-xs text-[var(--s-muted2)]">
-                  Съгласен съм с
-                  <Link href="/terms" target="_blank" className="text-[var(--s-violet)] dark:text-[#a5b4fc] underline ml-1">Общите условия</Link>
-                  и
-                  <Link href="/gdpr-policy" target="_blank" className="text-[var(--s-violet)] dark:text-[#a5b4fc] underline ml-1">Политиката за поверителност</Link>
+                  {t('auth.register.acceptTermsPrefix')}
+                  <Link href="/terms" target="_blank" className="text-[var(--s-violet)] dark:text-[#a5b4fc] underline ml-1">{t('auth.register.terms')}</Link>
+                  {t('auth.register.and')}
+                  <Link href="/gdpr-policy" target="_blank" className="text-[var(--s-violet)] dark:text-[#a5b4fc] underline ml-1">{t('auth.register.privacy')}</Link>
                   <span className="text-[var(--s-red)]"> *</span>
                 </span>
               </label>
@@ -249,9 +259,9 @@ export default function RegisterPage() {
                     <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none" />
                     <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z" />
                   </svg>
-                  Регистрация...
+                  {t('auth.register.creating')}
                 </span>
-              ) : 'Създай профил'}
+              ) : t('auth.register.createProfile')}
             </button>
           </form>
 

@@ -131,8 +131,8 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [mounted, setMounted] = useState(false);
   const localeOptions: Array<{ value: Locale; label: string }> = [
-    { value: 'bg', label: 'Български' },
-    { value: 'en', label: 'English' },
+    { value: 'bg', label: locale === 'bg' ? 'Български' : locale === 'en' ? 'Bulgarian' : 'البلغارية' },
+    { value: 'en', label: locale === 'bg' ? 'Английски' : locale === 'en' ? 'English' : 'الإنجليزية' },
     { value: 'ar', label: 'العربية' },
   ];
 
@@ -354,7 +354,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
 
           <div className="flex items-center gap-2">
             <select
-              aria-label="Language"
+              aria-label={locale === 'bg' ? 'Език' : locale === 'en' ? 'Language' : 'اللغة'}
               value={locale}
               onChange={(event) => setLocale(event.target.value as Locale)}
               className="h-9 rounded-xl border px-2.5 text-xs admin-muted bg-transparent"
@@ -381,7 +381,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
             </div>
             <div className="hidden sm:flex items-center gap-1.5 px-3 py-2 rounded-xl topbar-btn">
               <Activity size={13} className="text-emerald-400" />
-              <span className="text-xs admin-muted">Live</span>
+              <span className="text-xs admin-muted">{locale === 'bg' ? 'На живо' : locale === 'en' ? 'Live' : 'مباشر'}</span>
             </div>
             <Link
               href="/"

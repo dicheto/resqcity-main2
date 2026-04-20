@@ -84,6 +84,7 @@ const SOFIA_DISTRICTS = [
 
 export default function ResponsiblePersonsPage() {
   const { locale } = useI18n();
+  const tr = (bg: string, en: string, ar: string) => (locale === 'ar' ? ar : locale === 'en' ? en : bg);
   const copy = {
     admin: locale === 'bg' ? 'Администрация' : locale === 'en' ? 'Administration' : 'الإدارة',
     title: locale === 'bg' ? 'Отговорни лица' : locale === 'en' ? 'Responsible persons' : 'الأشخاص المسؤولون',
@@ -236,7 +237,7 @@ export default function ResponsiblePersonsPage() {
   };
 
   const handleDelete = async (id: string) => {
-    if (!confirm('Сигурни ли сте че искате да изтриете този човек? Това ще изтрие всички негови подкатегорични присвоявания.')) return;
+    if (!confirm(tr('Сигурни ли сте че искате да изтриете този човек? Това ще изтрие всички негови подкатегорични присвоявания.', 'Are you sure you want to delete this person? This will remove all subcategory assignments.', 'هل أنت متأكد أنك تريد حذف هذا الشخص؟ سيؤدي ذلك إلى حذف جميع تعيينات الفئات الفرعية.'))) return;
 
     try {
       const token = localStorage.getItem('token');
@@ -301,14 +302,14 @@ export default function ResponsiblePersonsPage() {
         <div className="grid md:grid-cols-2 gap-4">
           <div>
             <label className="block text-xs uppercase tracking-[0.3em] admin-muted mb-2">
-              Район
+              {tr('Район', 'District', 'الحي')}
             </label>
             <select
               className="admin-input rounded-2xl"
               value={filterDistrict}
               onChange={(e) => setFilterDistrict(e.target.value)}
             >
-              <option value="">Всички райони</option>
+              <option value="">{tr('Всички райони', 'All districts', 'كل الأحياء')}</option>
               {SOFIA_DISTRICTS.map((district) => (
                 <option key={district} value={district}>
                   {district}
@@ -318,14 +319,14 @@ export default function ResponsiblePersonsPage() {
           </div>
           <div>
             <label className="block text-xs uppercase tracking-[0.3em] admin-muted mb-2">
-              Категория
+              {tr('Категория', 'Category', 'الفئة')}
             </label>
             <select
               className="admin-input rounded-2xl"
               value={filterCategory}
               onChange={(e) => setFilterCategory(e.target.value)}
             >
-              <option value="">Всички категории</option>
+              <option value="">{tr('Всички категории', 'All categories', 'كل الفئات')}</option>
               {categories.map((cat) => (
                 <option key={cat.id} value={cat.id}>
                   {cat.icon} {cat.nameBg}
@@ -339,13 +340,13 @@ export default function ResponsiblePersonsPage() {
       {showForm && (
         <div className="rounded-3xl data-card mb-8">
           <h2 className="text-xl font-semibold mb-6">
-            {editingId ? 'Редактирай отговорно лице' : 'Добави отговорно лице'}
+            {editingId ? tr('Редактирай отговорно лице', 'Edit responsible person', 'تعديل الشخص المسؤول') : tr('Добави отговорно лице', 'Add responsible person', 'إضافة شخص مسؤول')}
           </h2>
           <form onSubmit={handleSubmit} className="space-y-4">
             <div className="grid md:grid-cols-2 gap-4">
               <div>
                 <label className="block text-xs uppercase tracking-[0.3em] admin-muted mb-2">
-                  Име
+                  {tr('Име', 'First name', 'الاسم الأول')}
                 </label>
                 <input
                   type="text"
@@ -357,7 +358,7 @@ export default function ResponsiblePersonsPage() {
               </div>
               <div>
                 <label className="block text-xs uppercase tracking-[0.3em] admin-muted mb-2">
-                  Фамилия
+                  {tr('Фамилия', 'Last name', 'اسم العائلة')}
                 </label>
                 <input
                   type="text"
@@ -371,7 +372,7 @@ export default function ResponsiblePersonsPage() {
             <div className="grid md:grid-cols-2 gap-4">
               <div>
                 <label className="block text-xs uppercase tracking-[0.3em] admin-muted mb-2">
-                  Имейл
+                  {tr('Имейл', 'Email', 'البريد الإلكتروني')}
                 </label>
                 <input
                   type="email"
@@ -383,7 +384,7 @@ export default function ResponsiblePersonsPage() {
               </div>
               <div>
                 <label className="block text-xs uppercase tracking-[0.3em] admin-muted mb-2">
-                  Телефон
+                  {tr('Телефон', 'Phone', 'الهاتف')}
                 </label>
                 <input
                   type="tel"
@@ -396,14 +397,14 @@ export default function ResponsiblePersonsPage() {
             </div>
             <div>
               <label className="block text-xs uppercase tracking-[0.3em] admin-muted mb-2">
-                Длъжност
+                  {tr('Длъжност', 'Position', 'المنصب')}
               </label>
               <input
                 type="text"
                 className="admin-input rounded-2xl"
                 value={formData.position}
                 onChange={(e) => setFormData({ ...formData, position: e.target.value })}
-                placeholder="Инспектор, Координатор и т.н."
+                placeholder={tr('Инспектор, Координатор и т.н.', 'Inspector, Coordinator, etc.', 'مفتش، منسق، إلخ.')}
               />
             </div>
             <div className="grid md:grid-cols-2 gap-4">
@@ -445,11 +446,11 @@ export default function ResponsiblePersonsPage() {
 
             <div>
               <label className="block text-xs uppercase tracking-[0.3em] admin-muted mb-2">
-                Подкатегории (може повече от една)
+                  {tr('Подкатегории (може повече от една)', 'Subcategories (multiple allowed)', 'الفئات الفرعية (يمكن اختيار أكثر من واحدة)')}
               </label>
               {availableSubcategories.length === 0 ? (
                 <div className="rounded-2xl border border-[var(--a-border)] bg-slate-50 px-4 py-3 text-sm admin-muted">
-                  Няма дефинирани подкатегории за тази категория в JSON.
+                  {tr('Няма дефинирани подкатегории за тази категория в JSON.', 'No subcategories are defined for this category in JSON.', 'لا توجد فئات فرعية محددة لهذه الفئة في JSON.')}
                 </div>
               ) : (
                 <div className="rounded-2xl border border-[var(--a-border)] admin-input p-3 max-h-56 overflow-auto grid md:grid-cols-2 gap-2">
@@ -486,13 +487,13 @@ export default function ResponsiblePersonsPage() {
                 }}
                 className="flex-1 rounded-2xl border border-[var(--a-border)] admin-input py-3 text-sm uppercase tracking-[0.3em] admin-muted hover:admin-text hover:border-[var(--a-border)] transition"
               >
-                Отказ
+                {tr('Отказ', 'Cancel', 'إلغاء')}
               </button>
               <button
                 type="submit"
                 className="flex-1 rounded-2xl bg-slate-900 text-white py-3 text-sm uppercase tracking-[0.3em] hover:bg-slate-800 transition"
               >
-                {editingId ? 'Актуализирай' : 'Създай'}
+                {editingId ? tr('Актуализирай', 'Update', 'تحديث') : tr('Създай', 'Create', 'إنشاء')}
               </button>
             </div>
           </form>
@@ -505,7 +506,7 @@ export default function ResponsiblePersonsPage() {
         <div className="space-y-8">
           <div>
             <h3 className="text-sm uppercase tracking-[0.3em] admin-muted mb-4">
-              Отговорни лица
+              {tr('Отговорни лица', 'Responsible persons', 'الأشخاص المسؤولون')}
             </h3>
             <div className="space-y-4">
               {persons.map((person) => (
@@ -538,10 +539,10 @@ export default function ResponsiblePersonsPage() {
                         </div>
                       </div>
                       <div className="text-sm admin-muted">
-                        📊 {person._count.assignedReports} назначени сигнала
+                        📊 {person._count.assignedReports} {tr('назначени сигнала', 'assigned reports', 'بلاغات مخصصة')}
                       </div>
                       <div className="mt-3">
-                        <p className="text-xs uppercase tracking-[0.2em] admin-muted mb-1">Подкатегории</p>
+                        <p className="text-xs uppercase tracking-[0.2em] admin-muted mb-1">{tr('Подкатегории', 'Subcategories', 'الفئات الفرعية')}</p>
                         {person.subcategoryAssignments.length > 0 ? (
                           <div className="flex flex-wrap gap-2">
                             {person.subcategoryAssignments.map((assignment) => (
@@ -554,7 +555,7 @@ export default function ResponsiblePersonsPage() {
                             ))}
                           </div>
                         ) : (
-                          <p className="text-xs admin-muted">Няма избрани подкатегории (важи за цялата категория)</p>
+                          <p className="text-xs admin-muted">{tr('Няма избрани подкатегории (важи за цялата категория)', 'No selected subcategories (applies to whole category)', 'لا توجد فئات فرعية محددة (ينطبق على الفئة بالكامل)')}</p>
                         )}
                       </div>
                     </div>
@@ -563,13 +564,13 @@ export default function ResponsiblePersonsPage() {
                         onClick={() => handleEdit(person)}
                         className="rounded-lg bg-blue-600 text-white px-3 py-2 text-xs uppercase hover:bg-blue-700 transition"
                       >
-                        Редактирай
+                        {tr('Редактирай', 'Edit', 'تعديل')}
                       </button>
                       <button
                         onClick={() => handleDelete(person.id)}
                         className="rounded-lg bg-red-600 text-white px-3 py-2 text-xs uppercase hover:bg-red-700 transition"
                       >
-                        Изтрий
+                        {tr('Изтрий', 'Delete', 'حذف')}
                       </button>
                       <button
                         onClick={() => toggleActive(person.id, person.active)}
@@ -579,7 +580,7 @@ export default function ResponsiblePersonsPage() {
                             : 'bg-red-100 text-red-700 hover:bg-red-200'
                         }`}
                       >
-                        {person.active ? 'Активен' : 'Неактивен'}
+                        {person.active ? tr('Активен', 'Active', 'نشط') : tr('Неактивен', 'Inactive', 'غير نشط')}
                       </button>
                     </div>
                   </div>
@@ -587,7 +588,7 @@ export default function ResponsiblePersonsPage() {
               ))}
               {persons.length === 0 && (
                 <div className="text-center py-8 admin-muted rounded-2xl data-card border border-[var(--a-border)]">
-                  Няма въведени отговорни лица. Добавете ново лице от бутона горе.
+                  {tr('Няма въведени отговорни лица. Добавете ново лице от бутона горе.', 'No responsible persons yet. Add a new one from the button above.', 'لا يوجد أشخاص مسؤولون حتى الآن. أضف شخصا جديدا من الزر أعلاه.')}
                 </div>
               )}
             </div>
@@ -595,11 +596,11 @@ export default function ResponsiblePersonsPage() {
 
           <div>
             <h3 className="text-sm uppercase tracking-[0.3em] admin-muted mb-4">
-              Всички институции за маршрутизиране
+              {tr('Всички институции за маршрутизиране', 'All routing institutions', 'جميع مؤسسات التوجيه')}
             </h3>
             <div className="rounded-3xl data-card p-6">
               {routingInstitutions.length === 0 ? (
-                <div className="text-sm admin-muted">Няма активни институции.</div>
+                <div className="text-sm admin-muted">{tr('Няма активни институции.', 'No active institutions.', 'لا توجد مؤسسات نشطة.')}</div>
               ) : (
                 <div className="grid md:grid-cols-2 gap-3">
                   {routingInstitutions.map((institution) => (
@@ -608,12 +609,12 @@ export default function ResponsiblePersonsPage() {
                         <div>
                           <p className="font-medium admin-text">{institution.name}</p>
                           <p className="text-xs admin-muted mt-1">
-                            {institution.email || 'Няма имейл'}
+                            {institution.email || tr('Няма имейл', 'No email', 'لا يوجد بريد إلكتروني')}
                           </p>
                         </div>
                         {!institution.active && (
                           <span className="rounded-full bg-amber-100 text-amber-700 px-2 py-1 text-xs">
-                            Неактивна
+                            {tr('Неактивна', 'Inactive', 'غير نشطة')}
                           </span>
                         )}
                       </div>
@@ -629,7 +630,7 @@ export default function ResponsiblePersonsPage() {
                           ))
                         ) : (
                           <span className="rounded-full bg-amber-50 text-amber-700 px-2 py-1 text-xs">
-                            Без категория
+                            {tr('Без категория', 'No category', 'بدون فئة')}
                           </span>
                         )}
                       </div>

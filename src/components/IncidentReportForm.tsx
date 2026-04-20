@@ -6,6 +6,7 @@ import {
   Upload, AlertCircle, CheckCircle, X, Car, MapPin,
   Camera, User, FileText, ChevronDown,
 } from "lucide-react";
+import { useI18n } from "@/i18n";
 
 const LocationPicker = dynamic(() => import("@/components/LocationPicker"), { ssr: false });
 
@@ -34,6 +35,18 @@ const labelCls =
   "block text-xs font-bold uppercase tracking-[0.35em] text-[var(--s-muted2)] mb-2";
 
 export function IncidentReportForm() {
+  const { locale } = useI18n();
+  const tr = (bg: string, en: string, ar: string) => (locale === "ar" ? ar : locale === "en" ? en : bg);
+  const INCIDENT_TYPE_LABELS: Record<string, string> = {
+    BLOCKING: tr("Блокиране на пътното платно", "Road blocking", "إغلاق الطريق"),
+    COLLISION: tr("Пътно-транспортно произшествие", "Road collision", "تصادم مروري"),
+    PARKING_PROBLEM: tr("Нарушено паркиране", "Illegal parking", "مشكلة في الوقوف"),
+    TRAFFIC_VIOLATION: tr("Нарушение на правилата за движение", "Traffic violation", "مخالفة مرورية"),
+    ACCIDENT: tr("Авария / Повреда", "Breakdown / damage", "عطل / ضرر"),
+    DAMAGE: tr("Нанесени материални щети", "Property damage", "أضرار مادية"),
+    THEFT_ATTEMPT: tr("Опит за кражба", "Theft attempt", "محاولة سرقة"),
+    OTHER: tr("Друго", "Other", "أخرى"),
+  };
   const [vehicles, setVehicles]       = useState<Vehicle[]>([]);
   const [loading, setLoading]         = useState(true);
   const [photos, setPhotos]           = useState<File[]>([]);
@@ -63,12 +76,12 @@ export function IncidentReportForm() {
     const fetchVehicles = async () => {
       try {
         const response = await fetch("/api/vehicles", { headers: authHeaders() });
-        if (!response.ok) throw new Error("Грешка при зареждане на превозните средства");
+        if (!response.ok) throw new Error(tr("Грешка при зареждане на превозните средства", "Error loading vehicles", "خطأ أثناء تحميل المركبات"));
         const data = await response.json();
         setVehicles(data);
         if (data.length > 0) setFormData((prev) => ({ ...prev, vehicleId: data[0].id }));
       } catch (err) {
-        setError("Неуспешно зареждане на превозните средства");
+        setError(tr("Неуспешно зареждане на превозните средства", "Failed to load vehicles", "فشل تحميل المركبات"));
       } finally {
         setLoading(false);
       }
@@ -87,11 +100,11 @@ export function IncidentReportForm() {
     const selected = Array.from(e.target.files || []);
     const valid = selected.filter((file) => {
       if (!file.type.startsWith("image/")) {
-        setError("Разрешени са само изображения");
+        setError(tr("Разрешени са само изображения", "Only images are allowed", "يسمح بالصور فقط"));
         return false;
       }
       if (file.size > 5 * 1024 * 1024) {
-        setError("Размерът на файла трябва да е под 5 МБ");
+        setError(tr("Размерът на файла трябва да е под 5 МБ", "File size must be under 5 MB", "يجب أن يكون حجم الملف أقل من 5 ميجابايت"));
         return false;
       }
       return true;
@@ -117,11 +130,11 @@ export function IncidentReportForm() {
     setSuccess("");
 
     if (photos.length === 0) {
-      setError("Необходима е поне една снимка!");
+      setError(tr("Необходима е поне една снимка!", "At least one photo is required!", "مطلوب صورة واحدة على الأقل!"));
       return;
     }
     if (!formData.vehicleId || !formData.type || !formData.description) {
-      setError("Моля, попълни всички задължителни полета");
+      setError(tr("Моля, попълни всички задължителни полета", "Please fill in all required fields", "يرجى ملء جميع الحقول المطلوبة"));
       return;
     }
 
@@ -155,13 +168,13 @@ export function IncidentReportForm() {
       if (!response.ok) {
         const errorData = await response.json();
         console.error("[IncidentSubmit] Error response:", errorData);
-        throw new Error(errorData.error || `HTTP ${response.status}: Неуспешно изпращане на сигнала`);
+        throw new Error(errorData.error || `HTTP ${response.status}: ${tr("Неуспешно изпращане на сигнала", "Failed to submit report", "فشل إرسال البلاغ")}`);
       }
 
       const result = await response.json();
       console.log("[IncidentSubmit] Success! Created incident:", result.id);
       
-      setSuccess("Сигналът е изпратен успешно! Диспечерът ще го прегледа скоро.");
+      setSuccess(tr("Сигналът е изпратен успешно! Диспечерът ще го прегледа скоро.", "Report submitted successfully! A dispatcher will review it soon.", "تم إرسال البلاغ بنجاح! سيقوم الموجّه بمراجعته قريبًا."));
       setFormData({
         vehicleId: vehicles[0]?.id || "",
         type: "",
@@ -177,7 +190,7 @@ export function IncidentReportForm() {
       setPhotoPreview([]);
       setTimeout(() => setSuccess(""), 6000);
     } catch (err) {
-      const errorMsg = err instanceof Error ? err.message : "Неуспешно изпращане на сигнала";
+      const errorMsg = err instanceof Error ? err.message : tr("Неуспешно изпращане на сигнала", "Failed to submit report", "فشل إرسال البلاغ");
       console.error("[IncidentSubmit] Submission error:", errorMsg, err);
       setError(errorMsg);
     } finally {
@@ -191,7 +204,7 @@ export function IncidentReportForm() {
       <div className="flex items-center justify-center h-40">
         <div className="flex flex-col items-center gap-3">
           <div className="w-10 h-10 rounded-2xl bg-gradient-to-br from-orange-500 to-rose-500 animate-pulse" />
-          <p className="text-xs text-[var(--s-muted)] uppercase tracking-[0.4em]">Зареждане...</p>
+          <p className="text-xs text-[var(--s-muted)] uppercase tracking-[0.4em]">{tr("Зареждане...", "Loading...", "جار التحميل...")}</p>
         </div>
       </div>
     );
@@ -208,15 +221,15 @@ export function IncidentReportForm() {
           <Car size={20} className="text-amber-400" />
         </div>
         <div>
-          <h3 className="font-bold text-[var(--s-text)] mb-1">Няма регистрирани превозни средства</h3>
+          <h3 className="font-bold text-[var(--s-text)] mb-1">{tr("Няма регистрирани превозни средства", "No registered vehicles", "لا توجد مركبات مسجلة")}</h3>
           <p className="text-sm text-[var(--s-muted)] leading-relaxed">
-            Преди да подадеш сигнал за инцидент, добави превозно средство в профила си.
+            {tr("Преди да подадеш сигнал за инцидент, добави превозно средство в профила си.", "Before submitting an incident report, add a vehicle to your profile.", "قبل إرسال بلاغ حادث، أضف مركبة إلى ملفك الشخصي.")}
           </p>
           <a
             href="/vehicles"
             className="inline-flex items-center gap-2 mt-4 btn-site-primary text-xs py-2 px-5"
           >
-            <Car size={13} /> Добави превозно средство
+            <Car size={13} /> {tr("Добави превозно средство", "Add vehicle", "إضافة مركبة")}
           </a>
         </div>
       </div>
@@ -261,13 +274,13 @@ export function IncidentReportForm() {
           <div className="w-8 h-8 rounded-xl bg-orange-500/15 flex items-center justify-center">
             <Car size={15} className="text-[var(--s-orange)]" />
           </div>
-          <p className="text-sm font-bold text-[var(--s-text)]">Основна информация</p>
+          <p className="text-sm font-bold text-[var(--s-text)]">{tr("Основна информация", "Main information", "المعلومات الأساسية")}</p>
         </div>
 
         {/* Vehicle */}
         <div>
           <label className={labelCls}>
-            Превозно средство <span className="text-[var(--s-orange)]">*</span>
+            {tr("Превозно средство", "Vehicle", "المركبة")} <span className="text-[var(--s-orange)]">*</span>
           </label>
           <div className="relative">
             <select
@@ -277,7 +290,7 @@ export function IncidentReportForm() {
               className={inputCls + " appearance-none pr-10 cursor-pointer"}
               required
             >
-              <option value="" style={{ background: "var(--s-surface)", color: "var(--s-text)" }}>— Избери превозно средство —</option>
+              <option value="" style={{ background: "var(--s-surface)", color: "var(--s-text)" }}>— {tr("Избери превозно средство", "Select vehicle", "اختر المركبة")} —</option>
               {vehicles.map((v) => (
                 <option key={v.id} value={v.id} style={{ background: "var(--s-surface)", color: "var(--s-text)" }}>
                   {v.brand} {v.model} · {v.registrationPlate}
@@ -294,7 +307,7 @@ export function IncidentReportForm() {
         {/* Incident type */}
         <div>
           <label className={labelCls}>
-            Вид инцидент <span className="text-[var(--s-orange)]">*</span>
+            {tr("Вид инцидент", "Incident type", "نوع الحادث")} <span className="text-[var(--s-orange)]">*</span>
           </label>
           <div className="relative">
             <select
@@ -304,10 +317,10 @@ export function IncidentReportForm() {
               className={inputCls + " appearance-none pr-10 cursor-pointer"}
               required
             >
-              <option value="" style={{ background: "var(--s-surface)", color: "var(--s-text)" }}>— Избери вид инцидент —</option>
+              <option value="" style={{ background: "var(--s-surface)", color: "var(--s-text)" }}>— {tr("Избери вид инцидент", "Select incident type", "اختر نوع الحادث")} —</option>
               {INCIDENT_TYPES.map((t) => (
                 <option key={t.value} value={t.value} style={{ background: "var(--s-surface)", color: "var(--s-text)" }}>
-                  {t.label}
+                  {INCIDENT_TYPE_LABELS[t.value] || t.label}
                 </option>
               ))}
             </select>
@@ -321,13 +334,13 @@ export function IncidentReportForm() {
         {/* Description */}
         <div>
           <label className={labelCls}>
-            Описание <span className="text-[var(--s-orange)]">*</span>
+            {tr("Описание", "Description", "الوصف")} <span className="text-[var(--s-orange)]">*</span>
           </label>
           <textarea
             name="description"
             value={formData.description}
             onChange={handleInputChange}
-            placeholder="Опиши инцидента подробно — кога, как и какво се е случило..."
+            placeholder={tr("Опиши инцидента подробно — кога, как и какво се е случило...", "Describe the incident in detail — when, how, and what happened...", "اشرح الحادث بالتفصيل — متى وكيف وماذا حدث...")}
             className={inputCls}
             rows={4}
             required
@@ -342,23 +355,23 @@ export function IncidentReportForm() {
           <div className="w-8 h-8 rounded-xl bg-violet-500/15 flex items-center justify-center">
             <MapPin size={15} className="text-[var(--s-violet)]" />
           </div>
-          <p className="text-sm font-bold text-[var(--s-text)]">Локация</p>
+          <p className="text-sm font-bold text-[var(--s-text)]">{tr("Локация", "Location", "الموقع")}</p>
         </div>
 
         <div>
-          <label className={labelCls}>Адрес / Местоположение</label>
+          <label className={labelCls}>{tr("Адрес / Местоположение", "Address / Location", "العنوان / الموقع")}</label>
           <input
             type="text"
             name="address"
             value={formData.address}
             onChange={handleInputChange}
-            placeholder="напр. бул. Цар Освободител 15, София"
+            placeholder={tr("напр. бул. Цар Освободител 15, София", "e.g. Tsar Osvoboditel Blvd 15, Sofia", "مثال: شارع تسار أوسفوبوديتيل 15، صوفيا")}
             className={inputCls}
           />
         </div>
 
         <div>
-          <label className={labelCls}>Маркирай на картата</label>
+          <label className={labelCls}>{tr("Маркирай на картата", "Mark on map", "حدد على الخريطة")}</label>
           <LocationPicker
             latitude={formData.latitude}
             longitude={formData.longitude}
@@ -381,29 +394,29 @@ export function IncidentReportForm() {
           <div className="w-8 h-8 rounded-xl bg-teal-500/15 flex items-center justify-center">
             <FileText size={15} className="text-[var(--s-teal)]" />
           </div>
-          <p className="text-sm font-bold text-[var(--s-text)]">Допълнителна информация</p>
+          <p className="text-sm font-bold text-[var(--s-text)]">{tr("Допълнителна информация", "Additional information", "معلومات إضافية")}</p>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
           <div>
-            <label className={labelCls}>Регистрационен номер — друго МПС</label>
+            <label className={labelCls}>{tr("Регистрационен номер — друго МПС", "Registration plate — other vehicle", "رقم اللوحة — مركبة أخرى")}</label>
             <input
               type="text"
               name="other_vehicle_plate"
               value={formData.other_vehicle_plate}
               onChange={handleInputChange}
-              placeholder="напр. CA 1234 CB"
+              placeholder={tr("напр. CA 1234 CB", "e.g. CA 1234 CB", "مثال: CA 1234 CB")}
               className={inputCls}
             />
           </div>
           <div>
-            <label className={labelCls}>Контакт на свидетел</label>
+            <label className={labelCls}>{tr("Контакт на свидетел", "Witness contact", "بيانات شاهد")}</label>
             <input
               type="text"
               name="witness_contact"
               value={formData.witness_contact}
               onChange={handleInputChange}
-              placeholder="Телефон или имейл"
+              placeholder={tr("Телефон или имейл", "Phone or email", "هاتف أو بريد إلكتروني")}
               className={inputCls}
             />
           </div>
@@ -421,11 +434,11 @@ export function IncidentReportForm() {
           </div>
           <div>
             <p className="text-sm font-bold text-[var(--s-text)]">
-              Снимки{" "}
-              <span className="text-[var(--s-orange)] text-xs font-black">* Задължително</span>
+              {tr("Снимки", "Photos", "الصور")}{" "}
+              <span className="text-[var(--s-orange)] text-xs font-black">* {tr("Задължително", "Required", "مطلوب")}</span>
             </p>
             <p className="text-[11px] text-[var(--s-muted)]">
-              Минимум 1 снимка · Макс. 5 МБ на файл
+              {tr("Минимум 1 снимка · Макс. 5 МБ на файл", "Minimum 1 photo · Max 5 MB per file", "الحد الأدنى صورة واحدة · الحد الأقصى 5 م.ب لكل ملف")}
             </p>
           </div>
         </div>
@@ -470,11 +483,11 @@ export function IncidentReportForm() {
               style={{ color: photos.length > 0 ? "var(--s-teal)" : "var(--s-orange)" }}
             >
               {photos.length > 0
-                ? `${photos.length} снимк${photos.length === 1 ? "а избрана" : "и избрани"}`
-                : "Кликни или пусни снимки тук"}
+                ? tr(`${photos.length} снимк${photos.length === 1 ? "а избрана" : "и избрани"}`, `${photos.length} photo${photos.length === 1 ? " selected" : "s selected"}`, `${photos.length} صورة${photos.length === 1 ? " محددة" : " محددة"}`)
+                : tr("Кликни или пусни снимки тук", "Click or drop photos here", "انقر أو اسحب الصور هنا")}
             </p>
             <p className="text-xs text-[var(--s-muted)] mt-1">
-              {photos.length > 0 ? "Кликни за да добавиш още" : "JPG, PNG, WEBP — до 5 МБ"}
+              {photos.length > 0 ? tr("Кликни за да добавиш още", "Click to add more", "انقر لإضافة المزيد") : tr("JPG, PNG, WEBP — до 5 МБ", "JPG, PNG, WEBP — up to 5 MB", "JPG, PNG, WEBP — حتى 5 م.ب")}
             </p>
           </div>
         </label>
@@ -486,7 +499,7 @@ export function IncidentReportForm() {
               <div key={index} className="relative group">
                 <img
                   src={preview}
-                  alt={`Снимка ${index + 1}`}
+                  alt={`${tr("Снимка", "Photo", "صورة")} ${index + 1}`}
                   className="w-full h-20 object-cover rounded-xl border border-[var(--s-border)]"
                 />
                 <button
@@ -507,7 +520,7 @@ export function IncidentReportForm() {
             style={{ background: "rgba(255,107,43,0.08)" }}>
             <AlertCircle size={14} className="text-[var(--s-orange)] flex-shrink-0" />
             <p className="text-xs text-[var(--s-orange)]">
-              Необходима е поне една снимка за да изпратиш сигнала
+              {tr("Необходима е поне една снимка за да изпратиш сигнала", "At least one photo is required to submit the report", "مطلوب صورة واحدة على الأقل لإرسال البلاغ")}
             </p>
           </div>
         )}
@@ -526,10 +539,10 @@ export function IncidentReportForm() {
         {submitting ? (
           <span className="flex items-center justify-center gap-2">
             <span className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-            Изпращане...
+            {tr("Изпращане...", "Submitting...", "جار الإرسال...")}
           </span>
         ) : (
-          "Изпрати сигнала →"
+          tr("Изпрати сигнала →", "Submit report →", "إرسال البلاغ ←")
         )}
       </button>
 

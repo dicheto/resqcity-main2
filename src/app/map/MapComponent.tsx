@@ -458,7 +458,7 @@ function InteractiveMapComponent() {
       // Sofia coordinates: 42.6961°N, 23.3219°E
       const map = L.map('map').setView([42.6961, 23.3219], 11);
       L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-        attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>',
+        attribution: `&copy; <a href="https://www.openstreetmap.org/copyright">${tr('OpenStreetMap', 'OpenStreetMap', 'OpenStreetMap')}</a>`,
         maxZoom: 19,
       }).addTo(map);
 
@@ -1066,7 +1066,7 @@ function InteractiveMapComponent() {
           ${details ? `<span style="font-size: 11px; color: #94a3b8;">${details}</span><br/>` : ''}
           ${service.address ? `<div style="margin-top: 8px; font-size: 12px;"><strong>📍 ${tr('Адрес', 'Address', 'العنوان')}:</strong> ${service.address}</div>` : ''}
           ${service.phone ? `<div style="font-size: 12px;"><strong>📞 ${tr('Телефон', 'Phone', 'الهاتف')}:</strong> ${service.phone}</div>` : ''}
-          ${service.email ? `<div style="font-size: 12px;"><strong>✉️ Email:</strong> ${service.email}</div>` : ''}
+          ${service.email ? `<div style="font-size: 12px;"><strong>✉️ ${tr('Имейл', 'Email', 'البريد الإلكتروني')}:</strong> ${service.email}</div>` : ''}
           ${service.ageRange ? `<div style="font-size: 12px;"><strong>👤 ${tr('Възраст', 'Age', 'العمر')}:</strong> ${service.ageRange}</div>` : ''}
           ${service.capacity !== null ? `<div style="font-size: 12px;"><strong>👥 ${tr('Капацитет', 'Capacity', 'السعة')}:</strong> ${service.capacity}</div>` : ''}
           ${service.targetGroup ? `<div style="margin-top: 8px; padding-top: 8px; border-top: 1px solid rgba(148,163,184,0.25); font-size: 11px; color: #a1aec8;"><strong>${tr('Целева група', 'Target group', 'الفئة المستهدفة')}:</strong> ${service.targetGroup}</div>` : ''}
@@ -1287,11 +1287,11 @@ function InteractiveMapComponent() {
             </div>
           </div>
           <div style="margin-top: 8px; padding: 10px; background: #f5f5f5; border-radius: 8px; font-size: 13px;">
-            <strong>Статус:</strong> ${vehicle.status}<br/>
-            <strong>Скорост:</strong> ${vehicle.speed > 0 ? Math.round(vehicle.speed) + ' км/ч' : '-'}<br/>
-            ${hasDirection ? `<strong>Посока:</strong> ${getDirectionLabel(bearing)} (${Math.round(bearing)}°) <span style="display: inline-block; transform: rotate(${bearing}deg); font-size: 16px;">▲</span><br/>` : ''}
-            <strong>Текуща спирка:</strong> ${vehicle.current_stop_name ? `${vehicle.current_stop} • ${vehicle.current_stop_name}` : vehicle.current_stop || '-'}<br/>
-            ${vehicle.delay ? `<strong>Закъснение:</strong> <span style="color: ${vehicle.delay > 300 ? '#E74C3C' : vehicle.delay > 60 ? '#F39C12' : '#27AE60'};">${Math.round(vehicle.delay)} сек</span><br/>` : ''}
+            <strong>${tr('Статус', 'Status', 'الحالة')}:</strong> ${vehicle.status}<br/>
+            <strong>${tr('Скорост', 'Speed', 'السرعة')}:</strong> ${vehicle.speed > 0 ? Math.round(vehicle.speed) + ` ${tr('км/ч', 'km/h', 'كم/س')}` : '-'}<br/>
+            ${hasDirection ? `<strong>${tr('Посока', 'Direction', 'الاتجاه')}:</strong> ${getDirectionLabel(bearing)} (${Math.round(bearing)}°) <span style="display: inline-block; transform: rotate(${bearing}deg); font-size: 16px;">▲</span><br/>` : ''}
+            <strong>${tr('Текуща спирка', 'Current stop', 'المحطة الحالية')}:</strong> ${vehicle.current_stop_name ? `${vehicle.current_stop} • ${vehicle.current_stop_name}` : vehicle.current_stop || '-'}<br/>
+            ${vehicle.delay ? `<strong>${tr('Закъснение', 'Delay', 'التأخير')}:</strong> <span style="color: ${vehicle.delay > 300 ? '#E74C3C' : vehicle.delay > 60 ? '#F39C12' : '#27AE60'};">${Math.round(vehicle.delay)} ${tr('сек', 'sec', 'ث')}</span><br/>` : ''}
             ${vehicle.occupancy_percentage !== undefined ? `<strong>Население:</strong> ${vehicle.occupancy_percentage}%<br/>` : ''}
             <strong style="font-size: 11px;">Актуализация:</strong> <span style="font-size: 11px;">${new Date(vehicle.timestamp).toLocaleTimeString('bg-BG')}</span>
           </div>
@@ -1572,7 +1572,7 @@ function InteractiveMapComponent() {
             </div>
           ` : `
             <div style="padding: 16px; text-align: center; color: #7c8ca1;">
-              <p>Няма данни за пристигащи превозни средства в следващите 60 минути</p>
+              <p>${tr('Няма данни за пристигащи превозни средства в следващите 60 минути', 'No incoming vehicles in the next 60 minutes', 'لا توجد مركبات قادمة خلال الـ60 دقيقة القادمة')}</p>
             </div>
           `}
         </div>

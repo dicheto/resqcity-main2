@@ -9,6 +9,7 @@ import { useI18n } from '@/i18n';
 
 export default function InstitutionLoginPage() {
   const { locale } = useI18n();
+  const tr = (bg: string, en: string, ar: string) => (locale === 'ar' ? ar : locale === 'en' ? en : bg);
   const router = useRouter();
   const copy = {
     title: locale === 'bg' ? 'Вход само с Passkey' : locale === 'en' ? 'Passkey-only login' : 'تسجيل الدخول بمفتاح المرور فقط',
@@ -49,7 +50,7 @@ export default function InstitutionLoginPage() {
   return (
     <div className="min-h-screen flex items-center justify-center px-4" style={{ background: 'var(--s-bg)' }}>
       <div className="w-full max-w-lg site-card-glass rounded-3xl p-8">
-        <p className="text-[10px] uppercase tracking-[0.45em] text-[var(--s-teal)] font-bold">Institution Portal</p>
+        <p className="text-[10px] uppercase tracking-[0.45em] text-[var(--s-teal)] font-bold">{tr('Институционален портал', 'Institution Portal', 'بوابة المؤسسات')}</p>
         <h1 className="rc-display text-2xl font-bold text-[var(--s-text)] mt-2">{copy.title}</h1>
 
         {error && <div className="mt-5 rounded-xl border border-red-400/30 bg-red-500/10 px-4 py-3 text-sm text-red-300">{error}</div>}

@@ -4,7 +4,7 @@ import { usePathname } from 'next/navigation';
 import Link from 'next/link';
 import Image from 'next/image';
 import { useState, useEffect, useRef } from 'react';
-import { Menu, X, Accessibility, Moon, Sun } from 'lucide-react';
+import { Menu, X, Accessibility, Moon, Sun, Languages } from 'lucide-react';
 import { Locale, useI18n } from '@/i18n';
 
 const FULL_LAYOUT_EXCLUDED = ['/admin', '/dispatcher'];
@@ -373,6 +373,15 @@ function SiteHeader() {
   const mobileMenuShadow = dark
     ? '0 24px 56px rgba(0,0,0,0.48), 0 0 0 1px rgba(255,107,43,0.12), inset 0 1px 0 rgba(255,255,255,0.06)'
     : '0 24px 48px rgba(15,23,42,0.14), 0 0 0 1px rgba(255,107,43,0.16), inset 0 1px 0 rgba(255,255,255,0.85)';
+  const localePillBase = dark
+    ? { background: 'rgba(255,255,255,0.04)', border: '1px solid var(--s-border)' }
+    : { background: 'rgba(255,107,43,0.10)', border: '1px solid rgba(255,107,43,0.20)' };
+  const localePillActive = dark
+    ? { background: 'linear-gradient(135deg, rgba(255,107,43,0.28) 0%, rgba(255,107,43,0.16) 100%)', color: 'var(--s-text)', boxShadow: '0 6px 14px rgba(255,107,43,0.28)' }
+    : { background: 'linear-gradient(135deg, rgba(255,107,43,0.20) 0%, rgba(255,107,43,0.12) 100%)', color: 'var(--s-orange)', boxShadow: '0 6px 14px rgba(255,107,43,0.18)' };
+  const localePillInactive = dark
+    ? { color: 'var(--s-muted2)' }
+    : { color: 'var(--s-muted)' };
 
   return (
     <>
@@ -431,19 +440,38 @@ function SiteHeader() {
                 {dark ? <Sun size={16} /> : <Moon size={16} />}
               </button>
 
-              <select
+              <div
+                className="flex items-center gap-1.5 rounded-xl p-1"
+                style={localePillBase}
+                role="group"
                 aria-label={t('common.language')}
-                value={locale}
-                onChange={(event) => setLocale(event.target.value as Locale)}
-                className="text-[11px] px-2.5 py-2 rounded-xl border bg-transparent"
-                style={{ borderColor: 'var(--s-border)', color: 'var(--s-muted2)' }}
               >
-                {localeOptions.map((option) => (
-                  <option key={option.value} value={option.value}>
-                    {option.label}
-                  </option>
-                ))}
-              </select>
+                <span
+                  className="w-6 h-6 rounded-lg flex items-center justify-center"
+                  style={{
+                    background: dark ? 'rgba(255,255,255,0.06)' : 'rgba(255,255,255,0.7)',
+                    color: 'var(--s-orange)'
+                  }}
+                >
+                  <Languages size={13} />
+                </span>
+                {localeOptions.map((option) => {
+                  const active = locale === option.value;
+                  return (
+                    <button
+                      key={option.value}
+                      type="button"
+                      onClick={() => setLocale(option.value)}
+                      className="px-2.5 py-1.5 rounded-lg text-[11px] font-semibold tracking-wide transition-all duration-200"
+                      aria-pressed={active}
+                      title={option.label}
+                      style={active ? localePillActive : localePillInactive}
+                    >
+                      {option.value.toUpperCase()}
+                    </button>
+                  );
+                })}
+              </div>
 
               <button
                 onClick={() => setA11yOpen(v => !v)}
@@ -536,6 +564,37 @@ function SiteHeader() {
 
               {/* Theme & Actions */}
               <div className="flex flex-col gap-2.5 pt-3 border-t border-[var(--s-border)]">
+                <div
+                  className="flex items-center justify-between rounded-xl px-3 py-2 border border-[var(--s-border)] bg-[var(--s-surface2)]/35"
+                  role="group"
+                  aria-label={t('common.language')}
+                >
+                  <div className="flex items-center gap-2 text-[var(--s-muted2)]">
+                    <Languages size={15} />
+                    <span className="text-xs font-medium">{t('common.language')}</span>
+                  </div>
+                  <div className="flex items-center gap-1">
+                    {localeOptions.map((option) => {
+                      const active = locale === option.value;
+                      return (
+                        <button
+                          key={option.value}
+                          type="button"
+                          onClick={() => setLocale(option.value)}
+                          className="px-2.5 py-1.5 rounded-lg text-[11px] font-semibold transition-all duration-200"
+                          aria-pressed={active}
+                          title={option.label}
+                          style={active
+                            ? { background: 'rgba(255,107,43,0.2)', color: 'var(--s-orange)', border: '1px solid rgba(255,107,43,0.35)' }
+                            : { background: 'transparent', color: 'var(--s-muted2)', border: '1px solid transparent' }}
+                        >
+                          {option.value.toUpperCase()}
+                        </button>
+                      );
+                    })}
+                  </div>
+                </div>
+
                 <button
                   onClick={toggleTheme}
                   className="w-full flex items-center justify-center gap-2 px-4 py-3 rounded-xl border border-[var(--s-border)] text-[var(--s-muted2)] hover:text-[var(--s-text)] hover:border-[var(--s-orange)] transition-all duration-200 bg-[var(--s-surface2)]/30 hover:bg-[var(--s-surface2)]/60"

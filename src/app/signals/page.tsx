@@ -70,16 +70,30 @@ function getStatusColor(status: string): { bg: string; text: string; icon: React
   }
 }
 
-function timeAgo(dateString: string): string {
+function timeAgo(dateString: string, locale: 'bg' | 'en' | 'ar'): string {
   const date = new Date(dateString);
   const now = new Date();
   const seconds = Math.floor((now.getTime() - date.getTime()) / 1000);
 
-  if (seconds < 60) return 'преди няколко секунди';
-  if (seconds < 3600) return `преди ${Math.floor(seconds / 60)} мин.`;
-  if (seconds < 86400) return `преди ${Math.floor(seconds / 3600)} ч.`;
-  if (seconds < 604800) return `преди ${Math.floor(seconds / 86400)} дни`;
-  return date.toLocaleDateString('bg-BG');
+  if (locale === 'bg') {
+    if (seconds < 60) return 'преди няколко секунди';
+    if (seconds < 3600) return `преди ${Math.floor(seconds / 60)} мин.`;
+    if (seconds < 86400) return `преди ${Math.floor(seconds / 3600)} ч.`;
+    if (seconds < 604800) return `преди ${Math.floor(seconds / 86400)} дни`;
+    return date.toLocaleDateString('bg-BG');
+  }
+  if (locale === 'en') {
+    if (seconds < 60) return 'a few seconds ago';
+    if (seconds < 3600) return `${Math.floor(seconds / 60)}m ago`;
+    if (seconds < 86400) return `${Math.floor(seconds / 3600)}h ago`;
+    if (seconds < 604800) return `${Math.floor(seconds / 86400)}d ago`;
+    return date.toLocaleDateString('en-US');
+  }
+  if (seconds < 60) return 'قبل بضع ثوان';
+  if (seconds < 3600) return `قبل ${Math.floor(seconds / 60)} د`;
+  if (seconds < 86400) return `قبل ${Math.floor(seconds / 3600)} س`;
+  if (seconds < 604800) return `قبل ${Math.floor(seconds / 86400)} يوم`;
+  return date.toLocaleDateString('ar-SA');
 }
 
 export default function SignalsPage() {
@@ -130,12 +144,12 @@ export default function SignalsPage() {
       try {
         const response = await fetch('/api/reports/public');
         if (!response.ok) {
-          throw new Error('Не можемо да заредим сигналите.');
+          throw new Error(locale === 'bg' ? 'Не можем да заредим сигналите.' : locale === 'en' ? 'Failed to load reports.' : 'تعذر تحميل البلاغات.');
         }
         const data = await response.json();
         setSignals(Array.isArray(data) ? data : []);
       } catch (err) {
-        const message = err instanceof Error ? err.message : 'Възникна грешка при зареждане.';
+        const message = err instanceof Error ? err.message : locale === 'bg' ? 'Възникна грешка при зареждане.' : locale === 'en' ? 'An error occurred while loading.' : 'حدث خطأ أثناء التحميل.';
         setError(message);
       } finally {
         setLoading(false);
@@ -364,7 +378,7 @@ export default function SignalsPage() {
                             📍 {signal.lat.toFixed(4)}, {signal.lng.toFixed(4)}
                           </span>
                           <span className="flex items-center gap-1">
-                            🕐 {timeAgo(signal.createdAt)}
+                            🕐 {timeAgo(signal.createdAt, locale)}
                           </span>
                         </div>
                       </div>

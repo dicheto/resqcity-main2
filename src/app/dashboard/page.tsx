@@ -21,7 +21,8 @@ function getStatusLabel(status: string): string {
 }
 
 export default function DashboardPage() {
-  const { t } = useI18n();
+  const { t, locale } = useI18n();
+  const tr = (bg: string, en: string, ar: string) => (locale === 'ar' ? ar : locale === 'en' ? en : bg);
   const [reports, setReports] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [moreMenuOpen, setMoreMenuOpen] = useState(false);
@@ -139,7 +140,7 @@ export default function DashboardPage() {
       }
     } catch (error: any) {
       console.error('Error fetching tax obligations:', error);
-      setTaxError(error?.response?.data?.error || 'Неуспешно зареждане на данъчните задължения');
+      setTaxError(error?.response?.data?.error || tr('Неуспешно зареждане на данъчните задължения', 'Failed to load tax obligations', 'تعذر تحميل الالتزامات الضريبية'));
     } finally {
       setTaxLoading(false);
     }
@@ -157,7 +158,7 @@ export default function DashboardPage() {
       setAvailableBanks(banks);
     } catch (error: any) {
       console.error('Error fetching tax banks:', error);
-      setTaxError(error?.response?.data?.error || 'Неуспешно зареждане на списък с банки');
+      setTaxError(error?.response?.data?.error || tr('Неуспешно зареждане на списък с банки', 'Failed to load bank list', 'تعذر تحميل قائمة البنوك'));
     } finally {
       setBanksLoading(false);
     }
@@ -175,7 +176,7 @@ export default function DashboardPage() {
 
   const createTaxPayByLink = async () => {
     if (!selectedObligationId) {
-      setTaxError('Избери задължение за плащане.');
+      setTaxError(tr('Избери задължение за плащане.', 'Select an obligation for payment.', 'اختر التزاما للدفع.'));
       return;
     }
 
@@ -198,7 +199,7 @@ export default function DashboardPage() {
       await fetchTaxObligations();
     } catch (error: any) {
       console.error('Error creating tax payment link:', error);
-      setTaxError(error?.response?.data?.error || 'Неуспешно генериране на PayByLink/QR');
+      setTaxError(error?.response?.data?.error || tr('Неуспешно генериране на PayByLink/QR', 'Failed to generate PayByLink/QR', 'فشل إنشاء رابط الدفع/رمز QR'));
     } finally {
       setCreatingTaxPayment(false);
     }
@@ -235,7 +236,7 @@ export default function DashboardPage() {
       await fetchTaxObligations();
     } catch (error: any) {
       console.error('Error simulating tax payment:', error);
-      setTaxError(error?.response?.data?.error || 'Неуспешна симулация на плащане');
+      setTaxError(error?.response?.data?.error || tr('Неуспешна симулация на плащане', 'Payment simulation failed', 'فشلت محاكاة الدفع'));
     } finally {
       setSimulatingTaxPayment(false);
     }
@@ -262,7 +263,7 @@ export default function DashboardPage() {
       await fetchTaxObligations();
     } catch (error: any) {
       console.error('Error syncing payment status:', error);
-      setTaxError(error?.response?.data?.error || 'Неуспешна проверка на статуса');
+      setTaxError(error?.response?.data?.error || tr('Неуспешна проверка на статуса', 'Failed to check status', 'فشل التحقق من الحالة'));
     } finally {
       setSyncingTaxStatus(false);
     }
@@ -290,7 +291,7 @@ export default function DashboardPage() {
       await fetchTaxObligations();
     } catch (error: any) {
       console.error('Error deactivating payment link:', error);
-      setTaxError(error?.response?.data?.error || 'Неуспешно деактивиране на линка');
+      setTaxError(error?.response?.data?.error || tr('Неуспешно деактивиране на линка', 'Failed to deactivate link', 'فشل إلغاء تفعيل الرابط'));
     } finally {
       setDeactivatingTaxPayment(false);
     }
@@ -316,7 +317,7 @@ export default function DashboardPage() {
       );
     } catch (error: any) {
       console.error('Error sending refund request:', error);
-      setTaxError(error?.response?.data?.error || 'Неуспешно заявяване на refund');
+      setTaxError(error?.response?.data?.error || tr('Неуспешно заявяване на refund', 'Refund request failed', 'فشل طلب الاسترداد'));
     } finally {
       setRefundingTaxPayment(false);
     }
@@ -359,11 +360,11 @@ export default function DashboardPage() {
   const formatMoney = (value: number, currency = 'EUR') => `${value.toFixed(2)} ${currency}`;
 
   const STATUS_CFG: Record<string, { label: string; cls: string }> = {
-    PENDING:     { label: 'В обработка', cls: 'chip chip-pending' },
-    IN_REVIEW:   { label: 'Преглеждан',   cls: 'chip chip-progress' },
-    IN_PROGRESS: { label: 'В процес', cls: 'chip chip-progress' },
-    RESOLVED:    { label: 'Решен',    cls: 'chip chip-resolved' },
-    REJECTED:    { label: 'Отхвърлен',    cls: 'chip chip-rejected' },
+    PENDING:     { label: tr('В обработка', 'Pending', 'قيد المعالجة'), cls: 'chip chip-pending' },
+    IN_REVIEW:   { label: tr('Преглеждан', 'In review', 'قيد المراجعة'), cls: 'chip chip-progress' },
+    IN_PROGRESS: { label: tr('В процес', 'In progress', 'قيد التنفيذ'), cls: 'chip chip-progress' },
+    RESOLVED:    { label: tr('Решен', 'Resolved', 'تم الحل'), cls: 'chip chip-resolved' },
+    REJECTED:    { label: tr('Отхвърлен', 'Rejected', 'مرفوض'), cls: 'chip chip-rejected' },
   };
 
   const total    = reports.length;
@@ -423,9 +424,9 @@ export default function DashboardPage() {
         {/* Stats */}
         <div className="grid sm:grid-cols-3 gap-4">
           {[
-            { label: 'Сигнала',     value: total,    icon: '📋', color: '#A78BFA', rgb: '167,139,250',  accent: 'rgba(139,92,246,0.18)' },
-            { label: 'В обработка', value: pending,  icon: '⏳', color: '#FBBF24', rgb: '251,191,36',   accent: 'rgba(251,191,36,0.15)' },
-            { label: 'Решени',      value: resolved, icon: '✅', color: '#34D399', rgb: '52,211,153',   accent: 'rgba(6,214,160,0.15)' },
+            { label: tr('Сигнала', 'Reports', 'البلاغات'), value: total, icon: '📋', color: '#A78BFA', rgb: '167,139,250', accent: 'rgba(139,92,246,0.18)' },
+            { label: tr('В обработка', 'Pending', 'قيد المعالجة'), value: pending, icon: '⏳', color: '#FBBF24', rgb: '251,191,36', accent: 'rgba(251,191,36,0.15)' },
+            { label: tr('Решени', 'Resolved', 'تم الحل'), value: resolved, icon: '✅', color: '#34D399', rgb: '52,211,153', accent: 'rgba(6,214,160,0.15)' },
           ].map(({ label, value, icon, color, rgb, accent }) => (
             <div key={label} className="relative overflow-hidden rounded-2xl p-6 group transition-all duration-300 hover:-translate-y-1"
               style={{ background: `linear-gradient(135deg, var(--s-surface) 60%, ${accent})`, border: `1px solid rgba(${rgb},0.2)`, boxShadow: `0 0 0 0 rgba(${rgb},0)` }}
@@ -455,36 +456,36 @@ export default function DashboardPage() {
           <Link href="/vehicles" className="site-card p-5 rounded-2xl block group">
             <div className="w-10 h-10 rounded-xl flex items-center justify-center text-xl mb-3"
               style={{ background: 'rgba(139,92,246,0.15)' }}>🚗</div>
-            <p className="text-[10px] uppercase tracking-[0.4em] text-[var(--s-violet)] mb-1 font-semibold">Автомобили</p>
-            <h3 className="font-semibold text-[var(--s-text)]">Моят автопарк</h3>
-            <p className="text-[var(--s-muted)] text-xs mt-1">Регистрирани превозни средства</p>
+            <p className="text-[10px] uppercase tracking-[0.4em] text-[var(--s-violet)] mb-1 font-semibold">{tr('Автомобили', 'Vehicles', 'المركبات')}</p>
+            <h3 className="font-semibold text-[var(--s-text)]">{tr('Моят автопарк', 'My fleet', 'أسطولي')}</h3>
+            <p className="text-[var(--s-muted)] text-xs mt-1">{tr('Регистрирани превозни средства', 'Registered vehicles', 'مركبات مسجلة')}</p>
           </Link>
 
           <Link href="/my-incidents/new" className="site-card p-5 rounded-2xl block group"
             style={{ borderColor: 'rgba(255,71,87,0.2)' }}>
             <div className="w-10 h-10 rounded-xl flex items-center justify-center text-xl mb-3"
               style={{ background: 'rgba(255,71,87,0.12)' }}>🚨</div>
-            <p className="text-[10px] uppercase tracking-[0.4em] text-[var(--s-red)] mb-1 font-semibold">Инцидент</p>
-            <h3 className="font-semibold text-[var(--s-text)]">Подай авто сигнал</h3>
-            <p className="text-[var(--s-muted)] text-xs mt-1">Блокиране, произшествие, кражба</p>
+            <p className="text-[10px] uppercase tracking-[0.4em] text-[var(--s-red)] mb-1 font-semibold">{tr('Инцидент', 'Incident', 'حادث')}</p>
+            <h3 className="font-semibold text-[var(--s-text)]">{tr('Подай авто сигнал', 'Submit vehicle report', 'إرسال بلاغ مركبة')}</h3>
+            <p className="text-[var(--s-muted)] text-xs mt-1">{tr('Блокиране, произшествие, кражба', 'Blocking, collision, theft', 'إغلاق، تصادم، سرقة')}</p>
           </Link>
 
           <Link href="/my-incidents" className="site-card p-5 rounded-2xl block group"
             style={{ borderColor: 'rgba(6,214,160,0.2)' }}>
             <div className="w-10 h-10 rounded-xl flex items-center justify-center text-xl mb-3"
               style={{ background: 'rgba(6,214,160,0.12)' }}>📍</div>
-            <p className="text-[10px] uppercase tracking-[0.4em] text-[var(--s-teal)] mb-1 font-semibold">История</p>
-            <h3 className="font-semibold text-[var(--s-text)]">Моите авто сигнали</h3>
-            <p className="text-[var(--s-muted)] text-xs mt-1">Преглед на подадените</p>
+            <p className="text-[10px] uppercase tracking-[0.4em] text-[var(--s-teal)] mb-1 font-semibold">{tr('История', 'History', 'السجل')}</p>
+            <h3 className="font-semibold text-[var(--s-text)]">{tr('Моите авто сигнали', 'My vehicle reports', 'بلاغات مركباتي')}</h3>
+            <p className="text-[var(--s-muted)] text-xs mt-1">{tr('Преглед на подадените', 'Review submitted', 'مراجعة المرسلة')}</p>
           </Link>
 
           <Link href="/dashboard/security" className="site-card p-5 rounded-2xl block group"
             style={{ borderColor: 'rgba(139,92,246,0.2)' }}>
             <div className="w-10 h-10 rounded-xl flex items-center justify-center text-xl mb-3"
               style={{ background: 'rgba(139,92,246,0.15)' }}>🔐</div>
-            <p className="text-[10px] uppercase tracking-[0.4em] text-[var(--s-violet)] mb-1 font-semibold">Сигурност</p>
-            <h3 className="font-semibold text-[var(--s-text)]">Защита на акаунта</h3>
-            <p className="text-[var(--s-muted)] text-xs mt-1">MFA и Passkeys</p>
+            <p className="text-[10px] uppercase tracking-[0.4em] text-[var(--s-violet)] mb-1 font-semibold">{tr('Сигурност', 'Security', 'الأمان')}</p>
+            <h3 className="font-semibold text-[var(--s-text)]">{tr('Защита на акаунта', 'Account protection', 'حماية الحساب')}</h3>
+              <p className="text-[var(--s-muted)] text-xs mt-1">{tr('MFA и Passkeys', 'MFA and passkeys', 'المصادقة متعددة العوامل ومفاتيح المرور')}</p>
           </Link>
 
           {/* Преместено в меню 'Още' */}
@@ -493,10 +494,10 @@ export default function DashboardPage() {
         {/* Reports list */}
         <div className="site-card rounded-3xl p-6">
           <div className="flex items-center justify-between mb-6">
-            <h2 className="rc-display font-bold text-xl text-[var(--s-text)]">Последни сигнали</h2>
+            <h2 className="rc-display font-bold text-xl text-[var(--s-text)]">{tr('Последни сигнали', 'Latest reports', 'أحدث البلاغات')}</h2>
             {reports.length > 0 && (
               <Link href="/dashboard/reports" className="text-xs text-[var(--s-orange)] hover:underline">
-                Виж всички →
+                {tr('Виж всички →', 'View all →', 'عرض الكل ←')}
               </Link>
             )}
           </div>
@@ -510,10 +511,10 @@ export default function DashboardPage() {
           ) : reports.length === 0 ? (
             <div className="text-center py-12 text-[var(--s-muted)]">
               <p className="text-4xl mb-3">📭</p>
-              <p className="font-semibold text-[var(--s-muted2)]">Няма сигнали</p>
-              <p className="text-sm mt-1">Подай първия си сигнал</p>
+              <p className="font-semibold text-[var(--s-muted2)]">{tr('Няма сигнали', 'No reports', 'لا توجد بلاغات')}</p>
+              <p className="text-sm mt-1">{tr('Подай първия си сигнал', 'Submit your first report', 'أرسل بلاغك الأول')}</p>
               <Link href="/dashboard/new-report" className="inline-block mt-4 btn-site-primary text-xs py-2.5 px-5 rounded-2xl">
-                Нов сигнал
+                {tr('Нов сигнал', 'New report', 'بلاغ جديد')}
               </Link>
             </div>
           ) : (
@@ -530,9 +531,9 @@ export default function DashboardPage() {
                       </h3>
                       <p className="text-[var(--s-muted)] text-xs mt-1 line-clamp-1">{report.description}</p>
                       <div className="flex items-center gap-2 text-[10px] text-[var(--s-muted)] mt-2 uppercase tracking-[0.3em]">
-                        <span>{formatCategoryLabel(report.category || report.categoryId, 'Без категория')}</span>
+                        <span>{formatCategoryLabel(report.category || report.categoryId, tr('Без категория', 'No category', 'بدون فئة'), locale)}</span>
                         <span>•</span>
-                        <span>{new Date(report.createdAt).toLocaleDateString('bg-BG')}</span>
+                        <span>{new Date(report.createdAt).toLocaleDateString(locale === 'bg' ? 'bg-BG' : locale === 'ar' ? 'ar-SA' : 'en-US')}</span>
                       </div>
                     </div>
                     <span className={cfg.cls} style={{ flexShrink: 0 }}>{cfg.label}</span>
@@ -558,9 +559,9 @@ export default function DashboardPage() {
                 }}
                 className="w-full text-left px-4 py-3 rounded-xl hover:bg-[var(--s-surface2)] transition-colors"
               >
-                <p className="text-[11px] uppercase tracking-[0.35em] text-[var(--s-muted)] mb-1">Плащания</p>
-                <p className="font-semibold text-[var(--s-text)]">Плащане на данъци</p>
-                <p className="text-xs text-[var(--s-muted)] mt-1">PayByLink QR (dev тест)</p>
+                <p className="text-[11px] uppercase tracking-[0.35em] text-[var(--s-muted)] mb-1">{tr('Плащания', 'Payments', 'المدفوعات')}</p>
+                <p className="font-semibold text-[var(--s-text)]">{tr('Плащане на данъци', 'Tax payment', 'دفع الضرائب')}</p>
+                <p className="text-xs text-[var(--s-muted)] mt-1">{tr('PayByLink QR (dev тест)', 'PayByLink QR (dev test)', 'رابط دفع QR (اختبار)')}</p>
               </button>
 
               <button
@@ -570,9 +571,9 @@ export default function DashboardPage() {
                 }}
                 className="w-full text-left px-4 py-3 rounded-xl hover:bg-[var(--s-surface2)] transition-colors"
               >
-                <p className="text-[11px] uppercase tracking-[0.35em] text-[var(--s-muted)] mb-1">Справка</p>
-                <p className="font-semibold text-[var(--s-text)]">Здравноосигурителен статус</p>
-                <p className="text-xs text-[var(--s-muted)] mt-1">Проверка през НАП</p>
+                <p className="text-[11px] uppercase tracking-[0.35em] text-[var(--s-muted)] mb-1">{tr('Справка', 'Lookup', 'استعلام')}</p>
+                <p className="font-semibold text-[var(--s-text)]">{tr('Здравноосигурителен статус', 'Health insurance status', 'حالة التأمين الصحي')}</p>
+                <p className="text-xs text-[var(--s-muted)] mt-1">{tr('Проверка през НАП', 'Check via NRA', 'تحقق عبر الوكالة الوطنية')}</p>
               </button>
 
               <a
@@ -580,9 +581,9 @@ export default function DashboardPage() {
                 className="w-full block text-left px-4 py-3 rounded-xl hover:bg-[var(--s-surface2)] transition-colors"
                 onClick={() => setMoreMenuOpen(false)}
               >
-                <p className="text-[11px] uppercase tracking-[0.35em] text-[#FBBF24] mb-1">Справки</p>
-                <p className="font-semibold text-[var(--s-text)]">Търсене на фирми</p>
-                <p className="text-xs text-[var(--s-muted)] mt-1">Фирми, ЕИК и свързани лица</p>
+                <p className="text-[11px] uppercase tracking-[0.35em] text-[#FBBF24] mb-1">{tr('Справки', 'Lookups', 'عمليات البحث')}</p>
+                <p className="font-semibold text-[var(--s-text)]">{tr('Търсене на фирми', 'Company search', 'بحث الشركات')}</p>
+                <p className="text-xs text-[var(--s-muted)] mt-1">{tr('Фирми, ЕИК и свързани лица', 'Companies, UIC and related persons', 'الشركات ورقم التعريف والأشخاص المرتبطون')}</p>
               </a>
             </div>
           )}
@@ -609,35 +610,35 @@ export default function DashboardPage() {
           >
             <div className="flex items-center justify-between px-6 py-4 border-b border-[var(--s-border)]">
               <div>
-                <p className="text-[10px] uppercase tracking-[0.4em] text-[var(--s-muted)]">Проверка</p>
-                <h3 className="rc-display text-xl text-[var(--s-text)] font-bold">Здравноосигурителен статус</h3>
+                <p className="text-[10px] uppercase tracking-[0.4em] text-[var(--s-muted)]">{tr('Проверка', 'Check', 'تحقق')}</p>
+                <h3 className="rc-display text-xl text-[var(--s-text)] font-bold">{tr('Здравноосигурителен статус', 'Health insurance status', 'حالة التأمين الصحي')}</h3>
               </div>
               <button
                 onClick={() => setHealthModalOpen(false)}
                 className="btn-site-ghost text-xs px-4 py-2 rounded-xl"
               >
-                Затвори
+                {tr('Затвори', 'Close', 'إغلاق')}
               </button>
             </div>
 
             <div className="p-6 space-y-4">
               {healthFlow === 'countdown' ? (
                 <div className="rounded-2xl p-5 border" style={{ borderColor: 'rgba(251,191,36,0.3)', background: 'rgba(251,191,36,0.08)' }}>
-                  <p className="font-semibold text-[var(--s-text)]">Бивате пренасочени към НАП</p>
-                  <p className="text-sm text-[var(--s-muted)] mt-1">Изчакайте {healthCountdown} сек...</p>
+                  <p className="font-semibold text-[var(--s-text)]">{tr('Бивате пренасочени към НАП', 'You are being redirected to NRA', 'يتم تحويلك إلى الوكالة الوطنية')}</p>
+                  <p className="text-sm text-[var(--s-muted)] mt-1">{tr('Изчакайте', 'Please wait', 'يرجى الانتظار')} {healthCountdown} {tr('сек...', 'sec...', 'ث...')}</p>
                 </div>
               ) : healthFlow === 'redirected' ? (
                 <div className="rounded-2xl p-5 border" style={{ borderColor: 'rgba(52,211,153,0.25)', background: 'rgba(52,211,153,0.08)' }}>
-                  <p className="font-semibold text-[var(--s-text)]">Бяхте пренасочени към портала на НАП.</p>
-                  <p className="text-sm text-[var(--s-muted)] mt-1">Текущата ви сесия в ResQCity остава активна и можете да продължите работа.</p>
+                  <p className="font-semibold text-[var(--s-text)]">{tr('Бяхте пренасочени към портала на НАП.', 'You were redirected to the NRA portal.', 'تم تحويلك إلى بوابة الوكالة الوطنية.')}</p>
+                  <p className="text-sm text-[var(--s-muted)] mt-1">{tr('Текущата ви сесия в ResQCity остава активна и можете да продължите работа.', 'Your current ResQCity session is still active and you can continue working.', 'تظل جلسة ResQCity الحالية نشطة ويمكنك متابعة العمل.')}</p>
                   {healthPopupBlocked && (
-                    <p className="text-sm text-amber-300 mt-2">Браузърът блокира новия таб. Разрешете pop-up за този сайт и опитайте отново.</p>
+                    <p className="text-sm text-amber-300 mt-2">{tr('Браузърът блокира новия таб. Разрешете pop-up за този сайт и опитайте отново.', 'The browser blocked the new tab. Allow pop-ups for this site and try again.', 'حظر المتصفح علامة التبويب الجديدة. اسمح بالنوافذ المنبثقة لهذا الموقع وحاول مرة أخرى.')}</p>
                   )}
                 </div>
               ) : (
                 <div className="rounded-2xl p-5 border" style={{ borderColor: 'rgba(52,211,153,0.25)', background: 'rgba(52,211,153,0.08)' }}>
-                  <p className="font-semibold text-[var(--s-text)]">Защитен достъп</p>
-                  <p className="text-sm text-[var(--s-muted)] mt-1">Натиснете „Проверка" и след 3 секунди ще бъдете пренасочени към системата на НАП в нов таб.</p>
+                  <p className="font-semibold text-[var(--s-text)]">{tr('Защитен достъп', 'Secure access', 'وصول آمن')}</p>
+                  <p className="text-sm text-[var(--s-muted)] mt-1">{tr('Натиснете „Проверка" и след 3 секунди ще бъдете пренасочени към системата на НАП в нов таб.', 'Press "Check" and after 3 seconds you will be redirected to the NRA system in a new tab.', 'اضغط "تحقق" وبعد 3 ثوان سيتم تحويلك إلى نظام الوكالة الوطنية في علامة تبويب جديدة.')}</p>
                 </div>
               )}
 
@@ -647,7 +648,7 @@ export default function DashboardPage() {
                     onClick={startHealthCheckFlow}
                     className="btn-site-primary text-sm px-5 py-2.5 rounded-xl"
                   >
-                    Проверка
+                    {tr('Проверка', 'Check', 'تحقق')}
                   </button>
                 )}
 
@@ -656,7 +657,7 @@ export default function DashboardPage() {
                     disabled
                     className="btn-site-primary text-sm px-5 py-2.5 rounded-xl opacity-60 cursor-not-allowed"
                   >
-                    Пренасочване...
+                    {tr('Пренасочване...', 'Redirecting...', 'جار التحويل...')}
                   </button>
                 )}
 
@@ -669,13 +670,13 @@ export default function DashboardPage() {
                       }}
                       className="btn-site-primary text-sm px-5 py-2.5 rounded-xl"
                     >
-                      Продължи в платформата
+                      {tr('Продължи в платформата', 'Continue to platform', 'متابعة إلى المنصة')}
                     </button>
                     <button
                       onClick={handleHealthStatusRedirect}
                       className="btn-site-ghost text-sm px-5 py-2.5 rounded-xl"
                     >
-                      Отвори НАП отново
+                      {tr('Отвори НАП отново', 'Open NRA again', 'افتح الوكالة الوطنية مجددا')}
                     </button>
                   </>
                 )}
@@ -684,8 +685,8 @@ export default function DashboardPage() {
               <div className="rounded-2xl overflow-hidden border border-[var(--s-border)] bg-[var(--s-bg)] min-h-[220px]">
                 <div className="h-[220px] flex items-center justify-center text-center px-6">
                   <div>
-                    <p className="text-sm text-[var(--s-muted)]">Порталът на НАП е защитен и не позволява вграждане в iframe от външен сайт.</p>
-                    <p className="text-sm text-[var(--s-muted)] mt-2">Използвайте „Проверка", за да се отвори директно в НАП.</p>
+                    <p className="text-sm text-[var(--s-muted)]">{tr('Порталът на НАП е защитен и не позволява вграждане в iframe от външен сайт.', 'The NRA portal is protected and does not allow embedding in an iframe from external sites.', 'بوابة الوكالة الوطنية محمية ولا تسمح بالتضمين داخل iframe من مواقع خارجية.')}</p>
+                    <p className="text-sm text-[var(--s-muted)] mt-2">{tr('Използвайте „Проверка", за да се отвори директно в НАП.', 'Use "Check" to open it directly in NRA.', 'استخدم "تحقق" لفتحها مباشرة في بوابة الوكالة الوطنية.')}</p>
                   </div>
                 </div>
               </div>
@@ -713,45 +714,45 @@ export default function DashboardPage() {
             >
               <div className="grid gap-6 lg:grid-cols-[1.15fr_0.85fr] items-start">
                 <div>
-                  <p className="text-[10px] uppercase tracking-[0.5em] text-emerald-300/80 mb-3">ResQCity Security Checkpoint</p>
-                  <h3 className="rc-display text-3xl md:text-4xl lg:text-5xl text-white font-extrabold leading-tight">Бяхте пренасочени към портала на НАП.</h3>
-                  <p className="text-sm md:text-base text-slate-300 mt-4 max-w-2xl">Този екран е умишлено блокиращ, за да потвърдите връщането си. Данните и сесията ви в ResQCity са запазени и защитени.</p>
+                  <p className="text-[10px] uppercase tracking-[0.5em] text-emerald-300/80 mb-3">{tr('ResQCity Security Checkpoint', 'ResQCity Security Checkpoint', 'نقطة تحقق أمنية ResQCity')}</p>
+                  <h3 className="rc-display text-3xl md:text-4xl lg:text-5xl text-white font-extrabold leading-tight">{tr('Бяхте пренасочени към портала на НАП.', 'You were redirected to the NRA portal.', 'تم تحويلك إلى بوابة الوكالة الوطنية.')}</h3>
+                  <p className="text-sm md:text-base text-slate-300 mt-4 max-w-2xl">{tr('Този екран е умишлено блокиращ, за да потвърдите връщането си. Данните и сесията ви в ResQCity са запазени и защитени.', 'This screen is intentionally blocking until you confirm your return. Your data and ResQCity session are preserved and protected.', 'هذه الشاشة حجبية عمدا حتى تؤكد عودتك. بياناتك وجلسة ResQCity محفوظتان ومحمّيتان.')}</p>
 
                   <div className="grid md:grid-cols-2 gap-3 mt-6">
                     <div className="rounded-2xl border p-4" style={{ background: 'rgba(15,23,42,0.6)', borderColor: 'rgba(148,163,184,0.24)' }}>
-                      <p className="text-[11px] uppercase tracking-[0.25em] text-slate-400">Сесия</p>
-                      <p className="text-base text-white font-semibold mt-1">Активна</p>
-                      <p className="text-xs text-slate-400 mt-1">Можете да продължите работа без повторен вход.</p>
+                      <p className="text-[11px] uppercase tracking-[0.25em] text-slate-400">{tr('Сесия', 'Session', 'الجلسة')}</p>
+                      <p className="text-base text-white font-semibold mt-1">{tr('Активна', 'Active', 'نشطة')}</p>
+                      <p className="text-xs text-slate-400 mt-1">{tr('Можете да продължите работа без повторен вход.', 'You can continue without signing in again.', 'يمكنك المتابعة دون تسجيل الدخول مرة أخرى.')}</p>
                     </div>
                     <div className="rounded-2xl border p-4" style={{ background: 'rgba(20,83,45,0.32)', borderColor: 'rgba(52,211,153,0.35)' }}>
-                      <p className="text-[11px] uppercase tracking-[0.25em] text-emerald-200/80">Статус</p>
-                      <p className="text-base text-white font-semibold mt-1">Пренасочване успешно</p>
-                      <p className="text-xs text-emerald-100/70 mt-1">Порталът на НАП е отворен в отделен таб.</p>
+                      <p className="text-[11px] uppercase tracking-[0.25em] text-emerald-200/80">{tr('Статус', 'Status', 'الحالة')}</p>
+                      <p className="text-base text-white font-semibold mt-1">{tr('Пренасочване успешно', 'Redirection successful', 'تم التحويل بنجاح')}</p>
+                      <p className="text-xs text-emerald-100/70 mt-1">{tr('Порталът на НАП е отворен в отделен таб.', 'The NRA portal is open in a separate tab.', 'بوابة الوكالة الوطنية مفتوحة في علامة تبويب منفصلة.')}</p>
                     </div>
                   </div>
                 </div>
 
                 <div className="rounded-2xl border p-4 md:p-5" style={{ background: 'rgba(2,6,23,0.72)', borderColor: 'rgba(148,163,184,0.24)' }}>
-                  <p className="text-[11px] uppercase tracking-[0.28em] text-slate-400">Действия</p>
+                  <p className="text-[11px] uppercase tracking-[0.28em] text-slate-400">{tr('Действия', 'Actions', 'الإجراءات')}</p>
                   <div className="space-y-3 mt-4">
                     <button
                       onClick={() => setHealthRedirectNoticeOpen(false)}
                       className="w-full btn-site-primary text-sm px-5 py-3 rounded-xl"
                     >
-                      Продължи в платформата
+                      {tr('Продължи в платформата', 'Continue to platform', 'متابعة إلى المنصة')}
                     </button>
                     <button
                       onClick={handleHealthStatusRedirect}
                       className="w-full btn-site-ghost text-sm px-5 py-3 rounded-xl"
                     >
-                      Отвори НАП отново
+                      {tr('Отвори НАП отново', 'Open NRA again', 'افتح الوكالة الوطنية مجددا')}
                     </button>
                   </div>
 
                   {healthPopupBlocked && (
                     <div className="mt-4 rounded-xl border p-3" style={{ background: 'rgba(127,29,29,0.35)', borderColor: 'rgba(252,165,165,0.45)' }}>
-                      <p className="text-sm text-rose-200 font-semibold">Браузърът блокира новия таб.</p>
-                      <p className="text-xs text-rose-100/80 mt-1">Разрешете pop-up за този сайт и натиснете „Отвори НАП отново“.</p>
+                      <p className="text-sm text-rose-200 font-semibold">{tr('Браузърът блокира новия таб.', 'The browser blocked the new tab.', 'حظر المتصفح علامة التبويب الجديدة.')}</p>
+                      <p className="text-xs text-rose-100/80 mt-1">{tr('Разрешете pop-up за този сайт и натиснете „Отвори НАП отново“.', 'Allow pop-ups for this site and click "Open NRA again".', 'اسمح بالنوافذ المنبثقة لهذا الموقع واضغط "افتح الوكالة الوطنية مجددا".')}</p>
                     </div>
                   )}
                 </div>
@@ -774,28 +775,28 @@ export default function DashboardPage() {
           >
             <div className="flex items-center justify-between px-5 md:px-6 py-4 border-b border-[var(--s-border)] bg-[color-mix(in_srgb,var(--s-surface2)_72%,transparent)]">
               <div>
-                <p className="text-[10px] uppercase tracking-[0.4em] text-[var(--s-muted)]">Плащане</p>
-                <h3 className="rc-display text-xl md:text-2xl text-[var(--s-text)] font-bold">Плащане на данъци</h3>
+                <p className="text-[10px] uppercase tracking-[0.4em] text-[var(--s-muted)]">{tr('Плащане', 'Payment', 'الدفع')}</p>
+                <h3 className="rc-display text-xl md:text-2xl text-[var(--s-text)] font-bold">{tr('Плащане на данъци', 'Tax payment', 'دفع الضرائب')}</h3>
               </div>
               <button
                 onClick={() => setTaxModalOpen(false)}
                 className="btn-site-ghost text-xs px-4 py-2 rounded-xl"
               >
-                Затвори
+                {tr('Затвори', 'Close', 'إغلاق')}
               </button>
             </div>
 
             <div className="p-4 md:p-6 grid lg:grid-cols-2 gap-5 md:gap-6">
               <div className="space-y-4">
                 <div className="rounded-2xl p-4 border" style={{ borderColor: 'rgba(251,191,36,0.25)', background: 'rgba(251,191,36,0.08)' }}>
-                  <p className="font-semibold text-[var(--s-text)]">IRISPay Dev/Test v3.5.3</p>
-                  <p className="text-sm text-[var(--s-muted)] mt-1">Реална интеграция към dev.paybyclick.irispay.bg с тестови merchant key и тестов IBAN.</p>
+                  <p className="font-semibold text-[var(--s-text)]">{tr('IRISPay Dev/Test v3.5.3', 'IRISPay Dev/Test v3.5.3', 'IRISPay إصدار الاختبار')}</p>
+                  <p className="text-sm text-[var(--s-muted)] mt-1">{tr('Реална интеграция към dev.paybyclick.irispay.bg с тестови merchant key и тестов IBAN.', 'Live integration to dev.paybyclick.irispay.bg with test merchant key and test IBAN.', 'تكامل فعلي مع بيئة الاختبار بمفتاح تاجر وحساب IBAN تجريبيين.')}</p>
                 </div>
 
                 <div className="rounded-2xl border p-4" style={{ borderColor: 'var(--s-border)', background: 'var(--s-surface2)' }}>
                   <div className="flex items-center justify-between gap-3 mb-3">
-                    <p className="text-xs uppercase tracking-[0.28em] text-[var(--s-muted)]">Банки (bankHashes)</p>
-                    {banksLoading && <span className="text-xs text-[var(--s-muted)]">Зареждане...</span>}
+                    <p className="text-xs uppercase tracking-[0.28em] text-[var(--s-muted)]">{tr('Банки (bankHashes)', 'Banks (bankHashes)', 'البنوك (معرفات البنوك)')}</p>
+                    {banksLoading && <span className="text-xs text-[var(--s-muted)]">{tr('Зареждане...', 'Loading...', 'جار التحميل...')}</span>}
                   </div>
 
                   <div className="grid sm:grid-cols-2 gap-2 max-h-44 overflow-auto pr-1">
@@ -816,7 +817,7 @@ export default function DashboardPage() {
                     ))}
                   </div>
 
-                  <p className="text-xs text-[var(--s-muted)] mt-3">Ако няма избрани банки, IRIS ще покаже всички достъпни банки.</p>
+                  <p className="text-xs text-[var(--s-muted)] mt-3">{tr('Ако няма избрани банки, IRIS ще покаже всички достъпни банки.', 'If no banks are selected, IRIS will display all available banks.', 'إذا لم يتم اختيار بنوك، سيعرض IRIS جميع البنوك المتاحة.')}</p>
                 </div>
 
                 {taxLoading ? (
@@ -883,21 +884,21 @@ export default function DashboardPage() {
                 {!activeTaxPayment ? (
                   <div className="h-full min-h-[420px] flex items-center justify-center text-center">
                     <div>
-                      <p className="text-[var(--s-text)] font-semibold">Няма активна платежна сесия</p>
-                      <p className="text-sm text-[var(--s-muted)] mt-2">Избери задължение и генерирай тестов PayByLink/QR.</p>
+                      <p className="text-[var(--s-text)] font-semibold">{tr('Няма активна платежна сесия', 'No active payment session', 'لا توجد جلسة دفع نشطة')}</p>
+                      <p className="text-sm text-[var(--s-muted)] mt-2">{tr('Избери задължение и генерирай тестов PayByLink/QR.', 'Select an obligation and generate a test PayByLink/QR.', 'اختر التزاما وأنشئ رابط دفع/رمز QR للاختبار.')}</p>
                     </div>
                   </div>
                 ) : (
                   <div className="space-y-4">
                     <div className="flex items-center justify-between gap-3">
-                      <p className="text-sm uppercase tracking-[0.3em] text-[var(--s-muted)]">Платежна сесия</p>
+                      <p className="text-sm uppercase tracking-[0.3em] text-[var(--s-muted)]">{tr('Платежна сесия', 'Payment session', 'جلسة الدفع')}</p>
                       <span className={activeTaxPayment.status === 'CONFIRMED' ? 'chip chip-resolved' : 'chip chip-progress'}>
                         {getPaymentStatusLabel(activeTaxPayment.status)}
                       </span>
                     </div>
 
                     <div className="rounded-xl border p-4" style={{ borderColor: 'var(--s-border)', background: 'var(--s-surface2)' }}>
-                      <p className="text-sm text-[var(--s-muted)]">Референция</p>
+                      <p className="text-sm text-[var(--s-muted)]">{tr('Референция', 'Reference', 'المرجع')}</p>
                       <p className="font-semibold text-[var(--s-text)]">{activeTaxPayment.providerReference}</p>
                       <p className="text-xs text-[var(--s-muted)] mt-2">Payment hash: {activeTaxPayment.paymentHash}</p>
                       <p className="text-xs text-[var(--s-muted)] mt-1">OrderId: {activeTaxPayment.orderId}</p>
@@ -912,7 +913,7 @@ export default function DashboardPage() {
                           className="w-44 h-44 md:w-56 md:h-56 rounded-lg border border-[var(--s-border)] bg-white"
                         />
                       ) : (
-                        <p className="text-xs text-[var(--s-muted)]">QR не е наличен</p>
+                        <p className="text-xs text-[var(--s-muted)]">{tr('QR не е наличен', 'QR is not available', 'رمز QR غير متاح')}</p>
                       )}
                     </div>
 

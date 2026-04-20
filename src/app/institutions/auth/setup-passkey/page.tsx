@@ -9,8 +9,9 @@ import { useI18n } from '@/i18n';
 export default function InstitutionSetupPasskeyPage() {
   const router = useRouter();
   const { locale } = useI18n();
+  const tr = (bg: string, en: string, ar: string) => (locale === 'ar' ? ar : locale === 'en' ? en : bg);
   const copy = {
-    portal: locale === 'ar' ? 'بوابة المؤسسات' : locale === 'en' ? 'Institution Portal' : 'Institution Portal',
+    portal: locale === 'ar' ? 'بوابة المؤسسات' : locale === 'en' ? 'Institution Portal' : 'Институционален портал',
     title: locale === 'ar' ? 'إعداد Passkey' : locale === 'en' ? 'Passkey setup' : 'Настройка на Passkey',
     subtitle:
       locale === 'ar'
@@ -18,10 +19,10 @@ export default function InstitutionSetupPasskeyPage() {
         : locale === 'en'
           ? 'Email verified. Complete Passkey setup to activate access to the institution portal.'
           : 'Имейлът е потвърден. Завършете с Passkey, за да активирате достъпа до институционалния портал.',
-    success: locale === 'ar' ? 'Passkey е добавен успешно.' : locale === 'en' ? 'Passkey added successfully.' : 'Passkey е добавен успешно.',
-    error: locale === 'ar' ? 'Неуспешно добавяне на Passkey.' : locale === 'en' ? 'Failed to add Passkey.' : 'Неуспешно добавяне на Passkey.',
-    waiting: locale === 'ar' ? 'В изчакване на устройство...' : locale === 'en' ? 'Waiting for device...' : 'Изчакване за устройство...',
-    add: locale === 'ar' ? 'Добави Passkey' : locale === 'en' ? 'Add Passkey' : 'Добави Passkey',
+    success: tr('Passkey е добавен успешно.', 'Passkey added successfully.', 'تمت إضافة مفتاح المرور بنجاح.'),
+    error: tr('Неуспешно добавяне на Passkey.', 'Failed to add Passkey.', 'فشلت إضافة مفتاح المرور.'),
+    waiting: tr('Изчакване за устройство...', 'Waiting for device...', 'جار انتظار الجهاز...'),
+    add: tr('Добави Passkey', 'Add Passkey', 'إضافة مفتاح مرور'),
   };
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
@@ -67,7 +68,7 @@ export default function InstitutionSetupPasskeyPage() {
         {
           challengeId: beginResponse.data.challengeId,
           response: attestation,
-          name: 'Institution primary passkey',
+          name: tr('Основен институционален passkey', 'Institution primary passkey', 'مفتاح مرور أساسي للمؤسسة'),
         },
         { headers: getAuthHeaders() }
       );

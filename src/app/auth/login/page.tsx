@@ -223,9 +223,9 @@ export default function LoginPage() {
 
           <div className="relative space-y-3 mt-8">
             {[
-              { icon: '📍', tag: 'Карта', info: 'Интерактивна карта с данни в реално време' },
-              { icon: '📊', tag: 'Табло', info: 'Статистики и анализ' },
-              { icon: '🔐', tag: 'Сигурност', info: 'JWT + MFA + КЕП' },
+              { icon: '📍', tag: t('auth.card.map'), info: t('auth.card.mapInfo') },
+              { icon: '📊', tag: t('auth.card.dashboard'), info: t('auth.card.dashboardInfo') },
+              { icon: '🔐', tag: t('auth.card.security'), info: t('auth.card.securityInfo') },
             ].map(({ icon, tag, info }) => (
               <div key={tag}
                 className="flex items-center gap-3 px-4 py-3 rounded-xl border border-[var(--s-border)] bg-[var(--s-surface2)]">
@@ -308,7 +308,7 @@ export default function LoginPage() {
           ) : (
             <div className="space-y-4">
               <div className="p-4 rounded-xl border border-[var(--s-border)] bg-[var(--s-surface2)]">
-                <p className="text-sm text-[var(--s-muted2)] mb-3">Избери метод за втори фактор:</p>
+                <p className="text-sm text-[var(--s-muted2)] mb-3">{t('auth.mfa.chooseMethod')}</p>
                 <div className="flex gap-2 flex-wrap">
                   {mfaMethods.includes('TOTP') && (
                     <button type="button" onClick={() => setSelectedMethod('TOTP')}
@@ -317,7 +317,7 @@ export default function LoginPage() {
                           ? 'bg-[var(--s-orange)] text-white border-[var(--s-orange)]'
                           : 'border-[var(--s-border)] text-[var(--s-muted2)] hover:border-[var(--s-orange)]/50'
                       }`}>
-                      Удостоверяващо приложение
+                      {t('auth.mfa.totpMethod')}
                     </button>
                   )}
                   {mfaMethods.includes('PASSKEY') && (
@@ -327,7 +327,7 @@ export default function LoginPage() {
                           ? 'bg-[var(--s-orange)] text-white border-[var(--s-orange)]'
                           : 'border-[var(--s-border)] text-[var(--s-muted2)] hover:border-[var(--s-orange)]/50'
                       }`}>
-                      Ключ за вход
+                      {t('auth.mfa.passkeyMethod')}
                     </button>
                   )}
                 </div>
@@ -337,7 +337,7 @@ export default function LoginPage() {
                 <div className="space-y-3">
                   <div>
                     <label className="block text-[10px] font-semibold uppercase tracking-[0.4em] text-[var(--s-muted)] mb-2">
-                      Код от приложението
+                      {t('auth.mfa.appCode')}
                     </label>
                     <SixDigitCodeInput
                       value={mfaCode}
@@ -348,7 +348,7 @@ export default function LoginPage() {
                   </div>
                   <button type="button" onClick={verifyTotp} disabled={loading}
                     className="btn-site-primary w-full justify-center py-3.5 rounded-2xl text-sm">
-                    {loading ? 'Проверка...' : 'Потвърди кода'}
+                    {loading ? t('auth.mfa.verifying') : t('auth.mfa.confirmCode')}
                   </button>
                 </div>
               )}
@@ -356,13 +356,13 @@ export default function LoginPage() {
               {selectedMethod === 'PASSKEY' && (
                 <button type="button" onClick={verifyPasskey} disabled={loading}
                   className="btn-site-primary w-full justify-center py-3.5 rounded-2xl text-sm">
-                  {loading ? 'Изчакване...' : 'Потвърди с ключ за вход'}
+                  {loading ? t('auth.mfa.waiting') : t('auth.mfa.confirmPasskey')}
                 </button>
               )}
 
               <button type="button" onClick={resetMfa} disabled={loading}
                 className="btn-site-ghost w-full justify-center py-3.5 rounded-2xl text-sm">
-                ← Назад към вход
+                {t('auth.mfa.backToLogin')}
               </button>
             </div>
           )}

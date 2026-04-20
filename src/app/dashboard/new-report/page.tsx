@@ -37,16 +37,16 @@ interface TaxonomyCategory {
   subcategories?: TaxonomySubcategory[];
 }
 
-const STEPS = [
-  'Категория',
-  'Ситуация',
-  'Детайли и локация',
-  'Преглед',
-];
-
 export default function NewReportPage() {
   const { locale } = useI18n();
   const router = useRouter();
+  const tr = (bg: string, en: string, ar: string) => (locale === 'ar' ? ar : locale === 'en' ? en : bg);
+  const STEPS = [
+    tr('Категория', 'Category', 'الفئة'),
+    tr('Ситуация', 'Situation', 'الحالة'),
+    tr('Детайли и локация', 'Details and location', 'التفاصيل والموقع'),
+    tr('Преглед', 'Review', 'مراجعة'),
+  ];
   const copy = {
     back: locale === 'bg' ? '← Назад към таблото' : locale === 'en' ? '← Back to dashboard' : '← العودة إلى لوحة التحكم',
     badge: locale === 'bg' ? 'Нов сигнал' : locale === 'en' ? 'New report' : 'بلاغ جديد',
@@ -224,7 +224,7 @@ export default function NewReportPage() {
 
       router.push('/dashboard/reports');
     } catch (err: any) {
-      setError(err.response?.data?.error || 'Failed to create report');
+      setError(err.response?.data?.error || tr('Неуспешно създаване на сигнал', 'Failed to create report', 'فشل إنشاء البلاغ'));
     } finally {
       setLoading(false);
     }
@@ -279,7 +279,7 @@ export default function NewReportPage() {
           {step === 0 && (
             <>
               <div>
-                <label className="block text-xs font-bold uppercase tracking-[0.35em] text-[var(--s-muted2)] mb-2">Категория</label>
+                <label className="block text-xs font-bold uppercase tracking-[0.35em] text-[var(--s-muted2)] mb-2">{tr('Категория', 'Category', 'الفئة')}</label>
                 <select
                   className="site-input"
                   value={formData.categoryId}
@@ -303,7 +303,7 @@ export default function NewReportPage() {
                     className="w-5 h-5"
                   />
                   <span className="text-sm font-medium text-amber-900">
-                    📝 Друго (Опиши проблема без подкатегория и ситуация)
+                    {tr('📝 Друго (Опиши проблема без подкатегория и ситуация)', '📝 Other (Describe issue without subcategory and situation)', '📝 أخرى (صف المشكلة بدون فئة فرعية وحالة)')}
                   </span>
                 </label>
               </div>
@@ -314,7 +314,7 @@ export default function NewReportPage() {
             <div className="space-y-4">
               <div className="grid md:grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-xs font-bold uppercase tracking-[0.35em] text-[var(--s-muted2)] mb-2">Подкатегория</label>
+                  <label className="block text-xs font-bold uppercase tracking-[0.35em] text-[var(--s-muted2)] mb-2">{tr('Подкатегория', 'Subcategory', 'الفئة الفرعية')}</label>
                   <select
                     className="site-input"
                     value={formData.taxonomySubcategory}
@@ -323,11 +323,11 @@ export default function NewReportPage() {
                     }}
                     required
                   >
-                    <option value="">Избери подкатегория</option>
+                    <option value="">{tr('Избери подкатегория', 'Select subcategory', 'اختر فئة فرعية')}</option>
                     {availableSubcategories.map((subcat) => (
                       <option key={subcat.name} value={subcat.name}>{subcat.name}</option>
                     ))}
-                    <option value="Друго">📝 Друго</option>
+                    <option value="Друго">{tr('📝 Друго', '📝 Other', '📝 أخرى')}</option>
                   </select>
                   
                   {showOtherSubcategoryField && (
@@ -336,14 +336,14 @@ export default function NewReportPage() {
                       className="site-input mt-2"
                       value={formData.customSubcategory}
                       onChange={(e) => setFormData({...formData, customSubcategory: e.target.value})}
-                      placeholder="Опиши подкатегорията..."
+                      placeholder={tr('Опиши подкатегорията...', 'Describe subcategory...', 'صف الفئة الفرعية...')}
                       required
                     />
                   )}
                 </div>
                 
                 <div>
-                  <label className="block text-xs font-bold uppercase tracking-[0.35em] text-[var(--s-muted2)] mb-2">Ситуация</label>
+                  <label className="block text-xs font-bold uppercase tracking-[0.35em] text-[var(--s-muted2)] mb-2">{tr('Ситуация', 'Situation', 'الحالة')}</label>
                   <select
                     className="site-input"
                     value={formData.taxonomySituation}
@@ -351,11 +351,11 @@ export default function NewReportPage() {
                     required
                     disabled={!formData.taxonomySubcategory || formData.taxonomySubcategory === 'Друго'}
                   >
-                    <option value="">Избери ситуация</option>
+                    <option value="">{tr('Избери ситуация', 'Select situation', 'اختر حالة')}</option>
                     {availableSituations.map((situation) => (
                       <option key={situation.name} value={situation.name}>{situation.name}</option>
                     ))}
-                    <option value="Друго">📝 Друго</option>
+                    <option value="Друго">{tr('📝 Друго', '📝 Other', '📝 أخرى')}</option>
                   </select>
                   
                   {showOtherSituationField && (
@@ -364,7 +364,7 @@ export default function NewReportPage() {
                       className="site-input mt-2"
                       value={formData.customSituation}
                       onChange={(e) => setFormData({...formData, customSituation: e.target.value})}
-                      placeholder="Опиши ситуацията..."
+                      placeholder={tr('Опиши ситуацията...', 'Describe situation...', 'صف الحالة...')}
                       required
                     />
                   )}
@@ -376,32 +376,32 @@ export default function NewReportPage() {
           {step === 2 && (
             <>
               <div>
-                <label className="block text-xs font-bold uppercase tracking-[0.35em] text-[var(--s-muted2)] mb-2">Заглавие</label>
+                <label className="block text-xs font-bold uppercase tracking-[0.35em] text-[var(--s-muted2)] mb-2">{tr('Заглавие', 'Title', 'العنوان')}</label>
                 <input
                   type="text"
                   className="site-input"
                   value={formData.title}
                   onChange={(e) => setFormData({ ...formData, title: e.target.value })}
                   required
-                  placeholder="Кратко описание на проблема"
+                  placeholder={tr('Кратко описание на проблема', 'Short issue summary', 'وصف مختصر للمشكلة')}
                 />
               </div>
 
               <div>
-                <label className="block text-xs font-bold uppercase tracking-[0.35em] text-[var(--s-muted2)] mb-2">Описание</label>
+                <label className="block text-xs font-bold uppercase tracking-[0.35em] text-[var(--s-muted2)] mb-2">{tr('Описание', 'Description', 'الوصف')}</label>
                 <textarea
                   className="site-input"
                   rows={5}
                   value={formData.description}
                   onChange={(e) => setFormData({ ...formData, description: e.target.value })}
                   required
-                  placeholder="Подробно описание на ситуацията"
+                  placeholder={tr('Подробно описание на ситуацията', 'Detailed description of the situation', 'وصف تفصيلي للحالة')}
                 />
               </div>
 
               <div className="grid md:grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-xs font-bold uppercase tracking-[0.35em] text-[var(--s-muted2)] mb-2">Приоритет</label>
+                  <label className="block text-xs font-bold uppercase tracking-[0.35em] text-[var(--s-muted2)] mb-2">{tr('Приоритет', 'Priority', 'الأولوية')}</label>
                   <select
                     className="site-input"
                     value={formData.priority}
@@ -413,28 +413,28 @@ export default function NewReportPage() {
                   </select>
                 </div>
                 <div>
-                  <label className="block text-xs font-bold uppercase tracking-[0.35em] text-[var(--s-muted2)] mb-2">Адрес (по избор)</label>
+                  <label className="block text-xs font-bold uppercase tracking-[0.35em] text-[var(--s-muted2)] mb-2">{tr('Адрес (по избор)', 'Address (optional)', 'العنوان (اختياري)')}</label>
                   <input
                     type="text"
                     className="site-input"
                     value={formData.address}
                     onChange={(e) => setFormData({ ...formData, address: e.target.value })}
-                    placeholder="Улица или забележителност"
+                    placeholder={tr('Улица или забележителност', 'Street or landmark', 'شارع أو معلم')}
                   />
                 </div>
               </div>
 
               <div>
-                <label className="block text-xs font-bold uppercase tracking-[0.35em] text-[var(--s-muted2)] mb-2">Локация</label>
+                <label className="block text-xs font-bold uppercase tracking-[0.35em] text-[var(--s-muted2)] mb-2">{tr('Локация', 'Location', 'الموقع')}</label>
                 <div className="space-y-3">
                   <div className="flex gap-3">
                     <button type="button" onClick={handleLocationClick}
                       className="flex-1 rounded-2xl border border-[var(--s-border)] bg-[var(--s-surface2)] py-3 text-sm uppercase tracking-[0.3em] text-[var(--s-muted)] hover:text-[var(--s-text)] hover:border-[var(--s-orange)]/40 transition">
-                      📍 Моята локация
+                      {tr('📍 Моята локация', '📍 My location', '📍 موقعي')}
                     </button>
                     <button type="button" onClick={() => setShowMap(!showMap)}
                       className="flex-1 rounded-2xl border border-[var(--s-violet)]/30 bg-[var(--s-violet)]/10 py-3 text-sm uppercase tracking-[0.3em] text-[var(--s-violet)] hover:bg-[var(--s-violet)]/15 transition">
-                      {showMap ? 'Скрий картата' : '🗺 Избери от карта'}
+                      {showMap ? tr('Скрий картата', 'Hide map', 'إخفاء الخريطة') : tr('🗺 Избери от карта', '🗺 Pick from map', '🗺 اختر من الخريطة')}
                     </button>
                   </div>
 
@@ -448,11 +448,11 @@ export default function NewReportPage() {
 
                   <div className="grid grid-cols-2 gap-3 text-sm">
                     <div className="p-3 rounded-xl border border-[var(--s-border)] bg-[var(--s-surface2)]">
-                      <span className="text-[var(--s-muted)]">Ширина:</span>{' '}
+                      <span className="text-[var(--s-muted)]">{tr('Ширина:', 'Latitude:', 'خط العرض:')}</span>{' '}
                       <span className="font-mono text-[var(--s-text)]">{formData.latitude.toFixed(6)}</span>
                     </div>
                     <div className="p-3 rounded-xl border border-[var(--s-border)] bg-[var(--s-surface2)]">
-                      <span className="text-[var(--s-muted)]">Дължина:</span>{' '}
+                      <span className="text-[var(--s-muted)]">{tr('Дължина:', 'Longitude:', 'خط الطول:')}</span>{' '}
                       <span className="font-mono text-[var(--s-text)]">{formData.longitude.toFixed(6)}</span>
                     </div>
                   </div>
@@ -460,14 +460,14 @@ export default function NewReportPage() {
                   {formData.district && (
                     <div className="p-3 rounded-xl border" style={{ background: 'rgba(6,214,160,0.08)', borderColor: 'rgba(6,214,160,0.25)' }}>
                       <span className="text-sm text-[var(--s-teal)]">
-                        Район: <span className="font-semibold">{formData.district}</span>
+                        {tr('Район:', 'District:', 'المنطقة:')} <span className="font-semibold">{formData.district}</span>
                       </span>
                     </div>
                   )}
 
                   {/* Image Upload */}
               <div>
-                <label className="block text-xs font-bold uppercase tracking-[0.35em] text-[var(--s-muted2)] mb-2">Снимки (по избор)</label>
+                <label className="block text-xs font-bold uppercase tracking-[0.35em] text-[var(--s-muted2)] mb-2">{tr('Снимки (по избор)', 'Photos (optional)', 'الصور (اختياري)')}</label>
                 <div className="space-y-3">
                   <label
                     className={`flex flex-col items-center justify-center gap-2 w-full rounded-2xl border-2 border-dashed py-6 cursor-pointer transition ${
@@ -487,13 +487,13 @@ export default function NewReportPage() {
                     {uploadingImages ? (
                       <>
                         <span className="text-2xl animate-spin">⏳</span>
-                        <span className="text-xs text-[var(--s-muted)]">Качване...</span>
+                        <span className="text-xs text-[var(--s-muted)]">{tr('Качване...', 'Uploading...', 'جار الرفع...')}</span>
                       </>
                     ) : (
                       <>
                         <span className="text-3xl">📷</span>
-                        <span className="text-xs text-[var(--s-muted)]">Кликни за добавяне на снимки</span>
-                        <span className="text-[10px] text-[var(--s-muted2)]">JPEG, PNG, WEBP до 10MB</span>
+                        <span className="text-xs text-[var(--s-muted)]">{tr('Кликни за добавяне на снимки', 'Click to add photos', 'انقر لإضافة الصور')}</span>
+                        <span className="text-[10px] text-[var(--s-muted2)]">{tr('JPEG, PNG, WEBP до 10MB', 'JPEG, PNG, WEBP up to 10MB', 'JPEG, PNG, WEBP حتى 10MB')}</span>
                       </>
                     )}
                   </label>
@@ -506,7 +506,7 @@ export default function NewReportPage() {
                     <div className="grid grid-cols-3 gap-2">
                       {uploadedImages.map((url) => (
                         <div key={url} className="relative group rounded-xl overflow-hidden border border-[var(--s-border)] aspect-square">
-                          <img src={url} alt="Снимка" className="w-full h-full object-cover" />
+                          <img src={url} alt={tr('Снимка', 'Photo', 'صورة')} className="w-full h-full object-cover" />
                           <button
                             type="button"
                             onClick={() => handleRemoveImage(url)}
@@ -522,9 +522,9 @@ export default function NewReportPage() {
               </div>
 
               <div className="p-4 rounded-xl border space-y-3" style={{ background: 'rgba(255,167,38,0.07)', borderColor: 'rgba(255,167,38,0.2)' }}>
-                    <p className="text-xs uppercase tracking-[0.3em] text-amber-400 font-bold">Публичност на сигнала</p>
+                    <p className="text-xs uppercase tracking-[0.3em] text-amber-400 font-bold">{tr('Публичност на сигнала', 'Report visibility', 'ظهور البلاغ')}</p>
                     <p className="text-sm text-[var(--s-muted2)]">
-                      Искате ли този сигнал да се вижда публично на картата?
+                      {tr('Искате ли този сигнал да се вижда публично на картата?', 'Do you want this report to be public on the map?', 'هل تريد أن يكون هذا البلاغ عامًا على الخريطة؟')}
                     </p>
                     <div className="grid md:grid-cols-2 gap-3">
                       <button type="button" onClick={() => setFormData({ ...formData, isPublic: true })}
@@ -533,7 +533,7 @@ export default function NewReportPage() {
                             ? 'border-teal-500/40 bg-teal-500/10 text-[var(--s-teal)]'
                             : 'border-[var(--s-border)] text-[var(--s-muted)] hover:border-[var(--s-border)]'
                         }`}>
-                        ✓ Да, публикувай
+                        {tr('✓ Да, публикувай', '✓ Yes, publish', '✓ نعم، انشر')}
                       </button>
                       <button type="button" onClick={() => setFormData({ ...formData, isPublic: false })}
                         className={`rounded-xl border px-4 py-3 text-sm transition ${
@@ -541,7 +541,7 @@ export default function NewReportPage() {
                             ? 'border-[var(--s-border)] bg-[var(--s-surface2)] text-[var(--s-text)]'
                             : 'border-[var(--s-border)] text-[var(--s-muted)]'
                         }`}>
-                        🔒 Само за институциите
+                        {tr('🔒 Само за институциите', '🔒 Institutions only', '🔒 للمؤسسات فقط')}
                       </button>
                     </div>
                   </div>
@@ -553,21 +553,21 @@ export default function NewReportPage() {
           {step === 3 && (
             <div className="space-y-4 text-sm text-[var(--s-muted2)]">
               <div className="rounded-2xl border border-[var(--s-border)] p-5 bg-[var(--s-surface2)] space-y-2">
-                <p><span className="text-[var(--s-muted)] uppercase tracking-[0.2em] text-xs">Категория:</span> <span className="font-medium text-[var(--s-text)]">{formData.taxonomyCategoryName}</span></p>
-                <p><span className="text-[var(--s-muted)] uppercase tracking-[0.2em] text-xs">Подкатегория:</span> <span className="font-medium text-[var(--s-text)]">{formData.taxonomySubcategory}</span></p>
-                <p><span className="text-[var(--s-muted)] uppercase tracking-[0.2em] text-xs">Ситуация:</span> <span className="font-medium text-[var(--s-text)]">{formData.taxonomySituation}</span></p>
-                <p><span className="text-[var(--s-muted)] uppercase tracking-[0.2em] text-xs">Заглавие:</span> <span className="font-medium text-[var(--s-text)]">{formData.title}</span></p>
-                <p><span className="text-[var(--s-muted)] uppercase tracking-[0.2em] text-xs">Описание:</span> <span className="font-medium text-[var(--s-text)]">{formData.description}</span></p>
-                <p><span className="text-[var(--s-muted)] uppercase tracking-[0.2em] text-xs">Приоритет:</span> <span className="font-medium text-[var(--s-text)]">{formData.priority}</span></p>
-                <p><span className="text-[var(--s-muted)] uppercase tracking-[0.2em] text-xs">Публичен:</span> <span className="font-medium text-[var(--s-text)]">{formData.isPublic ? 'Да' : 'Не'}</span></p>
-                <p><span className="text-[var(--s-muted)] uppercase tracking-[0.2em] text-xs">Координати:</span> <span className="font-mono text-[var(--s-text)]">{formData.latitude.toFixed(6)}, {formData.longitude.toFixed(6)}</span></p>
+                <p><span className="text-[var(--s-muted)] uppercase tracking-[0.2em] text-xs">{tr('Категория:', 'Category:', 'الفئة:')}</span> <span className="font-medium text-[var(--s-text)]">{formData.taxonomyCategoryName}</span></p>
+                <p><span className="text-[var(--s-muted)] uppercase tracking-[0.2em] text-xs">{tr('Подкатегория:', 'Subcategory:', 'الفئة الفرعية:')}</span> <span className="font-medium text-[var(--s-text)]">{formData.taxonomySubcategory}</span></p>
+                <p><span className="text-[var(--s-muted)] uppercase tracking-[0.2em] text-xs">{tr('Ситуация:', 'Situation:', 'الحالة:')}</span> <span className="font-medium text-[var(--s-text)]">{formData.taxonomySituation}</span></p>
+                <p><span className="text-[var(--s-muted)] uppercase tracking-[0.2em] text-xs">{tr('Заглавие:', 'Title:', 'العنوان:')}</span> <span className="font-medium text-[var(--s-text)]">{formData.title}</span></p>
+                <p><span className="text-[var(--s-muted)] uppercase tracking-[0.2em] text-xs">{tr('Описание:', 'Description:', 'الوصف:')}</span> <span className="font-medium text-[var(--s-text)]">{formData.description}</span></p>
+                <p><span className="text-[var(--s-muted)] uppercase tracking-[0.2em] text-xs">{tr('Приоритет:', 'Priority:', 'الأولوية:')}</span> <span className="font-medium text-[var(--s-text)]">{formData.priority}</span></p>
+                <p><span className="text-[var(--s-muted)] uppercase tracking-[0.2em] text-xs">{tr('Публичен:', 'Public:', 'عام:')}</span> <span className="font-medium text-[var(--s-text)]">{formData.isPublic ? tr('Да', 'Yes', 'نعم') : tr('Не', 'No', 'لا')}</span></p>
+                <p><span className="text-[var(--s-muted)] uppercase tracking-[0.2em] text-xs">{tr('Координати:', 'Coordinates:', 'الإحداثيات:')}</span> <span className="font-mono text-[var(--s-text)]">{formData.latitude.toFixed(6)}, {formData.longitude.toFixed(6)}</span></p>
                 {uploadedImages.length > 0 && (
                   <div>
-                    <p className="text-[var(--s-muted)] uppercase tracking-[0.2em] text-xs mb-2">Снимки ({uploadedImages.length}):</p>
+                    <p className="text-[var(--s-muted)] uppercase tracking-[0.2em] text-xs mb-2">{tr('Снимки', 'Photos', 'الصور')} ({uploadedImages.length}):</p>
                     <div className="grid grid-cols-4 gap-2">
                       {uploadedImages.map((url) => (
                         <div key={url} className="rounded-lg overflow-hidden border border-[var(--s-border)] aspect-square">
-                          <img src={url} alt="Снимка" className="w-full h-full object-cover" />
+                          <img src={url} alt={tr('Снимка', 'Photo', 'صورة')} className="w-full h-full object-cover" />
                         </div>
                       ))}
                     </div>

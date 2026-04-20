@@ -17,6 +17,7 @@ type Incident = {
 
 export default function MyIncidentsPage() {
   const { locale } = useI18n();
+  const tr = (bg: string, en: string, ar: string) => (locale === 'ar' ? ar : locale === 'en' ? en : bg);
   const router = useRouter();
   const copy = {
     badge: locale === 'bg' ? 'Авто сигнали' : locale === 'en' ? 'Vehicle incidents' : 'بلاغات المركبات',
@@ -50,13 +51,13 @@ export default function MyIncidentsPage() {
         });
 
         if (!response.ok) {
-          throw new Error("Неуспешно зареждане на авто сигналите.");
+          throw new Error(tr("Неуспешно зареждане на авто сигналите.", "Failed to load vehicle incidents.", "فشل تحميل بلاغات المركبات."));
         }
 
         const data = (await response.json()) as Incident[];
         setIncidents(data);
       } catch (fetchError: any) {
-        setError(fetchError?.message || "Грешка при зареждане.");
+        setError(fetchError?.message || tr("Грешка при зареждане.", "Loading error.", "خطأ أثناء التحميل."));
       } finally {
         setLoading(false);
       }
@@ -66,11 +67,21 @@ export default function MyIncidentsPage() {
   }, [router]);
 
   const statusLabel: Record<string, string> = {
-    SUBMITTED: "Подаден",
-    UNDER_REVIEW: "В проверка",
-    VERIFIED: "Потвърден",
-    REJECTED: "Отхвърлен",
-    RESOLVED: "Приключен",
+    SUBMITTED: tr("Подаден", "Submitted", "تم الإرسال"),
+    UNDER_REVIEW: tr("В проверка", "Under review", "قيد المراجعة"),
+    VERIFIED: tr("Потвърден", "Verified", "تم التحقق"),
+    REJECTED: tr("Отхвърлен", "Rejected", "مرفوض"),
+    RESOLVED: tr("Приключен", "Resolved", "مغلق"),
+  };
+  const typeLabel: Record<string, string> = {
+    BLOCKING: tr("Блокиране на пътното платно", "Road blocking", "إغلاق الطريق"),
+    COLLISION: tr("Пътно-транспортно произшествие", "Road collision", "تصادم مروري"),
+    PARKING_PROBLEM: tr("Нарушено паркиране", "Illegal parking", "مشكلة في الوقوف"),
+    TRAFFIC_VIOLATION: tr("Нарушение на правилата за движение", "Traffic violation", "مخالفة مرورية"),
+    ACCIDENT: tr("Авария / Повреда", "Breakdown / damage", "عطل / ضرر"),
+    DAMAGE: tr("Нанесени материални щети", "Property damage", "أضرار مادية"),
+    THEFT_ATTEMPT: tr("Опит за кражба", "Theft attempt", "محاولة سرقة"),
+    OTHER: tr("Друго", "Other", "أخرى"),
   };
 
   const statusStyle = (status: string): React.CSSProperties => {
@@ -126,7 +137,7 @@ export default function MyIncidentsPage() {
               <div key={incident.id} className="site-card rounded-2xl p-5">
                 <div className="flex items-start justify-between gap-4 mb-3">
                   <div>
-                    <h3 className="font-bold text-[var(--s-text)]">{incident.type}</h3>
+                    <h3 className="font-bold text-[var(--s-text)]">{typeLabel[incident.type] || incident.type}</h3>
                     <p className="text-sm text-[var(--s-muted)] mt-0.5">
                       {incident.vehicle.registrationPlate} — {incident.vehicle.brand} {incident.vehicle.model}
                     </p>
@@ -139,19 +150,19 @@ export default function MyIncidentsPage() {
                 <p className="text-[var(--s-muted)] text-sm mb-3">{incident.description}</p>
 
                 <div className="flex gap-4 text-xs text-[var(--s-muted2)]">
-                  <span>📸 Снимки: {incident.photos.length}</span>
-                  <span>📅 {new Date(incident.createdAt).toLocaleDateString("bg-BG")}</span>
+                  <span>📸 {tr("Снимки", "Photos", "الصور")}: {incident.photos.length}</span>
+                  <span>📅 {new Date(incident.createdAt).toLocaleDateString(locale === 'bg' ? 'bg-BG' : locale === 'ar' ? 'ar-SA' : 'en-US')}</span>
                 </div>
 
                 {incident.verification && (
                   <div className="mt-4 rounded-xl border p-3 space-y-1"
                     style={{ background: 'rgba(6,214,160,0.06)', borderColor: 'rgba(6,214,160,0.15)' }}>
                     {incident.verification.notes && (
-                      <p className="text-sm text-[var(--s-muted)]">Бележка: {incident.verification.notes}</p>
+                      <p className="text-sm text-[var(--s-muted)]">{tr("Бележка", "Note", "ملاحظة")}: {incident.verification.notes}</p>
                     )}
                     {incident.verification.rejectionReason && (
                       <p className="text-sm mt-1" style={{ color: 'var(--s-red)' }}>
-                        Причина за отказ: {incident.verification.rejectionReason}
+                        {tr("Причина за отказ", "Rejection reason", "سبب الرفض")}: {incident.verification.rejectionReason}
                       </p>
                     )}
                   </div>

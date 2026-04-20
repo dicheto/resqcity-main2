@@ -11,6 +11,10 @@ export default function ForgotPasswordPage() {
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   const [sent, setSent] = useState(false);
+  const localizeError = (value: string) => {
+    if (value.includes('Нещо се обърка')) return t('auth.verify.failed');
+    return value;
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -43,10 +47,10 @@ export default function ForgotPasswordPage() {
             <p className="text-[10px] uppercase tracking-[0.5em] text-[var(--s-orange)] font-bold mb-3">ResQCity</p>
             <h2 className="text-2xl font-extrabold rc-display text-[var(--s-text)] mb-3">{t('auth.checkEmail')}</h2>
             <p className="text-[var(--s-muted2)] text-sm leading-relaxed mb-2">
-              Ако акаунт с имейл <strong className="text-[var(--s-orange)]">{email}</strong> съществува, ще получиш линк за смяна на парола.
+              {t('auth.forgot.sentLeadStart')} <strong className="text-[var(--s-orange)]">{email}</strong> {t('auth.forgot.sentLeadEnd')}
             </p>
             <p className="text-[var(--s-muted)] text-xs leading-relaxed mb-8">
-              Линкът е валиден 1 час. Провери и папката <strong>Нежелана поща</strong>.
+              {t('auth.forgot.sentInfo')}
             </p>
             <Link href="/auth/login"
               className="btn-site-primary w-full justify-center py-3 rounded-2xl text-sm inline-flex"
@@ -70,12 +74,12 @@ export default function ForgotPasswordPage() {
           <div className="mb-8">
             <p className="text-[10px] uppercase tracking-[0.5em] text-[var(--s-orange)] font-bold">ResQCity</p>
             <h2 className="text-2xl font-bold rc-display text-[var(--s-text)] mt-1">{t('auth.forgotPassword')}</h2>
-            <p className="text-[var(--s-muted2)] text-sm mt-2">Въведи имейла си и ще ти изпратим линк за смяна.</p>
+            <p className="text-[var(--s-muted2)] text-sm mt-2">{t('auth.forgot.lead')}</p>
           </div>
 
           {error && (
             <div className="mb-5 px-4 py-3 rounded-xl border border-[var(--s-red)]/30 bg-[var(--s-red)]/10 text-[var(--s-red)] text-sm">
-              {error}
+              {localizeError(error)}
             </div>
           )}
 
@@ -97,7 +101,7 @@ export default function ForgotPasswordPage() {
               className="btn-site-primary w-full justify-center py-3.5 rounded-2xl text-sm"
               style={{ background: 'linear-gradient(135deg, #f97316, #ea580c)' }}
             >
-              {loading ? 'Изпращане...' : 'Изпрати линк за смяна'}
+              {loading ? t('auth.forgot.sending') : t('auth.forgot.sendLink')}
             </button>
           </form>
 

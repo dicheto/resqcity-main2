@@ -45,18 +45,34 @@ function statusIcon(s: string) {
   }
 }
 
-const DISTRICTS = ['Средец','Лозенец','Студентски','Красно село','Надежда','Люлин','Витоша','Оборище','Подуяне','Слатина','Изгрев','Младост','Връбница','Нови Искър','Кремиковци'];
+const DISTRICTS = [
+  { bg: 'Средец', en: 'Sredets', ar: 'سريدتس' },
+  { bg: 'Лозенец', en: 'Lozenets', ar: 'لوزينتس' },
+  { bg: 'Студентски', en: 'Studentski', ar: 'ستودينتسكي' },
+  { bg: 'Красно село', en: 'Krasno Selo', ar: 'كراسنو سيلو' },
+  { bg: 'Надежда', en: 'Nadezhda', ar: 'ناديجدا' },
+  { bg: 'Люлин', en: 'Lyulin', ar: 'ليولين' },
+  { bg: 'Витоша', en: 'Vitosha', ar: 'فيتوشا' },
+  { bg: 'Оборище', en: 'Oborishte', ar: 'أوبوريشته' },
+  { bg: 'Подуяне', en: 'Poduyane', ar: 'بودوياني' },
+  { bg: 'Слатина', en: 'Slatina', ar: 'سلاتينا' },
+  { bg: 'Изгрев', en: 'Izgrev', ar: 'إزغريف' },
+  { bg: 'Младост', en: 'Mladost', ar: 'ملادوست' },
+  { bg: 'Връбница', en: 'Vrabnitsa', ar: 'فرابنيتسا' },
+  { bg: 'Нови Искър', en: 'Novi Iskar', ar: 'نوفي إسكار' },
+  { bg: 'Кремиковци', en: 'Kremikovtsi', ar: 'كريميكوفتسي' },
+];
 const CATEGORIES = [
-  { icon: '🚨', label: 'Обществен ред',   bg: 'rgba(255,71,87,0.10)'  },
-  { icon: '🚗', label: 'Движение',         bg: 'rgba(255,107,43,0.10)' },
-  { icon: '🅿️', label: 'Паркиране',       bg: 'rgba(255,167,38,0.10)' },
-  { icon: '🏙️', label: 'Инфраструктура',  bg: 'rgba(139,92,246,0.10)' },
-  { icon: '⚡', label: 'Комунални',        bg: 'rgba(6,214,160,0.10)'  },
-  { icon: '🌳', label: 'Зелени площи',     bg: 'rgba(34,197,94,0.10)'  },
-  { icon: '♻️', label: 'Отпадъци',         bg: 'rgba(20,184,166,0.10)' },
-  { icon: '🏥', label: 'Социални',         bg: 'rgba(99,102,241,0.10)' },
-  { icon: '🐕', label: 'Животни',          bg: 'rgba(245,158,11,0.10)' },
-  { icon: '🔐', label: 'Безопасност',      bg: 'rgba(139,92,246,0.10)' },
+  { icon: '🚨', key: 'publicOrder', bg: 'rgba(255,71,87,0.10)'  },
+  { icon: '🚗', key: 'traffic', bg: 'rgba(255,107,43,0.10)' },
+  { icon: '🅿️', key: 'parking', bg: 'rgba(255,167,38,0.10)' },
+  { icon: '🏙️', key: 'infrastructure', bg: 'rgba(139,92,246,0.10)' },
+  { icon: '⚡', key: 'utilities', bg: 'rgba(6,214,160,0.10)'  },
+  { icon: '🌳', key: 'greenAreas', bg: 'rgba(34,197,94,0.10)'  },
+  { icon: '♻️', key: 'waste', bg: 'rgba(20,184,166,0.10)' },
+  { icon: '🏥', key: 'social', bg: 'rgba(99,102,241,0.10)' },
+  { icon: '🐕', key: 'animals', bg: 'rgba(245,158,11,0.10)' },
+  { icon: '🔐', key: 'safety', bg: 'rgba(139,92,246,0.10)' },
 ];
 
 function Ticker({ items }: { items: RecentReport[] }) {
@@ -135,10 +151,10 @@ export default function HomePage() {
   const tr = (bg: string, en: string, ar: string) => (locale === 'ar' ? ar : locale === 'en' ? en : bg);
   const [stats, setStats] = useState<StatsData | null>(null);
   const features = [
-    { icon: MapPin, grad: 'from-orange-500 to-rose-500', glow: 'rgba(255,107,43,0.28)', badge: 'LIVE', title: tr('Интерактивна карта', 'Interactive map', 'خريطة تفاعلية'), desc: tr('Виж всички активни сигнали в реално време на интерактивна карта. Филтрирай по район и категория.', 'See all active reports in real time on an interactive map. Filter by district and category.', 'اعرض جميع البلاغات النشطة لحظيًا على خريطة تفاعلية. صَفِّ حسب الحي والفئة.'), href: '/map' },
+    { icon: MapPin, grad: 'from-orange-500 to-rose-500', glow: 'rgba(255,107,43,0.28)', badge: tr('НА ЖИВО', 'LIVE', 'مباشر'), title: tr('Интерактивна карта', 'Interactive map', 'خريطة تفاعلية'), desc: tr('Виж всички активни сигнали в реално време на интерактивна карта. Филтрирай по район и категория.', 'See all active reports in real time on an interactive map. Filter by district and category.', 'اعرض جميع البلاغات النشطة لحظيًا على خريطة تفاعلية. صَفِّ حسب الحي والفئة.'), href: '/map' },
     { icon: FileText, grad: 'from-violet-500 to-indigo-600', glow: 'rgba(139,92,246,0.28)', badge: tr('60 СЕК', '60 SEC', '60 ثانية'), title: tr('Подай сигнал', 'Submit report', 'إرسال بلاغ'), desc: tr('Снимка, локация, описание — и готово. Системата автоматично насочва сигнала към правилния орган.', 'Photo, location, description - done. The system automatically routes the report to the right authority.', 'صورة وموقع ووصف — وتم. النظام يوجّه البلاغ تلقائيًا للجهة المناسبة.'), href: '/dashboard/new-report' },
     { icon: Activity, grad: 'from-teal-500 to-cyan-500', glow: 'rgba(6,214,160,0.28)', badge: tr('АВТО', 'AUTO', 'تلقائي'), title: tr('Следи статуса', 'Track status', 'تتبع الحالة'), desc: tr('Следи как сигналът ти се обработва — до пълното му решаване. Push известия включени.', 'Track your report processing until full resolution. Push notifications included.', 'تابع معالجة بلاغك حتى الحل الكامل. إشعارات فورية مفعلة.'), href: '/dashboard' },
-    { icon: ShieldCheck, grad: 'from-amber-500 to-orange-500', glow: 'rgba(245,158,11,0.28)', badge: 'MFA', title: tr('Сигурно & Бързо', 'Secure & Fast', 'آمن وسريع'), desc: tr('JWT, MFA и КЕП интеграция за граждани, общински служители и диспечери. Пасключове поддържани.', 'JWT, MFA and e-sign integration for citizens, municipal staff and dispatchers. Passkeys supported.', 'تكامل JWT وMFA والتوقيع الإلكتروني للمواطنين والموظفين والمشرفين. دعم مفاتيح المرور متاح.'), href: '/auth/login' },
+    { icon: ShieldCheck, grad: 'from-amber-500 to-orange-500', glow: 'rgba(245,158,11,0.28)', badge: tr('СИЛНА ЗАЩИТА', 'MFA', 'حماية قوية'), title: tr('Сигурно & Бързо', 'Secure & Fast', 'آمن وسريع'), desc: tr('JWT, MFA и КЕП интеграция за граждани, общински служители и диспечери. Пасключове поддържани.', 'JWT, MFA and e-sign integration for citizens, municipal staff and dispatchers. Passkeys supported.', 'تكامل JWT وMFA والتوقيع الإلكتروني للمواطنين والموظفين والمشرفين. دعم مفاتيح المرور متاح.'), href: '/auth/login' },
   ];
 
   useEffect(() => {
@@ -280,7 +296,7 @@ export default function HomePage() {
               <h2 className="rc-display font-extrabold text-4xl md:text-5xl text-[var(--s-text)] leading-tight mb-5">{tr('Всички', 'All', 'كل')}<br /><span className="grad-mixed">{tr('24 района', '24 districts', '24 حيًا')}</span><br />{tr('на София', 'of Sofia', 'في صوفيا')}</h2>
               <p className="text-[var(--s-muted2)] leading-relaxed mb-8 max-w-md text-sm">{tr('Независимо дали живееш в Центъра или Нови Искър — подаденият сигнал достига до правилния орган за секунди.', 'Whether you live in the center or Novi Iskar, your report reaches the right authority in seconds.', 'سواء كنت في المركز أو نوفي إسكار، يصل بلاغك للجهة المناسبة خلال ثوانٍ.')}</p>
               <div className="grid grid-cols-2 gap-4">
-                {[{ n: '1.3 М', l: tr('Жители на София', 'Sofia residents', 'سكان صوفيا') }, { n: '127', l: tr('Активни диспечера', 'Active dispatchers', 'موجّهون نشطون') }, { n: '98%', l: tr('Покритие на мрежата', 'Network coverage', 'تغطية الشبكة') }, { n: '24/7', l: tr('Дежурен режим', 'Duty mode', 'وضع المناوبة') }].map(({ n, l }) => (
+                {[{ n: tr('1.3 М', '1.3M', '1.3 م'), l: tr('Жители на София', 'Sofia residents', 'سكان صوفيا') }, { n: '127', l: tr('Активни диспечера', 'Active dispatchers', 'موجّهون نشطون') }, { n: '98%', l: tr('Покритие на мрежата', 'Network coverage', 'تغطية الشبكة') }, { n: '24/7', l: tr('Дежурен режим', 'Duty mode', 'وضع المناوبة') }].map(({ n, l }) => (
                   <div key={l} className="site-card p-5 rounded-2xl">
                     <p className="text-2xl font-extrabold rc-display grad-orange">{n}</p>
                     <p className="text-xs text-[var(--s-muted)] mt-1">{l}</p>
@@ -292,7 +308,7 @@ export default function HomePage() {
               <p className="text-[10px] font-semibold uppercase tracking-[0.5em] text-[var(--s-muted)] mb-5">{tr('Активни квартали', 'Active districts', 'أحياء نشطة')}</p>
               <div className="flex flex-wrap gap-2">
                 {DISTRICTS.map((d, i) => (
-                  <div key={d} className="px-3 py-2 rounded-xl border border-[var(--s-border)] bg-[var(--s-surface)] text-sm text-[var(--s-muted2)] hover:border-[var(--s-orange)]/40 hover:text-[var(--s-text)] transition-all duration-200 cursor-default animate-fade-up" style={{ animationDelay: `${i * 35}ms`, animationFillMode: 'backwards' }}>{d}</div>
+                  <div key={d.bg} className="px-3 py-2 rounded-xl border border-[var(--s-border)] bg-[var(--s-surface)] text-sm text-[var(--s-muted2)] hover:border-[var(--s-orange)]/40 hover:text-[var(--s-text)] transition-all duration-200 cursor-default animate-fade-up" style={{ animationDelay: `${i * 35}ms`, animationFillMode: 'backwards' }}>{tr(d.bg, d.en, d.ar)}</div>
                 ))}
                 <div className="px-3 py-2 rounded-xl border border-dashed border-[var(--s-violet)]/30 text-xs text-[var(--s-violet)]">{tr('+9 още', '+9 more', '+9 إضافية')}</div>
               </div>
@@ -341,20 +357,20 @@ export default function HomePage() {
             <Link href="/dashboard/new-report" className="btn-site-primary self-start text-xs px-6 py-3">{tr('Подай сигнал', 'Submit report', 'إرسال بلاغ')} <ArrowRight size={13} /></Link>
           </div>
           <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-3">
-            {CATEGORIES.map(({ icon, label, bg }, i) => (
-              <div key={label} className="flex flex-col items-center gap-2 p-4 rounded-2xl border border-[var(--s-border)] hover:border-[var(--s-orange)]/30 hover:scale-105 transition-all duration-200 cursor-pointer text-center animate-fade-up" style={{ background: bg, animationDelay: `${i * 45}ms`, animationFillMode: 'backwards' }}>
+            {CATEGORIES.map(({ icon, key, bg }, i) => (
+              <div key={key} className="flex flex-col items-center gap-2 p-4 rounded-2xl border border-[var(--s-border)] hover:border-[var(--s-orange)]/30 hover:scale-105 transition-all duration-200 cursor-pointer text-center animate-fade-up" style={{ background: bg, animationDelay: `${i * 45}ms`, animationFillMode: 'backwards' }}>
                 <span className="text-2xl">{icon}</span>
                 <span className="text-xs font-medium text-[var(--s-muted2)]">
-                  {label === 'Обществен ред' ? tr('Обществен ред', 'Public order', 'النظام العام') :
-                    label === 'Движение' ? tr('Движение', 'Traffic', 'الحركة') :
-                    label === 'Паркиране' ? tr('Паркиране', 'Parking', 'الوقوف') :
-                    label === 'Инфраструктура' ? tr('Инфраструктура', 'Infrastructure', 'البنية التحتية') :
-                    label === 'Комунални' ? tr('Комунални', 'Utilities', 'الخدمات') :
-                    label === 'Зелени площи' ? tr('Зелени площи', 'Green areas', 'المساحات الخضراء') :
-                    label === 'Отпадъци' ? tr('Отпадъци', 'Waste', 'النفايات') :
-                    label === 'Социални' ? tr('Социални', 'Social', 'اجتماعي') :
-                    label === 'Животни' ? tr('Животни', 'Animals', 'الحيوانات') :
-                    label === 'Безопасност' ? tr('Безопасност', 'Safety', 'السلامة') : label}
+                  {key === 'publicOrder' ? tr('Обществен ред', 'Public order', 'النظام العام') :
+                    key === 'traffic' ? tr('Движение', 'Traffic', 'الحركة') :
+                    key === 'parking' ? tr('Паркиране', 'Parking', 'الوقوف') :
+                    key === 'infrastructure' ? tr('Инфраструктура', 'Infrastructure', 'البنية التحتية') :
+                    key === 'utilities' ? tr('Комунални', 'Utilities', 'الخدمات') :
+                    key === 'greenAreas' ? tr('Зелени площи', 'Green areas', 'المساحات الخضراء') :
+                    key === 'waste' ? tr('Отпадъци', 'Waste', 'النفايات') :
+                    key === 'social' ? tr('Социални', 'Social', 'اجتماعي') :
+                    key === 'animals' ? tr('Животни', 'Animals', 'الحيوانات') :
+                    tr('Безопасност', 'Safety', 'السلامة')}
                 </span>
               </div>
             ))}

@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react';
 import { Bell, X, CheckCircle, AlertCircle, Info } from 'lucide-react';
 import { useWebSocket } from '@/hooks/useWebSocket';
+import { useI18n } from '@/i18n';
 
 interface Notification {
   id: string;
@@ -15,6 +16,8 @@ interface Notification {
 }
 
 export default function AdminNotifications() {
+  const { locale } = useI18n();
+  const tr = (bg: string, en: string, ar: string) => (locale === 'ar' ? ar : locale === 'en' ? en : bg);
   const [notifications, setNotifications] = useState<Notification[]>([]);
   const [isOpen, setIsOpen] = useState(false);
   const { isConnected, joinAdminRoom, onReportUpdate } = useWebSocket();
@@ -34,7 +37,7 @@ export default function AdminNotifications() {
       const notification: Notification = {
         id: `${data.reportId}-${Date.now()}`,
         type: data.newStatus === 'REJECTED' ? 'error' : data.newStatus === 'RESOLVED' ? 'success' : 'info',
-        title: `Статус променен: ${data.statusLabel}`,
+        title: `${tr('Статус променен', 'Status updated', 'تم تحديث الحالة')}: ${data.statusLabel}`,
         message: `${data.title} - ${data.category}`,
         reportId: data.reportId,
         timestamp: data.timestamp || new Date().toISOString(),
@@ -90,14 +93,14 @@ export default function AdminNotifications() {
       {isOpen && (
         <div className="absolute right-0 top-full mt-2 w-96 max-h-[600px] overflow-y-auto data-card rounded-2xl shadow-2xl border border-[var(--a-border)] z-50">
           <div className="sticky top-0 bg-[var(--a-surface1)] p-4 border-b border-[var(--a-border)] flex items-center justify-between">
-            <h3 className="font-bold admin-text">Уведомления</h3>
+            <h3 className="font-bold admin-text">{tr('Уведомления', 'Notifications', 'الإشعارات')}</h3>
             <div className="flex items-center gap-2">
               {notifications.length > 0 && (
                 <button
                   onClick={clearAll}
                   className="text-xs admin-muted hover:text-violet-400 transition-colors"
                 >
-                  Изчисти всички
+                  {tr('Изчисти всички', 'Clear all', 'مسح الكل')}
                 </button>
               )}
               <button
@@ -113,7 +116,7 @@ export default function AdminNotifications() {
             {notifications.length === 0 ? (
               <div className="py-8 text-center admin-muted text-sm">
                 <Bell size={32} className="mx-auto mb-2 opacity-30" />
-                <p>Няма нови уведомления</p>
+                <p>{tr('Няма нови уведомления', 'No new notifications', 'لا توجد إشعارات جديدة')}</p>
               </div>
             ) : (
               <div className="space-y-2">
@@ -135,12 +138,12 @@ export default function AdminNotifications() {
                         </p>
                         {notification.note && (
                           <div className="mt-2 p-2 rounded-lg bg-[var(--a-surface1)] border border-[var(--a-border)]">
-                            <p className="text-xs admin-muted mb-1 font-semibold">Бележка:</p>
+                            <p className="text-xs admin-muted mb-1 font-semibold">{tr('Бележка:', 'Note:', 'ملاحظة:')}</p>
                             <p className="text-xs admin-text">{notification.note}</p>
                           </div>
                         )}
                         <p className="text-[10px] admin-muted mt-2">
-                          {new Date(notification.timestamp).toLocaleString('bg-BG')}
+                          {new Date(notification.timestamp).toLocaleString(locale === 'bg' ? 'bg-BG' : locale === 'en' ? 'en-US' : 'ar-SA')}
                         </p>
                       </div>
                       <button
@@ -159,10 +162,10 @@ export default function AdminNotifications() {
           {/* WebSocket Status */}
           <div className="sticky bottom-0 bg-[var(--a-surface1)] p-3 border-t border-[var(--a-border)]">
             <div className="flex items-center justify-between text-xs">
-              <span className="admin-muted">Realtime статус:</span>
+              <span className="admin-muted">{tr('Realtime статус:', 'Realtime status:', 'حالة الوقت الفعلي:')}</span>
               <span className={`flex items-center gap-1 font-semibold ${isConnected ? 'text-green-500' : 'text-red-500'}`}>
                 <span className={`w-2 h-2 rounded-full ${isConnected ? 'bg-green-500' : 'bg-red-500'} animate-pulse`}></span>
-                {isConnected ? 'Свързан' : 'Изключен'}
+                {isConnected ? tr('Свързан', 'Connected', 'متصل') : tr('Изключен', 'Disconnected', 'غير متصل')}
               </span>
             </div>
           </div>
@@ -187,7 +190,7 @@ export default function AdminNotifications() {
                 </p>
                 {notification.note && (
                   <p className="mt-2 text-xs admin-text bg-[var(--a-surface2)] p-2 rounded-lg">
-                    <span className="font-semibold">Бележка:</span> {notification.note}
+                    <span className="font-semibold">{tr('Бележка:', 'Note:', 'ملاحظة:')}</span> {notification.note}
                   </p>
                 )}
               </div>

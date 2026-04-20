@@ -48,6 +48,7 @@ interface Category {
 
 export default function InstitutionsManagementPage() {
   const { locale } = useI18n();
+  const tr = (bg: string, en: string, ar: string) => (locale === 'ar' ? ar : locale === 'en' ? en : bg);
   const copy = {
     loading: locale === 'bg' ? 'Зареждане...' : locale === 'en' ? 'Loading...' : 'جار التحميل...',
     admin: locale === 'bg' ? 'Администрация' : locale === 'en' ? 'Administration' : 'الإدارة',
@@ -100,7 +101,7 @@ export default function InstitutionsManagementPage() {
       setInstitutions(response.data.institutions || []);
     } catch (err) {
       console.error('Failed to fetch institutions:', err);
-      setError('Грешка при зареждане на институциите');
+      setError(tr('Грешка при зареждане на институциите', 'Failed to load institutions', 'تعذر تحميل المؤسسات'));
     } finally {
       setLoading(false);
     }
@@ -182,7 +183,7 @@ export default function InstitutionsManagementPage() {
       setSuccessMessage(null);
 
       if (!formData.name.trim()) {
-        setError('Името на институцията е задължително');
+        setError(tr('Името на институцията е задължително', 'Institution name is required', 'اسم المؤسسة مطلوب'));
         return;
       }
 
@@ -190,12 +191,12 @@ export default function InstitutionsManagementPage() {
         await axios.post('/api/admin/institutions', formData, {
           headers: getAuthHeaders(),
         });
-        setSuccessMessage('Институцията е добавена успешно');
+        setSuccessMessage(tr('Институцията е добавена успешно', 'Institution added successfully', 'تمت إضافة المؤسسة بنجاح'));
       } else if (editingId) {
         await axios.patch(`/api/admin/institutions/${editingId}`, formData, {
           headers: getAuthHeaders(),
         });
-        setSuccessMessage('Институцията е обновена успешно');
+        setSuccessMessage(tr('Институцията е обновена успешно', 'Institution updated successfully', 'تم تحديث المؤسسة بنجاح'));
       }
 
       await fetchInstitutions();
@@ -204,12 +205,12 @@ export default function InstitutionsManagementPage() {
       setTimeout(() => setSuccessMessage(null), 3000);
     } catch (err: any) {
       console.error('Save error:', err);
-      setError(err.response?.data?.error || 'Грешка при запазване');
+      setError(err.response?.data?.error || tr('Грешка при запазване', 'Save failed', 'فشل الحفظ'));
     }
   };
 
   const handleDelete = async (id: string) => {
-    if (!confirm('Сигурни ли сте, че искате да изтриете тази институция?')) {
+    if (!confirm(tr('Сигурни ли сте, че искате да изтриете тази институция?', 'Are you sure you want to delete this institution?', 'هل أنت متأكد أنك تريد حذف هذه المؤسسة؟'))) {
       return;
     }
 
@@ -222,14 +223,14 @@ export default function InstitutionsManagementPage() {
       if (response.data.softDelete) {
         setSuccessMessage(response.data.message);
       } else {
-        setSuccessMessage('Институцията е изтрита успешно');
+        setSuccessMessage(tr('Институцията е изтрита успешно', 'Institution deleted successfully', 'تم حذف المؤسسة بنجاح'));
       }
 
       await fetchInstitutions();
       setTimeout(() => setSuccessMessage(null), 3000);
     } catch (err: any) {
       console.error('Delete error:', err);
-      setError(err.response?.data?.error || 'Грешка при изтриване');
+      setError(err.response?.data?.error || tr('Грешка при изтриване', 'Delete failed', 'فشل الحذف'));
     }
   };
 
@@ -293,34 +294,34 @@ export default function InstitutionsManagementPage() {
           className="rounded-2xl border border-[var(--a-border)] admin-input px-4 py-2.5 text-xs uppercase tracking-[0.3em] admin-muted hover:border-[var(--a-accent2)] transition flex items-center gap-2"
         >
           {showInactive ? <EyeOff size={16} /> : <Eye size={16} />}
-          {showInactive ? 'Скрий неактивни' : 'Покажи неактивни'}
+          {showInactive ? tr('Скрий неактивни', 'Hide inactive', 'إخفاء غير النشطة') : tr('Покажи неактивни', 'Show inactive', 'إظهار غير النشطة')}
         </button>
       </div>
 
       {(isAdding || editingId) && (
         <div className="mb-6 rounded-3xl data-card p-6 border-[var(--a-accent2)] border-2">
           <h3 className="text-xl font-semibold mb-5 admin-text">
-            {isAdding ? 'Добави нова институция' : 'Редактирай институция'}
+            {isAdding ? tr('Добави нова институция', 'Add new institution', 'إضافة مؤسسة جديدة') : tr('Редактирай институция', 'Edit institution', 'تعديل المؤسسة')}
           </h3>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
             <div>
               <label className="block text-xs uppercase tracking-[0.3em] admin-muted mb-2">
-                Ime на институция <span className="text-red-400">*</span>
+                {tr('Име на институция', 'Institution name', 'اسم المؤسسة')} <span className="text-red-400">*</span>
               </label>
               <input
                 type="text"
                 value={formData.name}
                 onChange={(e) => setFormData({ ...formData, name: e.target.value })}
                 className="w-full admin-input rounded-2xl"
-                placeholder="Например: МВР София"
+                placeholder={tr('Например: МВР София', 'Example: Sofia Police Department', 'مثال: شرطة صوفيا')}
               />
             </div>
 
             <div>
               <label className="block text-xs uppercase tracking-[0.3em] admin-muted mb-2 flex items-center gap-2">
                 <Mail size={14} />
-                Имейл
+                {tr('Имейл', 'Email', 'البريد الإلكتروني')}
               </label>
               <input
                 type="email"
@@ -334,7 +335,7 @@ export default function InstitutionsManagementPage() {
             <div>
               <label className="block text-xs uppercase tracking-[0.3em] admin-muted mb-2 flex items-center gap-2">
                 <Phone size={14} />
-                Телефон
+                {tr('Телефон', 'Phone', 'الهاتف')}
               </label>
               <input
                 type="tel"
@@ -348,20 +349,20 @@ export default function InstitutionsManagementPage() {
             <div>
               <label className="block text-xs uppercase tracking-[0.3em] admin-muted mb-2 flex items-center gap-2">
                 <FileText size={14} />
-                Бележки
+                {tr('Бележки', 'Notes', 'ملاحظات')}
               </label>
               <input
                 type="text"
                 value={formData.notes}
                 onChange={(e) => setFormData({ ...formData, notes: e.target.value })}
                 className="w-full admin-input rounded-2xl"
-                placeholder="Допълнителна информация"
+                placeholder={tr('Допълнителна информация', 'Additional information', 'معلومات إضافية')}
               />
             </div>
           </div>
 
           <div className="mb-5">
-            <label className="block text-xs uppercase tracking-[0.3em] admin-muted mb-2">Категории</label>
+            <label className="block text-xs uppercase tracking-[0.3em] admin-muted mb-2">{tr('Категории', 'Categories', 'الفئات')}</label>
             <div className="grid grid-cols-2 md:grid-cols-3 gap-2 max-h-48 overflow-y-auto p-2 rounded-2xl border border-[var(--a-border)] admin-input">
               {categories.map((category) => (
                 <label
@@ -381,10 +382,10 @@ export default function InstitutionsManagementPage() {
           </div>
 
           <div className="mb-5">
-            <label className="block text-xs uppercase tracking-[0.3em] admin-muted mb-2">Свързани институционални акаунти</label>
+            <label className="block text-xs uppercase tracking-[0.3em] admin-muted mb-2">{tr('Свързани институционални акаунти', 'Linked institution accounts', 'حسابات المؤسسة المرتبطة')}</label>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-2 max-h-48 overflow-y-auto p-2 rounded-2xl border border-[var(--a-border)] admin-input">
               {institutionAccounts.length === 0 && (
-                <p className="text-xs admin-muted px-2 py-1">Няма регистрирани институционални акаунти.</p>
+                <p className="text-xs admin-muted px-2 py-1">{tr('Няма регистрирани институционални акаунти.', 'No registered institution accounts.', 'لا توجد حسابات مؤسسة مسجلة.')}</p>
               )}
               {institutionAccounts.map((account) => (
                 <label
@@ -405,7 +406,7 @@ export default function InstitutionsManagementPage() {
                     className="w-4 h-4 accent-[var(--a-accent2)]"
                   />
                   <span>{account.email}</span>
-                  {!account.emailVerified && <span className="text-[10px] text-amber-400">(непотвърден)</span>}
+                  {!account.emailVerified && <span className="text-[10px] text-amber-400">{tr('(непотвърден)', '(unverified)', '(غير مؤكد)')}</span>}
                 </label>
               ))}
             </div>
@@ -415,7 +416,7 @@ export default function InstitutionsManagementPage() {
             <div className="flex items-center justify-between mb-2">
               <label className="block text-xs uppercase tracking-[0.3em] admin-muted flex items-center gap-2">
                 <MapPin size={14} />
-                Местоположение
+                {tr('Местоположение', 'Location', 'الموقع')}
               </label>
               <button
                 type="button"
@@ -423,7 +424,7 @@ export default function InstitutionsManagementPage() {
                 className="text-xs px-3 py-1.5 rounded-xl border border-[var(--a-border)] admin-muted hover:border-[var(--a-accent2)] transition flex items-center gap-1.5"
               >
                 <MapPin size={12} />
-                {showMap ? 'Скрий картата' : 'Избери от карта'}
+                {showMap ? tr('Скрий картата', 'Hide map', 'إخفاء الخريطة') : tr('Избери от карта', 'Pick from map', 'اختر من الخريطة')}
               </button>
             </div>
             {formData.latitude != null && formData.longitude != null && !showMap && (
@@ -446,14 +447,14 @@ export default function InstitutionsManagementPage() {
               className="rounded-full bg-emerald-600 text-white px-5 py-2.5 text-xs uppercase tracking-[0.35em] hover:bg-emerald-700 transition flex items-center gap-2"
             >
               <Save size={16} />
-              Запази
+              {tr('Запази', 'Save', 'حفظ')}
             </button>
             <button
               onClick={handleCancel}
               className="rounded-2xl border border-[var(--a-border)] admin-input px-5 py-2.5 text-xs uppercase tracking-[0.3em] admin-muted hover:border-[var(--a-accent2)] transition flex items-center gap-2"
             >
               <X size={16} />
-              Откажи
+              {tr('Откажи', 'Cancel', 'إلغاء')}
             </button>
           </div>
         </div>
@@ -462,7 +463,7 @@ export default function InstitutionsManagementPage() {
       <div className="grid gap-4">
         {filteredInstitutions.length === 0 ? (
           <div className="text-center py-12 admin-muted">
-            Няма {showInactive ? '' : 'активни '}институции
+            {showInactive ? tr('Няма институции', 'No institutions', 'لا توجد مؤسسات') : tr('Няма активни институции', 'No active institutions', 'لا توجد مؤسسات نشطة')}
           </div>
         ) : (
           filteredInstitutions.map((institution) => (
@@ -478,7 +479,7 @@ export default function InstitutionsManagementPage() {
                     {institution.name}
                     {!institution.active && (
                       <span className="text-xs px-2 py-1 rounded-full border border-[var(--a-border)] admin-muted">
-                        Неактивна
+                        {tr('Неактивна', 'Inactive', 'غير نشطة')}
                       </span>
                     )}
                   </h3>
@@ -486,11 +487,11 @@ export default function InstitutionsManagementPage() {
                   <div className="grid grid-cols-1 md:grid-cols-3 gap-3 text-sm">
                     <div className="flex items-center gap-2 admin-muted">
                       <Mail size={15} className="text-blue-400 flex-shrink-0" />
-                      <span>{institution.email || 'Няма имейл'}</span>
+                      <span>{institution.email || tr('Няма имейл', 'No email', 'لا يوجد بريد إلكتروني')}</span>
                     </div>
                     <div className="flex items-center gap-2 admin-muted">
                       <Phone size={15} className="text-emerald-400 flex-shrink-0" />
-                      <span>{institution.phone || 'Няма телефон'}</span>
+                      <span>{institution.phone || tr('Няма телефон', 'No phone', 'لا يوجد هاتف')}</span>
                     </div>
                     {institution.notes && (
                       <div className="flex items-center gap-2 admin-muted">
@@ -508,7 +509,7 @@ export default function InstitutionsManagementPage() {
 
                   {institution.categoryMappings && institution.categoryMappings.length > 0 && (
                     <div className="mt-3">
-                      <span className="text-xs uppercase tracking-[0.3em] admin-muted mr-2">Категории:</span>
+                      <span className="text-xs uppercase tracking-[0.3em] admin-muted mr-2">{tr('Категории:', 'Categories:', 'الفئات:')}</span>
                       <div className="flex flex-wrap gap-2 mt-2">
                         {institution.categoryMappings.map((cm) => (
                           <span
@@ -524,7 +525,7 @@ export default function InstitutionsManagementPage() {
 
                   {institution.accountLinks && institution.accountLinks.length > 0 && (
                     <div className="mt-3">
-                      <span className="text-xs uppercase tracking-[0.3em] admin-muted mr-2">Свързани акаунти:</span>
+                      <span className="text-xs uppercase tracking-[0.3em] admin-muted mr-2">{tr('Свързани акаунти:', 'Linked accounts:', 'الحسابات المرتبطة:')}</span>
                       <div className="flex flex-wrap gap-2 mt-2">
                         {institution.accountLinks.map((link) => (
                           <span
@@ -544,7 +545,7 @@ export default function InstitutionsManagementPage() {
                     onClick={() => handleEdit(institution)}
                     disabled={isAdding || editingId !== null}
                     className="p-2 text-blue-400 hover:bg-[var(--a-surface2)] rounded-xl disabled:opacity-40 disabled:cursor-not-allowed transition"
-                    title="Редактирай"
+                    title={tr('Редактирай', 'Edit', 'تعديل')}
                   >
                     <Edit2 size={18} />
                   </button>
@@ -552,7 +553,7 @@ export default function InstitutionsManagementPage() {
                     onClick={() => handleDelete(institution.id)}
                     disabled={isAdding || editingId !== null}
                     className="p-2 text-red-400 hover:bg-[var(--a-surface2)] rounded-xl disabled:opacity-40 disabled:cursor-not-allowed transition"
-                    title="Изтрий"
+                    title={tr('Изтрий', 'Delete', 'حذف')}
                   >
                     <Trash2 size={18} />
                   </button>

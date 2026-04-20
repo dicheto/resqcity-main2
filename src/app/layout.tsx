@@ -12,11 +12,11 @@ const manrope = Manrope({ subsets: ['latin', 'cyrillic'], variable: '--font-body
 
 export const metadata: Metadata = {
   title: {
-    default: 'ResQCity - Платформа за управление на градски проблеми',
+    default: 'ResQCity - Urban issue management platform',
     template: '%s | ResQCity'
   },
-  description: 'Докладвайте и управлявайте градски проблеми в реално време. Интерактивна карта, автоматично насочване към органите и проследяване на статуса.',
-  keywords: ['градски проблеми', 'сигнали', 'Благоевград', 'управление', 'карта', 'докладване', 'комунални услуги', 'ResQCity'],
+  description: 'Report and manage urban issues in real time with interactive maps, automatic routing, and status tracking.',
+  keywords: ['urban issues', 'reports', 'city services', 'management', 'map', 'tracking', 'municipal services', 'ResQCity'],
   authors: [{ name: 'ResQCity Team' }],
   creator: 'ResQCity',
   publisher: 'ResQCity',
@@ -31,24 +31,24 @@ export const metadata: Metadata = {
   },
   openGraph: {
     type: 'website',
-    locale: 'bg_BG',
+    locale: 'en_US',
     url: '/',
-    title: 'ResQCity - Платформа за управление на градски проблеми',
-    description: 'Докладвайте и управлявайте градски проблеми в реално време. Интерактивна карта, автоматично насочване към органите и проследяване на статуса.',
+    title: 'ResQCity - Urban issue management platform',
+    description: 'Report and manage urban issues in real time with interactive maps, automatic routing, and status tracking.',
     siteName: 'ResQCity',
     images: [
       {
         url: '/og-image.svg',
         width: 1200,
         height: 630,
-        alt: 'ResQCity - Управление на градски проблеми',
+        alt: 'ResQCity - Urban issue management',
       },
     ],
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'ResQCity - Платформа за управление на градски проблеми',
-    description: 'Докладвайте и управлявайте градски проблеми в реално време.',
+    title: 'ResQCity - Urban issue management platform',
+    description: 'Report and manage urban issues in real time.',
     images: ['/og-image.svg'],
     creator: '@resqcity',
   },
@@ -116,7 +116,7 @@ export default function RootLayout({
               "@context": "https://schema.org",
               "@type": "WebSite",
               "name": "ResQCity",
-              "description": "Платформа за докладване и управление на градски проблеми",
+              "description": "Platform for reporting and managing urban issues",
               "url": process.env.NEXT_PUBLIC_APP_URL || "https://resq.tcom-sf.org",
               "publisher": {
                 "@type": "Organization",

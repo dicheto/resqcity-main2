@@ -8,7 +8,7 @@ import { useI18n } from '@/i18n';
 export default function InstitutionRegisterPage() {
   const { locale } = useI18n();
   const copy = {
-    portal: locale === 'ar' ? 'بوابة المؤسسات' : locale === 'en' ? 'Institution Portal' : 'Institution Portal',
+    portal: locale === 'ar' ? 'بوابة المؤسسات' : locale === 'en' ? 'Institution Portal' : 'Институционален портал',
     title: locale === 'ar' ? 'تسجيل مؤسسة' : locale === 'en' ? 'Institution registration' : 'Регистрация на институция',
     subtitle:
       locale === 'ar'
@@ -63,7 +63,7 @@ export default function InstitutionRegisterPage() {
           <input
             type="email"
             className="site-input"
-            placeholder="institution@agency.bg"
+            placeholder={locale === 'ar' ? 'institution@agency.bg' : locale === 'en' ? 'institution@agency.bg' : 'institution@agency.bg'}
             required
             value={email}
             onChange={(e) => setEmail(e.target.value)}

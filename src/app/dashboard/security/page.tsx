@@ -16,12 +16,13 @@ type PasskeyItem = {
 
 export default function SecurityPage() {
   const { locale } = useI18n();
+  const tr = (bg: string, en: string, ar: string) => (locale === 'ar' ? ar : locale === 'en' ? en : bg);
   const [totpEnabled, setTotpEnabled] = useState(false);
   const copy = {
     security: locale === 'bg' ? 'Сигурност' : locale === 'en' ? 'Security' : 'الأمان',
     title: locale === 'bg' ? 'Passkey и Google Authenticator' : locale === 'en' ? 'Passkey and Google Authenticator' : 'مفتاح المرور و Google Authenticator',
     subtitle: locale === 'bg' ? 'Добави модерен вход с Passkey и двуфакторна защита чрез Google Authenticator.' : locale === 'en' ? 'Add modern sign-in with Passkey and two-factor protection via Google Authenticator.' : 'أضف تسجيل دخول حديثا بمفتاح المرور وحماية ثنائية عبر Google Authenticator.',
-    loading: locale === 'bg' ? 'Loading security settings...' : locale === 'en' ? 'Loading security settings...' : 'جار تحميل إعدادات الأمان...',
+    loading: locale === 'bg' ? 'Зареждане на настройките за сигурност...' : locale === 'en' ? 'Loading security settings...' : 'جار تحميل إعدادات الأمان...',
   };
   const [passkeys, setPasskeys] = useState<PasskeyItem[]>([]);
   const [loading, setLoading] = useState(true);
@@ -64,7 +65,7 @@ export default function SecurityPage() {
       setTotpEnabled(Boolean(meResponse.data.user?.totpEnabled));
       setPasskeys(passkeyResponse.data.passkeys || []);
     } catch (err: any) {
-      setError(err.response?.data?.error || 'Неуспешно зареждане на настройките за сигурност');
+      setError(err.response?.data?.error || tr('Неуспешно зареждане на настройките за сигурност', 'Failed to load security settings', 'فشل تحميل إعدادات الأمان'));
     } finally {
       setLoading(false);
     }
@@ -82,9 +83,9 @@ export default function SecurityPage() {
     try {
       const response = await axios.post('/api/auth/totp/setup', {}, { headers: authHeaders });
       setTotpSetup(response.data);
-      setMessage('Сканирай QR кода в Google Authenticator и потвърди с 6-цифрен код.');
+      setMessage(tr('Сканирай QR кода в Google Authenticator и потвърди с 6-цифрен код.', 'Scan the QR code in Google Authenticator and confirm with a 6-digit code.', 'امسح رمز QR في Google Authenticator وأكّد برمز من 6 أرقام.'));
     } catch (err: any) {
-      setError(err.response?.data?.error || 'Неуспешно стартиране на Google Authenticator setup');
+      setError(err.response?.data?.error || tr('Неуспешно стартиране на Google Authenticator setup', 'Failed to start Google Authenticator setup', 'فشل بدء إعداد Google Authenticator'));
     } finally {
       setBusy(false);
     }
@@ -92,7 +93,7 @@ export default function SecurityPage() {
 
   const verifyTotpSetup = async () => {
     if (!totpSetup?.challengeId || !totpCode) {
-      setError('Въведи 6-цифрения код от Google Authenticator.');
+      setError(tr('Въведи 6-цифрения код от Google Authenticator.', 'Enter the 6-digit code from Google Authenticator.', 'أدخل الرمز المكوّن من 6 أرقام من Google Authenticator.'));
       return;
     }
 
@@ -113,9 +114,9 @@ export default function SecurityPage() {
       setTotpSetup(null);
       setTotpCode('');
       setTotpEnabled(true);
-      setMessage('Google Authenticator е активиран успешно.');
+      setMessage(tr('Google Authenticator е активиран успешно.', 'Google Authenticator enabled successfully.', 'تم تفعيل Google Authenticator بنجاح.'));
     } catch (err: any) {
-      setError(err.response?.data?.error || 'Невалиден код за потвърждение');
+      setError(err.response?.data?.error || tr('Невалиден код за потвърждение', 'Invalid verification code', 'رمز التحقق غير صالح'));
     } finally {
       setBusy(false);
     }
@@ -123,7 +124,7 @@ export default function SecurityPage() {
 
   const disableTotp = async () => {
     if (!disableTotpCode) {
-      setError('Въведи код от Google Authenticator, за да го изключиш.');
+      setError(tr('Въведи код от Google Authenticator, за да го изключиш.', 'Enter a code from Google Authenticator to disable it.', 'أدخل رمزًا من Google Authenticator لإيقافه.'));
       return;
     }
 
@@ -140,9 +141,9 @@ export default function SecurityPage() {
 
       setDisableTotpCode('');
       setTotpEnabled(false);
-      setMessage('Google Authenticator е изключен.');
+      setMessage(tr('Google Authenticator е изключен.', 'Google Authenticator disabled.', 'تم إيقاف Google Authenticator.'));
     } catch (err: any) {
-      setError(err.response?.data?.error || 'Неуспешно изключване на Google Authenticator');
+      setError(err.response?.data?.error || tr('Неуспешно изключване на Google Authenticator', 'Failed to disable Google Authenticator', 'فشل إيقاف Google Authenticator'));
     } finally {
       setBusy(false);
     }
@@ -170,10 +171,10 @@ export default function SecurityPage() {
       );
 
       setPasskeyName('');
-      setMessage('Passkey е добавен успешно.');
+      setMessage(tr('Passkey е добавен успешно.', 'Passkey added successfully.', 'تمت إضافة مفتاح المرور بنجاح.'));
       await loadSecurity();
     } catch (err: any) {
-      const passkeyError = err?.response?.data?.error || err?.message || 'Неуспешно добавяне на Passkey';
+      const passkeyError = err?.response?.data?.error || err?.message || tr('Неуспешно добавяне на Passkey', 'Failed to add passkey', 'فشل إضافة مفتاح المرور');
       setError(passkeyError);
     } finally {
       setBusy(false);
@@ -187,10 +188,10 @@ export default function SecurityPage() {
 
     try {
       await axios.delete(`/api/auth/passkey/${id}`, { headers: authHeaders });
-      setMessage('Passkey е премахнат.');
+      setMessage(tr('Passkey е премахнат.', 'Passkey removed.', 'تمت إزالة مفتاح المرور.'));
       await loadSecurity();
     } catch (err: any) {
-      setError(err.response?.data?.error || 'Неуспешно премахване на Passkey');
+      setError(err.response?.data?.error || tr('Неуспешно премахване на Passkey', 'Failed to remove passkey', 'فشل إزالة مفتاح المرور'));
     } finally {
       setBusy(false);
     }
@@ -237,11 +238,11 @@ export default function SecurityPage() {
               <div className="flex items-center gap-2 mb-1">
                 <div className="w-8 h-8 rounded-xl flex items-center justify-center text-base"
                   style={{ background: 'rgba(255,107,43,0.15)' }}>🔐</div>
-                <h2 className="text-lg font-bold text-[var(--s-text)]">Google Authenticator (TOTP)</h2>
+                <h2 className="text-lg font-bold text-[var(--s-text)]">{tr('Google Authenticator (TOTP)', 'Google Authenticator (TOTP)', 'Google Authenticator (TOTP)')}</h2>
               </div>
               <p className="text-sm text-[var(--s-muted)] ml-10">
-                Статус: <span className={totpEnabled ? 'text-[var(--s-teal)]' : 'text-[var(--s-muted2)]'}>
-                  {totpEnabled ? '✓ Активиран' : 'Неактивен'}
+                {tr('Статус', 'Status', 'الحالة')}: <span className={totpEnabled ? 'text-[var(--s-teal)]' : 'text-[var(--s-muted2)]'}>
+                  {totpEnabled ? tr('✓ Активиран', '✓ Enabled', '✓ مفعّل') : tr('Неактивен', 'Inactive', 'غير مفعّل')}
                 </span>
               </p>
             </div>
@@ -251,22 +252,22 @@ export default function SecurityPage() {
                 className="btn-site-primary text-xs py-2 px-4 rounded-xl disabled:opacity-40"
                 disabled={busy}
               >
-                Активирай
+                {tr('Активирай', 'Enable', 'تفعيل')}
               </button>
             )}
           </div>
 
           {totpSetup && (
             <div className="rounded-2xl border border-[var(--s-border)] p-5 space-y-4 bg-[var(--s-surface2)]">
-              <p className="text-sm text-[var(--s-muted2)]">1. Сканирай QR кода в приложението Google Authenticator:</p>
+              <p className="text-sm text-[var(--s-muted2)]">{tr('1. Сканирай QR кода в приложението Google Authenticator:', '1. Scan the QR code in the Google Authenticator app:', '1. امسح رمز QR في تطبيق Google Authenticator:')}</p>
               <img src={totpSetup.qrCodeDataUrl} alt="TOTP QR" className="w-48 h-48 border border-[var(--s-border)] rounded-xl" />
               <p className="text-xs text-[var(--s-muted)] break-all">
-                Ръчен ключ: <span className="font-mono text-[var(--s-text)]">{totpSetup.manualEntryKey}</span>
+                {tr('Ръчен ключ', 'Manual key', 'المفتاح اليدوي')}: <span className="font-mono text-[var(--s-text)]">{totpSetup.manualEntryKey}</span>
               </p>
               <div className="flex flex-col sm:flex-row gap-3">
                 <div className="w-full sm:flex-1">
                   <p className="text-[10px] font-semibold uppercase tracking-[0.4em] text-[var(--s-muted)] mb-2">
-                    Код за потвърждение
+                    {tr('Код за потвърждение', 'Verification code', 'رمز التحقق')}
                   </p>
                   <SixDigitCodeInput value={totpCode} onChange={setTotpCode} disabled={busy} autoFocus />
                 </div>
@@ -276,7 +277,7 @@ export default function SecurityPage() {
                   style={{ background: 'var(--s-teal)', color: '#000' }}
                   disabled={busy}
                 >
-                  Потвърди
+                  {tr('Потвърди', 'Confirm', 'تأكيد')}
                 </button>
               </div>
             </div>
@@ -285,11 +286,11 @@ export default function SecurityPage() {
           {totpEnabled && (
             <div className="rounded-2xl border p-5 space-y-3"
               style={{ background: 'rgba(255,167,38,0.07)', borderColor: 'rgba(255,167,38,0.2)' }}>
-              <p className="text-sm text-amber-300">За изключване въведи актуален код от Google Authenticator.</p>
+              <p className="text-sm text-amber-300">{tr('За изключване въведи актуален код от Google Authenticator.', 'To disable, enter a current code from Google Authenticator.', 'للإيقاف، أدخل رمزًا حاليًا من Google Authenticator.')}</p>
               <div className="flex flex-col sm:flex-row gap-3">
                 <div className="w-full sm:flex-1">
                   <p className="text-[10px] font-semibold uppercase tracking-[0.4em] text-[var(--s-muted)] mb-2">
-                    Код за изключване
+                    {tr('Код за изключване', 'Disable code', 'رمز الإيقاف')}
                   </p>
                   <SixDigitCodeInput value={disableTotpCode} onChange={setDisableTotpCode} disabled={busy} />
                 </div>
@@ -299,7 +300,7 @@ export default function SecurityPage() {
                   style={{ background: 'rgba(255,167,38,0.2)', color: '#FFA726', border: '1px solid rgba(255,167,38,0.3)' }}
                   disabled={busy}
                 >
-                  Изключи
+                  {tr('Изключи', 'Disable', 'إيقاف')}
                 </button>
               </div>
             </div>
@@ -312,8 +313,8 @@ export default function SecurityPage() {
             <div className="w-8 h-8 rounded-xl flex items-center justify-center text-base"
               style={{ background: 'rgba(139,92,246,0.15)' }}>🔑</div>
             <div>
-              <h2 className="text-lg font-bold text-[var(--s-text)]">Passkeys (WebAuthn)</h2>
-              <p className="text-xs text-[var(--s-muted)]">Регистрирай passkey от телефона или компютъра си за по-сигурен вход.</p>
+              <h2 className="text-lg font-bold text-[var(--s-text)]">{tr('Passkeys (WebAuthn)', 'Passkeys (WebAuthn)', 'مفاتيح المرور (WebAuthn)')}</h2>
+              <p className="text-xs text-[var(--s-muted)]">{tr('Регистрирай passkey от телефона или компютъра си за по-сигурен вход.', 'Register a passkey from your phone or computer for more secure sign-in.', 'سجّل مفتاح مرور من هاتفك أو حاسوبك لتسجيل دخول أكثر أمانًا.')}</p>
             </div>
           </div>
 
@@ -322,7 +323,7 @@ export default function SecurityPage() {
               type="text"
               value={passkeyName}
               onChange={(e) => setPasskeyName(e.target.value)}
-              placeholder="Име (по избор), напр. iPhone Face ID"
+              placeholder={tr('Име (по избор), напр. iPhone Face ID', 'Name (optional), e.g. iPhone Face ID', 'الاسم (اختياري)، مثال: iPhone Face ID')}
               className="site-input flex-1"
             />
             <button
@@ -330,25 +331,25 @@ export default function SecurityPage() {
               className="btn-site-primary text-xs py-2 px-4 rounded-xl disabled:opacity-40"
               disabled={busy}
             >
-              + Добави Passkey
+              {tr('+ Добави Passkey', '+ Add Passkey', '+ إضافة مفتاح مرور')}
             </button>
           </div>
 
           {passkeys.length === 0 ? (
             <div className="rounded-2xl border border-[var(--s-border)] p-6 text-center">
-              <p className="text-[var(--s-muted)] text-sm">Няма добавени passkeys.</p>
+              <p className="text-[var(--s-muted)] text-sm">{tr('Няма добавени passkeys.', 'No passkeys added.', 'لا توجد مفاتيح مرور مضافة.')}</p>
             </div>
           ) : (
             <div className="space-y-3">
               {passkeys.map((passkey) => (
                 <div key={passkey.id} className="rounded-2xl border border-[var(--s-border)] bg-[var(--s-surface2)] p-4 flex items-start justify-between gap-4">
                   <div>
-                    <p className="font-semibold text-[var(--s-text)]">{passkey.name || 'Passkey устройство'}</p>
+                    <p className="font-semibold text-[var(--s-text)]">{passkey.name || tr('Passkey устройство', 'Passkey device', 'جهاز مفتاح مرور')}</p>
                     <p className="text-xs text-[var(--s-muted)] mt-1">
-                      Тип: {passkey.deviceType || 'unknown'} · Backup: {String(Boolean(passkey.backedUp))}
+                      {tr('Тип', 'Type', 'النوع')}: {passkey.deviceType || tr('неизвестен', 'unknown', 'غير معروف')} · {tr('Backup', 'Backup', 'نسخة احتياطية')}: {String(Boolean(passkey.backedUp))}
                     </p>
                     <p className="text-xs text-[var(--s-muted)] mt-0.5">
-                      Добавен: {new Date(passkey.createdAt).toLocaleString('bg-BG')}
+                      {tr('Добавен', 'Added', 'أضيف')}: {new Date(passkey.createdAt).toLocaleString(locale === 'bg' ? 'bg-BG' : locale === 'ar' ? 'ar-SA' : 'en-US')}
                     </p>
                   </div>
                   <button
@@ -357,7 +358,7 @@ export default function SecurityPage() {
                     style={{ borderColor: 'rgba(255,71,87,0.3)', color: 'var(--s-red)', background: 'rgba(255,71,87,0.08)' }}
                     disabled={busy}
                   >
-                    Премахни
+                    {tr('Премахни', 'Remove', 'إزالة')}
                   </button>
                 </div>
               ))}

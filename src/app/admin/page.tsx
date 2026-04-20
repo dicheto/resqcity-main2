@@ -87,31 +87,6 @@ function QuickAction({ href, icon: Icon, label, desc, gradient, delay = 0 }: Act
   );
 }
 
-/* ── Status badge map ──────────────────────────── */
-const STATUS_CFG: Record<string, { label: string; cls: string }> = {
-  PENDING: { label: 'Изчакване', cls: 'badge-pending' },
-  IN_PROGRESS: { label: 'В процес', cls: 'badge-progress' },
-  RESOLVED: { label: 'Решен', cls: 'badge-resolved' },
-  REJECTED: { label: 'Отхвърлен', cls: 'badge-rejected' },
-};
-
-/* ── Greeting ──────────────────────────────────── */
-function getGreeting() {
-  const h = new Date().getHours();
-  if (h < 6) return 'Лека нощ';
-  if (h < 12) return 'Добро утро';
-  if (h < 18) return 'Добър ден';
-  return 'Добър вечер';
-}
-
-/* ── System services ───────────────────────────── */
-const SERVICES = [
-  { label: 'API Сървър', icon: Server, status: 'ok', detail: 'Отговаря нормално' },
-  { label: 'База данни', icon: Database, status: 'ok', detail: 'Supabase · pg' },
-  { label: 'WebSocket', icon: Wifi, status: 'ok', detail: 'Socket.IO · active' },
-  { label: 'SMTP поща', icon: Mail, status: 'warn', detail: 'IDLE · не изпраща' },
-];
-
 /* ── Category bar colors ───────────────────────── */
 const BAR_COLORS = [
   'from-violet-500 to-indigo-500',
@@ -129,6 +104,7 @@ const BAR_COLORS = [
 ═══════════════════════════════════════════════════ */
 export default function AdminDashboardPage() {
   const { locale } = useI18n();
+  const tr = (bg: string, en: string, ar: string) => (locale === 'ar' ? ar : locale === 'en' ? en : bg);
   const [stats, setStats] = useState<any>(null);
   const copy = {
     panel: locale === 'bg' ? 'Контролен панел' : locale === 'en' ? 'Control panel' : 'لوحة التحكم',
@@ -146,6 +122,75 @@ export default function AdminDashboardPage() {
     securityBtn: locale === 'bg' ? 'Настройки за сигурност' : locale === 'en' ? 'Security settings' : 'إعدادات الأمان',
   };
   const [loading, setLoading] = useState(true);
+  const getLocalizedGreeting = () => {
+    const hour = new Date().getHours();
+    if (hour < 6) return tr('Лека нощ', 'Good night', 'تصبح على خير');
+    if (hour < 12) return tr('Добро утро', 'Good morning', 'صباح الخير');
+    if (hour < 18) return tr('Добър ден', 'Good afternoon', 'مساء الخير');
+    return tr('Добър вечер', 'Good evening', 'مساء الخير');
+  };
+  const quickActions = [
+    {
+      href: '/admin/categories',
+      icon: Tags,
+      label: tr('Категории', 'Categories', 'الفئات'),
+      desc: tr('Управление', 'Manage', 'إدارة'),
+      gradient: 'from-violet-500 to-indigo-500 text-white',
+      delay: 300,
+    },
+    {
+      href: '/admin/responsible-persons',
+      icon: Users,
+      label: tr('Отговорни лица', 'Responsible persons', 'الأشخاص المسؤولون'),
+      desc: tr('Управление на лица', 'Manage persons', 'إدارة الأشخاص'),
+      gradient: 'from-blue-500 to-cyan-500 text-white',
+      delay: 360,
+    },
+    {
+      href: '/admin/reports',
+      icon: FileText,
+      label: tr('Сигнали', 'Reports', 'البلاغات'),
+      desc: tr('Преглед на всички', 'View all', 'عرض الكل'),
+      gradient: 'from-amber-500 to-orange-500 text-white',
+      delay: 420,
+    },
+    {
+      href: '/admin/vehicle-incidents',
+      icon: Car,
+      label: tr('Авто сигнали', 'Vehicle reports', 'بلاغات المركبات'),
+      desc: tr('Диспечер потвърждение', 'Dispatcher validation', 'تأكيد الموجّه'),
+      gradient: 'from-rose-500 to-pink-500 text-white',
+      delay: 480,
+    },
+    {
+      href: '/admin/heatmap',
+      icon: MapPin,
+      label: tr('Топлинна карта', 'Heatmap', 'الخريطة الحرارية'),
+      desc: tr('Визуализация', 'Visualization', 'عرض مرئي'),
+      gradient: 'from-teal-500 to-emerald-500 text-white',
+      delay: 540,
+    },
+    {
+      href: '/admin/dispatch',
+      icon: Navigation2,
+      label: tr('Маршрутизация', 'Routing', 'التوجيه'),
+      desc: tr('Автоматично насочване', 'Auto assignment', 'توجيه تلقائي'),
+      gradient: 'from-orange-500 to-amber-500 text-white',
+      delay: 600,
+    },
+  ];
+  const statusCfg: Record<string, { label: string; cls: string }> = {
+    PENDING: { label: tr('Изчакване', 'Pending', 'بانتظار المعالجة'), cls: 'badge-pending' },
+    IN_PROGRESS: { label: tr('В процес', 'In progress', 'قيد التنفيذ'), cls: 'badge-progress' },
+    RESOLVED: { label: tr('Решен', 'Resolved', 'تم الحل'), cls: 'badge-resolved' },
+    REJECTED: { label: tr('Отхвърлен', 'Rejected', 'مرفوض'), cls: 'badge-rejected' },
+  };
+  const services = [
+    { label: tr('API Сървър', 'API Server', 'خادم API'), icon: Server, status: 'ok', detail: tr('Отговаря нормално', 'Operating normally', 'يعمل بشكل طبيعي') },
+    { label: tr('База данни', 'Database', 'قاعدة البيانات'), icon: Database, status: 'ok', detail: 'Supabase · pg' },
+    { label: tr('WebSocket', 'WebSocket', 'ويب سوكيت'), icon: Wifi, status: 'ok', detail: 'Socket.IO · active' },
+    { label: tr('SMTP поща', 'SMTP Mail', 'بريد SMTP'), icon: Mail, status: 'warn', detail: tr('IDLE · не изпраща', 'IDLE · not sending', 'خامل · لا يرسل') },
+  ];
 
   useEffect(() => { fetchStats(); }, []);
 
@@ -197,13 +242,13 @@ export default function AdminDashboardPage() {
         </div>
 
         <div className="relative">
-          <p className="text-xs uppercase tracking-[0.5em] admin-muted font-semibold">{getGreeting()},</p>
+          <p className="text-xs uppercase tracking-[0.5em] admin-muted font-semibold">{getLocalizedGreeting()},</p>
           <h1 className="text-3xl md:text-5xl font-extrabold rc-display admin-text mt-2 leading-none">
-            Контролен<br />
+            {tr('Контролен', 'Control', 'لوحة')}<br />
             <span className="text-gradient-orange">{copy.panel}</span>
           </h1>
           <p className="admin-muted mt-3 max-w-lg text-sm leading-relaxed">
-            Мониторинг на градските сигнали, управление на ресурси и диспечиране в реално време.
+            {tr('Мониторинг на градските сигнали, управление на ресурси и диспечиране в реално време.', 'Monitor city reports, manage resources, and dispatch in real time.', 'مراقبة بلاغات المدينة وإدارة الموارد والتوجيه في الوقت الحقيقي.')}
           </p>
 
           <div className="flex flex-wrap gap-3 mt-6">
@@ -235,12 +280,9 @@ export default function AdminDashboardPage() {
       <div>
         <p className="text-[11px] uppercase tracking-[0.45em] admin-muted font-semibold mb-4">{copy.quick}</p>
         <div className="grid grid-cols-2 sm:grid-cols-3 xl:grid-cols-6 gap-3">
-          <QuickAction href="/admin/categories"          icon={Tags}        label="Категории"        desc="Управление"                  gradient="from-violet-500 to-indigo-500 text-white" delay={300} />
-          <QuickAction href="/admin/responsible-persons" icon={Users}       label="Отговорни лица"   desc="Управление на лица"          gradient="from-blue-500 to-cyan-500 text-white"    delay={360} />
-          <QuickAction href="/admin/reports"             icon={FileText}    label="Сигнали"          desc="Преглед на всички"           gradient="from-amber-500 to-orange-500 text-white" delay={420} />
-          <QuickAction href="/admin/vehicle-incidents"   icon={Car}         label="Авто сигнали"     desc="Диспечер потвърждение"       gradient="from-rose-500 to-pink-500 text-white"    delay={480} />
-          <QuickAction href="/admin/heatmap"             icon={MapPin}      label="Топлинна карта"   desc="Визуализация"                gradient="from-teal-500 to-emerald-500 text-white" delay={540} />
-          <QuickAction href="/admin/dispatch"            icon={Navigation2} label="Маршрутизация"    desc="Автоматично насочване"       gradient="from-orange-500 to-amber-500 text-white" delay={600} />
+          {quickActions.map((action) => (
+            <QuickAction key={action.href} {...action} />
+          ))}
         </div>
       </div>
 
@@ -253,12 +295,12 @@ export default function AdminDashboardPage() {
           style={{ animationDelay: '400ms', animationFillMode: 'backwards' }}
         >
           <div className="flex items-center justify-between mb-6">
-            <h2 className="text-lg font-bold rc-display admin-text">Категории сигнали</h2>
+            <h2 className="text-lg font-bold rc-display admin-text">{tr('Категории сигнали', 'Report categories', 'فئات البلاغات')}</h2>
             <ArrowUpRight size={16} className="admin-muted" />
           </div>
           <div className="space-y-3.5">
             {(stats?.categoryStats ?? []).slice(0, 8).map((stat: any, i: number) => {
-              const label = stat.categoryName || stat.category || 'Unknown';
+              const label = stat.categoryName || stat.category || tr('Неизвестно', 'Unknown', 'غير معروف');
               const count = typeof stat._count === 'number' ? stat._count : stat._count?._all ?? 0;
               const max = Math.max(
                 ...(stats?.categoryStats ?? []).map((s: any) =>
@@ -298,12 +340,12 @@ export default function AdminDashboardPage() {
           <div className="flex items-center justify-between mb-6">
             <h2 className="text-lg font-bold rc-display admin-text">{copy.recent}</h2>
             <Link href="/admin/reports" className="text-[11px] admin-muted hover:text-orange-400 flex items-center gap-1 transition-colors">
-              Всички <ArrowUpRight size={11} />
+              {tr('Всички', 'All', 'الكل')} <ArrowUpRight size={11} />
             </Link>
           </div>
           <div className="space-y-2">
             {(stats?.recentReports ?? []).slice(0, 8).map((report: any) => {
-              const sc = STATUS_CFG[report.status] ?? { label: report.status, cls: 'badge-pending' };
+              const sc = statusCfg[report.status] ?? { label: report.status, cls: 'badge-pending' };
               return (
                 <Link
                   key={report.id}
@@ -340,7 +382,7 @@ export default function AdminDashboardPage() {
           </span>
         </div>
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-          {SERVICES.map((svc) => {
+          {services.map((svc) => {
             const Icon = svc.icon;
             const isOk = svc.status === 'ok';
             return (
@@ -370,7 +412,7 @@ export default function AdminDashboardPage() {
           </div>
           <div>
             <p className="font-bold admin-text text-sm">{copy.security}</p>
-            <p className="text-xs admin-muted mt-0.5">Управлявайте MFA, пасключове и достъп.</p>
+            <p className="text-xs admin-muted mt-0.5">{tr('Управлявайте MFA, пасключове и достъп.', 'Manage MFA, passkeys, and access.', 'إدارة MFA ومفاتيح المرور والوصول.')}</p>
           </div>
         </div>
         <Link

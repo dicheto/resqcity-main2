@@ -7,6 +7,7 @@ import { useI18n } from '@/i18n';
 
 export default function AdminReportsPage() {
   const { locale } = useI18n();
+  const tr = (bg: string, en: string, ar: string) => (locale === 'ar' ? ar : locale === 'en' ? en : bg);
   const copy = {
     mgmt: locale === 'bg' ? 'Управление на сигнали' : locale === 'en' ? 'Reports management' : 'إدارة البلاغات',
     title: locale === 'bg' ? 'Всички сигнали' : locale === 'en' ? 'All reports' : 'كل البلاغات',
@@ -32,6 +33,22 @@ export default function AdminReportsPage() {
   const [newStatus, setNewStatus] = useState('');
   const [note, setNote] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const getStatusLabel = (status: string) => {
+    const labels: any = {
+      PENDING: tr('Изчакване', 'Pending', 'بانتظار المعالجة'),
+      IN_REVIEW: tr('На преглед', 'In review', 'قيد المراجعة'),
+      IN_PROGRESS: tr('В процес', 'In progress', 'قيد التنفيذ'),
+      RESOLVED: tr('Решен', 'Resolved', 'تم الحل'),
+      REJECTED: tr('Отхвърлен', 'Rejected', 'مرفوض'),
+    };
+    return labels[status] || status;
+  };
+  const getCategoryLabel = (category: any) => {
+    if (!category) return tr('Без категория', 'No category', 'بدون فئة');
+    if (locale === 'en') return category.nameEn || category.nameBg || category.name || tr('Без категория', 'No category', 'بدون فئة');
+    if (locale === 'ar') return category.name || category.nameBg || category.nameEn || tr('Без категория', 'No category', 'بدون فئة');
+    return category.nameBg || category.nameEn || category.name || tr('Без категория', 'No category', 'بدون فئة');
+  };
 
   useEffect(() => {
     fetchCategories();
@@ -104,7 +121,7 @@ export default function AdminReportsPage() {
       closeModal();
     } catch (error) {
       console.error('Error updating report:', error);
-      alert('Грешка при актуализиране на статуса');
+      alert(tr('Грешка при актуализиране на статуса', 'Error updating status', 'خطأ أثناء تحديث الحالة'));
     } finally {
       setIsSubmitting(false);
     }
@@ -122,28 +139,6 @@ export default function AdminReportsPage() {
     }
   };
 
-  const getStatusColor = (status: string) => {
-    const colors: any = {
-      PENDING: 'bg-yellow-100 text-yellow-800',
-      IN_REVIEW: 'bg-blue-100 text-blue-800',
-      IN_PROGRESS: 'bg-purple-100 text-purple-800',
-      RESOLVED: 'bg-green-100 text-green-800',
-      REJECTED: 'bg-red-100 text-red-800',
-    };
-    return colors[status] || 'bg-gray-100 text-gray-800';
-  };
-
-  const getStatusLabel = (status: string) => {
-    const labels: any = {
-      PENDING: 'Изчакване',
-      IN_REVIEW: 'На преглед',
-      IN_PROGRESS: 'В процес',
-      RESOLVED: 'Решен',
-      REJECTED: 'Отхвърлен',
-    };
-    return labels[status] || status;
-  };
-
   return (
     <div className="px-6 py-10 max-w-6xl mx-auto">
       <div className="mb-8">
@@ -159,11 +154,11 @@ export default function AdminReportsPage() {
             onChange={(e) => handleFilterChange({ ...filter, status: e.target.value })}
           >
             <option value="">{copy.allStatuses}</option>
-            <option value="PENDING">Изчакване</option>
-            <option value="IN_REVIEW">На преглед</option>
-            <option value="IN_PROGRESS">В процес</option>
-            <option value="RESOLVED">Решен</option>
-            <option value="REJECTED">Отхвърлен</option>
+            <option value="PENDING">{getStatusLabel('PENDING')}</option>
+            <option value="IN_REVIEW">{getStatusLabel('IN_REVIEW')}</option>
+            <option value="IN_PROGRESS">{getStatusLabel('IN_PROGRESS')}</option>
+            <option value="RESOLVED">{getStatusLabel('RESOLVED')}</option>
+            <option value="REJECTED">{getStatusLabel('REJECTED')}</option>
           </select>
 
           <select
@@ -174,7 +169,7 @@ export default function AdminReportsPage() {
             <option value="">{copy.allCategories}</option>
             {categories.map((category) => (
               <option key={category.id} value={category.id}>
-                {category.nameBg}
+                {getCategoryLabel(category)}
               </option>
             ))}
           </select>
@@ -201,34 +196,34 @@ export default function AdminReportsPage() {
                     </p>
                     <div className="flex flex-wrap items-center gap-3 mt-3 text-xs admin-muted">
                       <span>
-                        От: {report.user.firstName} {report.user.lastName}
+                        {tr('От', 'From', 'من')}: {report.user.firstName} {report.user.lastName}
                       </span>
                       <span>•</span>
-                      <span>{report.category?.nameBg || report.category?.nameEn || 'Без категория'}</span>
+                      <span>{getCategoryLabel(report.category)}</span>
                       <span>•</span>
-                      <span>{new Date(report.createdAt).toLocaleDateString()}</span>
+                      <span>{new Date(report.createdAt).toLocaleDateString(locale === 'bg' ? 'bg-BG' : locale === 'ar' ? 'ar-SA' : 'en-US')}</span>
                     </div>
                     <div className="mt-3">
                       <Link
                         href={`/admin/reports/${report.id}/routing`}
                         className="inline-flex rounded-xl border border-violet-500/30 bg-violet-500/10 px-3 py-2 text-xs uppercase tracking-[0.25em] text-violet-400 hover:text-violet-300 transition-colors"
                       >
-                        Институции и насочване
+                        {tr('Институции и насочване', 'Institutions and routing', 'المؤسسات والتوجيه')}
                       </Link>
                     </div>
                   </div>
                   <div className="min-w-[180px]">
-                    <label className="text-xs uppercase tracking-[0.3em] admin-muted mb-2 block">Статус</label>
+                    <label className="text-xs uppercase tracking-[0.3em] admin-muted mb-2 block">{tr('Статус', 'Status', 'الحالة')}</label>
                     <select
                       className="w-full px-3 py-2 rounded-2xl border border-[var(--a-border)] bg-[var(--a-surface2)] admin-text text-sm"
                       value={report.status}
                       onChange={(e) => openStatusModal(report, e.target.value)}
                     >
-                      <option value="PENDING">Изчакване</option>
-                      <option value="IN_REVIEW">На преглед</option>
-                      <option value="IN_PROGRESS">В процес</option>
-                      <option value="RESOLVED">Решен</option>
-                      <option value="REJECTED">Отхвърлен</option>
+                      <option value="PENDING">{getStatusLabel('PENDING')}</option>
+                      <option value="IN_REVIEW">{getStatusLabel('IN_REVIEW')}</option>
+                      <option value="IN_PROGRESS">{getStatusLabel('IN_PROGRESS')}</option>
+                      <option value="RESOLVED">{getStatusLabel('RESOLVED')}</option>
+                      <option value="REJECTED">{getStatusLabel('REJECTED')}</option>
                     </select>
                   </div>
                 </div>
@@ -239,7 +234,7 @@ export default function AdminReportsPage() {
           {/* Pagination Controls */}
           <div className="flex flex-col sm:flex-row items-center justify-between gap-4 mt-8 p-4 rounded-2xl bg-[var(--a-surface1)] border border-[var(--a-border)]">
             <div className="admin-muted text-sm order-2 sm:order-1">
-              Страница <span className="font-semibold admin-text">{currentPage}</span> от <span className="font-semibold admin-text">{totalPages}</span> ({totalItems} сигнала)
+              {tr('Страница', 'Page', 'الصفحة')} <span className="font-semibold admin-text">{currentPage}</span> {tr('от', 'of', 'من')} <span className="font-semibold admin-text">{totalPages}</span> ({totalItems} {tr('сигнала', 'reports', 'بلاغات')})
             </div>
 
             <div className="flex items-center gap-2 order-1 sm:order-2">
@@ -248,7 +243,7 @@ export default function AdminReportsPage() {
                 disabled={currentPage === 1}
                 className="px-4 py-2 rounded-xl border border-[var(--a-border)] bg-[var(--a-surface2)] admin-text text-sm font-medium transition-all disabled:opacity-50 disabled:cursor-not-allowed hover:enabled:bg-[var(--a-surface3)]"
               >
-                ← Назад
+                {tr('← Назад', '← Back', '→ السابق')}
               </button>
 
               <div className="flex items-center gap-1">
@@ -291,7 +286,7 @@ export default function AdminReportsPage() {
                 disabled={currentPage === totalPages}
                 className="px-4 py-2 rounded-xl border border-[var(--a-border)] bg-[var(--a-surface2)] admin-text text-sm font-medium transition-all disabled:opacity-50 disabled:cursor-not-allowed hover:enabled:bg-[var(--a-surface3)]"
               >
-                Напред →
+                {tr('Напред →', 'Next →', 'التالي ←')}
               </button>
             </div>
           </div>
@@ -307,32 +302,32 @@ export default function AdminReportsPage() {
         <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
           <div className="data-card rounded-3xl p-6 max-w-md w-full shadow-2xl">
             <h2 className="text-2xl font-bold rc-display admin-text mb-4">
-              Промяна на статус
+              {tr('Промяна на статус', 'Change status', 'تغيير الحالة')}
             </h2>
             
             <div className="mb-4">
-              <p className="admin-muted text-sm mb-2">Сигнал:</p>
+              <p className="admin-muted text-sm mb-2">{tr('Сигнал:', 'Report:', 'البلاغ:')}</p>
               <p className="admin-text font-semibold">{selectedReport.title}</p>
             </div>
 
             <div className="mb-4">
-              <p className="admin-muted text-sm mb-2">Нов статус:</p>
+              <p className="admin-muted text-sm mb-2">{tr('Нов статус:', 'New status:', 'الحالة الجديدة:')}</p>
               <p className="admin-text font-semibold text-lg">{getStatusLabel(newStatus)}</p>
             </div>
 
             <div className="mb-6">
               <label className="text-sm uppercase tracking-[0.3em] admin-muted mb-2 block">
-                Бележка (незадължително)
+                {tr('Бележка (незадължително)', 'Note (optional)', 'ملاحظة (اختياري)')}
               </label>
               <textarea
                 className="w-full px-4 py-3 rounded-xl border border-[var(--a-border)] bg-[var(--a-surface2)] admin-text text-sm min-h-[100px] resize-none focus:border-violet-500 focus:outline-none transition-colors"
-                placeholder="Добавете бележка за промяната на статуса..."
+                placeholder={tr('Добавете бележка за промяната на статуса...', 'Add a note for the status change...', 'أضف ملاحظة لتغيير الحالة...')}
                 value={note}
                 onChange={(e) => setNote(e.target.value)}
                 disabled={isSubmitting}
               />
               <p className="text-xs admin-muted mt-2">
-                Бележката ще бъде видима в историята и коментарите на сигнала
+                {tr('Бележката ще бъде видима в историята и коментарите на сигнала', 'The note will be visible in the report history and comments', 'ستكون الملاحظة مرئية في سجل البلاغ والتعليقات')}
               </p>
             </div>
 

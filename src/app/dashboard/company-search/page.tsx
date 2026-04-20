@@ -23,31 +23,29 @@ const PAGE_SIZE = 25;
 
 type SearchResponse = PaginatedSearchResponse<CompanySearchResult | SubjectSearchResult>;
 
-const MODE_LABELS: Record<CompanySearchMode, string> = {
-  'company-name': 'По име на фирма',
-  eik: 'По ЕИК',
-  person: 'По име на лице',
-};
-
-function getValidationMessage(mode: CompanySearchMode, value: string): string {
+function getValidationMessage(
+  mode: CompanySearchMode,
+  value: string,
+  tr: (bg: string, en: string, ar: string) => string
+): string {
   const query = value.trim();
 
   if (!query) {
-    return 'Въведете стойност за търсене.';
+    return tr('Въведете стойност за търсене.', 'Enter a search value.', 'أدخل قيمة للبحث.');
   }
 
   if (mode === 'eik') {
     if (!/^\d+$/.test(query)) {
-      return 'ЕИК трябва да съдържа само цифри.';
+      return tr('ЕИК трябва да съдържа само цифри.', 'UIC must contain digits only.', 'يجب أن يحتوي الرقم الموحد على أرقام فقط.');
     }
     if (!/^\d{9,13}$/.test(query)) {
-      return 'ЕИК трябва да е между 9 и 13 цифри.';
+      return tr('ЕИК трябва да е между 9 и 13 цифри.', 'UIC must be between 9 and 13 digits.', 'يجب أن يكون الرقم الموحد بين 9 و13 رقمًا.');
     }
     return '';
   }
 
   if (query.length < 2) {
-    return 'Въведете поне 2 символа.';
+    return tr('Въведете поне 2 символа.', 'Enter at least 2 characters.', 'أدخل حرفين على الأقل.');
   }
 
   return '';
@@ -56,6 +54,11 @@ function getValidationMessage(mode: CompanySearchMode, value: string): string {
 export default function CompanySearchPage() {
   const { locale } = useI18n();
   const tr = (bg: string, en: string, ar: string) => (locale === 'ar' ? ar : locale === 'en' ? en : bg);
+  const MODE_LABELS: Record<CompanySearchMode, string> = {
+    'company-name': tr('По име на фирма', 'By company name', 'حسب اسم الشركة'),
+    eik: tr('По ЕИК', 'By UIC', 'حسب الرقم الموحد'),
+    person: tr('По име на лице', 'By person name', 'حسب اسم الشخص'),
+  };
   const [mode, setMode] = useState<CompanySearchMode>('company-name');
   const [query, setQuery] = useState('');
   const [debouncedQuery, setDebouncedQuery] = useState('');
@@ -121,7 +124,7 @@ export default function CompanySearchPage() {
     return () => window.removeEventListener('keydown', onKeyDown);
   }, []);
 
-  const validationMessage = useMemo(() => getValidationMessage(mode, debouncedQuery || query), [mode, debouncedQuery, query]);
+  const validationMessage = useMemo(() => getValidationMessage(mode, debouncedQuery || query, tr), [mode, debouncedQuery, query, tr]);
 
   const runSearch = async (
     searchQuery: string,
@@ -130,7 +133,7 @@ export default function CompanySearchPage() {
     source: 'debounce' | 'submit' | 'load-more'
   ) => {
     const normalizedQuery = searchQuery.trim();
-    const validation = getValidationMessage(mode, normalizedQuery);
+    const validation = getValidationMessage(mode, normalizedQuery, tr);
 
     if (validation) {
       if (source === 'submit') {
@@ -203,7 +206,7 @@ export default function CompanySearchPage() {
       if (err?.name === 'AbortError') {
         return;
       }
-      setError(err?.message || 'Възникна грешка при търсенето.');
+      setError(err?.message || tr('Възникна грешка при търсенето.', 'An error occurred while searching.', 'حدث خطأ أثناء البحث.'));
       if (!append) {
         setResults([]);
       }
@@ -218,7 +221,7 @@ export default function CompanySearchPage() {
       return;
     }
 
-    const validation = getValidationMessage(mode, debouncedQuery);
+    const validation = getValidationMessage(mode, debouncedQuery, tr);
     if (validation) {
       return;
     }
@@ -231,7 +234,7 @@ export default function CompanySearchPage() {
     event.preventDefault();
 
     const normalizedQuery = query.trim();
-    const validation = getValidationMessage(mode, normalizedQuery);
+    const validation = getValidationMessage(mode, normalizedQuery, tr);
 
     if (validation) {
       setError(validation);
@@ -266,7 +269,7 @@ export default function CompanySearchPage() {
       const relations = await getSubjectCompaniesClient(subject.ident, subject.name);
       setPersonCompanies((prev: Record<string, SubjectCompanyRelation[]>) => ({ ...prev, [uid]: relations }));
     } catch (err: any) {
-      setPersonCompaniesError((prev: Record<string, string>) => ({ ...prev, [uid]: err?.message || 'Неуспешно зареждане на свързаните фирми.' }));
+      setPersonCompaniesError((prev: Record<string, string>) => ({ ...prev, [uid]: err?.message || tr('Неуспешно зареждане на свързаните фирми.', 'Failed to load related companies.', 'فشل تحميل الشركات المرتبطة.') }));
     } finally {
       setPersonCompaniesLoading((prev: Record<string, boolean>) => ({ ...prev, [uid]: false }));
     }
@@ -276,7 +279,7 @@ export default function CompanySearchPage() {
     const normalizedUic = uic.trim();
     if (!/^\d{9,13}$/.test(normalizedUic)) {
       closeCompanyDetailsModal();
-      setCompanyDetailsError('Липсва валиден ЕИК за зареждане на детайли.');
+      setCompanyDetailsError(tr('Липсва валиден ЕИК за зареждане на детайли.', 'Missing valid UIC for details.', 'لا يوجد رقم موحد صالح لتحميل التفاصيل.'));
       return;
     }
 
@@ -303,7 +306,7 @@ export default function CompanySearchPage() {
       setCompanyDetails(details);
     } catch (err: any) {
       setCompanyDetails(null);
-      setCompanyDetailsError(err?.message || 'Неуспешно зареждане на фирмените детайли.');
+      setCompanyDetailsError(err?.message || tr('Неуспешно зареждане на фирмените детайли.', 'Failed to load company details.', 'فشل تحميل تفاصيل الشركة.'));
     } finally {
       setCompanyDetailsLoading(false);
     }
@@ -315,10 +318,10 @@ export default function CompanySearchPage() {
         <table className="w-full text-sm">
           <thead>
             <tr className="text-left text-[var(--s-muted)] border-b border-[var(--s-border)]">
-              <th className="py-3 pr-3">ЕИК/Идентификатор</th>
-              <th className="py-3 pr-3">Име</th>
-              <th className="py-3">Пълно фирмено име</th>
-              <th className="py-3 text-right">Действие</th>
+              <th className="py-3 pr-3">{tr('ЕИК/Идентификатор', 'UIC/Identifier', 'الرقم الموحد/المعرف')}</th>
+              <th className="py-3 pr-3">{tr('Име', 'Name', 'الاسم')}</th>
+              <th className="py-3">{tr('Пълно фирмено име', 'Full company name', 'الاسم الكامل للشركة')}</th>
+              <th className="py-3 text-right">{tr('Действие', 'Action', 'إجراء')}</th>
             </tr>
           </thead>
           <tbody>
@@ -385,10 +388,10 @@ export default function CompanySearchPage() {
                   <table className="w-full text-xs">
                     <thead>
                       <tr className="text-left text-[var(--s-muted)] border-b border-[var(--s-border)]">
-                        <th className="py-2 pr-3">Фирма</th>
-                        <th className="py-2 pr-3">ЕИК</th>
-                        <th className="py-2">Поле</th>
-                        <th className="py-2 text-right">Действие</th>
+                        <th className="py-2 pr-3">{tr('Фирма', 'Company', 'الشركة')}</th>
+                        <th className="py-2 pr-3">{tr('ЕИК', 'UIC', 'الرقم الموحد')}</th>
+                        <th className="py-2">{tr('Поле', 'Field', 'حقل')}</th>
+                        <th className="py-2 text-right">{tr('Действие', 'Action', 'إجراء')}</th>
                       </tr>
                     </thead>
                     <tbody>
@@ -554,10 +557,10 @@ export default function CompanySearchPage() {
                 value={query}
                 placeholder={
                   mode === 'company-name'
-                    ? 'Пример: АФЕКТ'
+                    ? tr('Пример: АФЕКТ', 'Example: AFFECT', 'مثال: AFFECT')
                     : mode === 'eik'
-                      ? 'Пример: 204441987'
-                      : 'Пример: Мария Миланова'
+                      ? tr('Пример: 204441987', 'Example: 204441987', 'مثال: 204441987')
+                      : tr('Пример: Мария Миланова', 'Example: Maria Milanova', 'مثال: Maria Milanova')
                 }
                 onChange={(event) => {
                   const nextValue = mode === 'eik' ? event.target.value.replace(/\D/g, '') : event.target.value;
@@ -590,7 +593,7 @@ export default function CompanySearchPage() {
           <div className="flex items-center justify-between mb-4">
             <h2 className="rc-display font-bold text-xl text-[var(--s-text)]">{tr('Резултати', 'Results', 'النتائج')}</h2>
             {hasSearched && !loading && (
-              <span className="text-xs uppercase tracking-[0.2em] text-[var(--s-muted)]">{results.length} записа</span>
+              <span className="text-xs uppercase tracking-[0.2em] text-[var(--s-muted)]">{results.length} {tr('записа', 'records', 'سجلات')}</span>
             )}
           </div>
 

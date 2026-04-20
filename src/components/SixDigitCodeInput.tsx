@@ -1,6 +1,7 @@
 'use client';
 
 import { useMemo, useRef } from 'react';
+import { useI18n } from '@/i18n';
 
 type SixDigitCodeInputProps = {
   value: string;
@@ -23,6 +24,8 @@ export default function SixDigitCodeInput({
   autoFocus = false,
   className = '',
 }: SixDigitCodeInputProps) {
+  const { locale } = useI18n();
+  const tr = (bg: string, en: string, ar: string) => (locale === 'ar' ? ar : locale === 'en' ? en : bg);
   const inputsRef = useRef<Array<HTMLInputElement | null>>([]);
   const digits = useMemo(() => normalize(value).split(''), [value]);
 
@@ -108,7 +111,7 @@ export default function SixDigitCodeInput({
           onChange={(event) => handleChange(index, event.target.value)}
           onKeyDown={(event) => handleKeyDown(index, event)}
           onFocus={(event) => event.target.select()}
-          aria-label={`Цифра ${index + 1} от 6`}
+          aria-label={tr(`Цифра ${index + 1} от 6`, `Digit ${index + 1} of 6`, `الرقم ${index + 1} من 6`)}
           className="h-12 w-11 sm:h-14 sm:w-12 rounded-xl sm:rounded-2xl border text-center text-lg sm:text-xl font-extrabold transition-all duration-200 outline-none"
           style={{
             background: 'var(--s-surface2)',

@@ -66,13 +66,13 @@ export default function PublicSignalDetailPage() {
         const response = await fetch(`/api/reports/public/${params.id}`);
 
         if (!response.ok) {
-          throw new Error('Сигналът не е намерен или не е публичен.');
+          throw new Error(locale === 'bg' ? 'Сигналът не е намерен или не е публичен.' : locale === 'en' ? 'Report not found or not public.' : 'البلاغ غير موجود أو ليس عاما.');
         }
 
         const data = await response.json();
         setReport(data);
       } catch (err) {
-        const message = err instanceof Error ? err.message : 'Възникна грешка при зареждане.';
+        const message = err instanceof Error ? err.message : locale === 'bg' ? 'Възникна грешка при зареждане.' : locale === 'en' ? 'An error occurred while loading.' : 'حدث خطأ أثناء التحميل.';
         setError(message);
       } finally {
         setLoading(false);
@@ -154,11 +154,11 @@ export default function PublicSignalDetailPage() {
           <div className="grid md:grid-cols-2 gap-3 mt-6 text-sm">
             <div className="rounded-xl p-3" style={{ background: 'var(--s-surface2)' }}>
               <p className="text-[10px] uppercase tracking-[0.25em] text-[var(--s-muted)]">{copy.category}</p>
-              <p className="text-[var(--s-text)] font-semibold mt-1">{formatCategoryLabel(report.category || null, 'Без категория')}</p>
+              <p className="text-[var(--s-text)] font-semibold mt-1">{formatCategoryLabel(report.category || null, locale === 'bg' ? 'Без категория' : locale === 'en' ? 'Uncategorized' : 'بدون فئة')}</p>
             </div>
             <div className="rounded-xl p-3" style={{ background: 'var(--s-surface2)' }}>
               <p className="text-[10px] uppercase tracking-[0.25em] text-[var(--s-muted)]">{copy.date}</p>
-              <p className="text-[var(--s-text)] font-semibold mt-1">{new Date(report.createdAt).toLocaleString('bg-BG')}</p>
+              <p className="text-[var(--s-text)] font-semibold mt-1">{new Date(report.createdAt).toLocaleString(locale === 'bg' ? 'bg-BG' : locale === 'en' ? 'en-US' : 'ar-SA')}</p>
             </div>
             <div className="rounded-xl p-3" style={{ background: 'var(--s-surface2)' }}>
               <p className="text-[10px] uppercase tracking-[0.25em] text-[var(--s-muted)]">{copy.location}</p>

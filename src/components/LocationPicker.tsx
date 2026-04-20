@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState } from 'react';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
+import { useI18n } from '@/i18n';
 
 interface LocationPickerProps {
   latitude: number;
@@ -52,6 +53,8 @@ export default function LocationPicker({
   longitude,
   onLocationChange,
 }: LocationPickerProps) {
+  const { locale } = useI18n();
+  const tr = (bg: string, en: string, ar: string) => (locale === 'ar' ? ar : locale === 'en' ? en : bg);
   const mapRef = useRef<HTMLDivElement>(null);
   const mapInstanceRef = useRef<L.Map | null>(null);
   const markerRef = useRef<L.Marker | null>(null);
@@ -126,12 +129,12 @@ export default function LocationPicker({
       {district && (
         <div className="mt-3 p-3 rounded-xl bg-blue-50 border border-blue-100">
           <p className="text-sm text-blue-900">
-            <span className="font-semibold">Избран район:</span> {district}
+            <span className="font-semibold">{tr('Избран район:', 'Selected district:', 'المنطقة المحددة:')}</span> {district}
           </p>
         </div>
       )}
       <p className="text-xs text-slate-500 mt-2">
-        Кликнете на картата или плъзнете маркера, за да изберете локация
+        {tr('Кликнете на картата или плъзнете маркера, за да изберете локация', 'Click on the map or drag the marker to select a location', 'انقر على الخريطة أو اسحب العلامة لتحديد الموقع')}
       </p>
     </div>
   );

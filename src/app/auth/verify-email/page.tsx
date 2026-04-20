@@ -23,22 +23,20 @@ interface VerifyResponse {
 }
 
 function VerifyEmailContent() {
-  const { locale } = useI18n();
+  const { t } = useI18n();
   const router = useRouter();
   const searchParams = useSearchParams();
 
   const token = useMemo(() => searchParams.get('token') || '', [searchParams]);
 
   const [state, setState] = useState<VerifyState>('loading');
-  const [message, setMessage] = useState(
-    locale === 'bg' ? 'Проверяваме потвърдителния линк...' : locale === 'en' ? 'Verifying confirmation link...' : 'جار التحقق من رابط التأكيد...'
-  );
+  const [message, setMessage] = useState(t('auth.verify.verifyingLink'));
 
   useEffect(() => {
     const verifyEmail = async () => {
       if (!token) {
         setState('error');
-        setMessage('Липсва token в линка за потвърждение.');
+        setMessage(t('auth.verify.missingToken'));
         return;
       }
 
@@ -49,7 +47,7 @@ function VerifyEmailContent() {
 
         if (response.data.alreadyVerified) {
           setState('already');
-          setMessage(response.data.message || 'Имейлът вече е потвърден.');
+          setMessage(response.data.message || t('auth.verify.already'));
           return;
         }
 
@@ -59,12 +57,12 @@ function VerifyEmailContent() {
         }
 
         setState('success');
-        setMessage(response.data.message || 'Имейлът е потвърден успешно!');
+        setMessage(response.data.message || t('auth.verify.success'));
       } catch (err: any) {
         setState('error');
         setMessage(
           err?.response?.data?.error ||
-            'Не успяхме да потвърдим имейла. Линкът може да е невалиден или изтекъл.'
+            t('auth.verify.failed')
         );
       }
     };
@@ -119,9 +117,7 @@ function VerifyEmailContent() {
               <div className="w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-6 border border-[var(--s-border)] bg-[var(--s-surface2)]">
                 <span className="text-3xl">⏳</span>
               </div>
-              <h1 className="text-2xl font-extrabold rc-display text-[var(--s-text)] mb-3">
-                {locale === 'bg' ? 'Потвърждаваме имейла...' : locale === 'en' ? 'Verifying email...' : 'جار تأكيد البريد الإلكتروني...'}
-              </h1>
+              <h1 className="text-2xl font-extrabold rc-display text-[var(--s-text)] mb-3">{t('auth.verify.verifyingTitle')}</h1>
             </>
           )}
 
@@ -136,9 +132,7 @@ function VerifyEmailContent() {
               >
                 <span className="text-4xl">✅</span>
               </div>
-              <h1 className="text-2xl font-extrabold rc-display text-[var(--s-text)] mb-3">
-                {locale === 'bg' ? 'Успешно потвърждение' : locale === 'en' ? 'Verification successful' : 'تم التأكيد بنجاح'}
-              </h1>
+              <h1 className="text-2xl font-extrabold rc-display text-[var(--s-text)] mb-3">{t('auth.verify.successTitle')}</h1>
             </>
           )}
 
@@ -153,9 +147,7 @@ function VerifyEmailContent() {
               >
                 <span className="text-4xl">ℹ️</span>
               </div>
-              <h1 className="text-2xl font-extrabold rc-display text-[var(--s-text)] mb-3">
-                {locale === 'bg' ? 'Имейлът вече е потвърден' : locale === 'en' ? 'Email already verified' : 'تم تأكيد البريد الإلكتروني مسبقا'}
-              </h1>
+              <h1 className="text-2xl font-extrabold rc-display text-[var(--s-text)] mb-3">{t('auth.verify.alreadyTitle')}</h1>
             </>
           )}
 
@@ -170,9 +162,7 @@ function VerifyEmailContent() {
               >
                 <span className="text-4xl">⚠️</span>
               </div>
-              <h1 className="text-2xl font-extrabold rc-display text-[var(--s-text)] mb-3">
-                {locale === 'bg' ? 'Потвърждението е неуспешно' : locale === 'en' ? 'Verification failed' : 'فشل التأكيد'}
-              </h1>
+              <h1 className="text-2xl font-extrabold rc-display text-[var(--s-text)] mb-3">{t('auth.verify.errorTitle')}</h1>
             </>
           )}
 
@@ -188,7 +178,7 @@ function VerifyEmailContent() {
                 boxShadow: '0 0 28px var(--s-glow-v)',
               }}
             >
-              {locale === 'bg' ? 'Продължи към платформата' : locale === 'en' ? 'Continue to platform' : 'المتابعة إلى المنصة'}
+              {t('auth.verify.continue')}
             </button>
           )}
 
@@ -201,7 +191,7 @@ function VerifyEmailContent() {
                 boxShadow: '0 0 28px rgba(239,68,68,0.35)',
               }}
             >
-              {locale === 'bg' ? 'Към регистрация' : locale === 'en' ? 'Go to registration' : 'الذهاب إلى التسجيل'}
+              {t('auth.verify.toRegister')}
             </Link>
           )}
 
@@ -209,7 +199,7 @@ function VerifyEmailContent() {
             href="/auth/login"
             className="inline-block mt-5 text-sm text-[var(--s-muted)] hover:text-[var(--s-text)] transition-colors"
           >
-            {locale === 'bg' ? 'Към вход' : locale === 'en' ? 'Back to login' : 'العودة إلى تسجيل الدخول'}
+            {t('auth.verify.backToLogin')}
           </Link>
         </div>
       </div>
@@ -218,9 +208,9 @@ function VerifyEmailContent() {
 }
 
 export default function VerifyEmailPage() {
-  const { locale } = useI18n();
+  const { t } = useI18n();
   return (
-    <Suspense fallback={<div className="min-h-screen flex items-center justify-center">{locale === 'bg' ? 'Зареждане...' : locale === 'en' ? 'Loading...' : 'جار التحميل...'}</div>}>
+    <Suspense fallback={<div className="min-h-screen flex items-center justify-center">{t('auth.loading')}</div>}>
       <VerifyEmailContent />
     </Suspense>
   );

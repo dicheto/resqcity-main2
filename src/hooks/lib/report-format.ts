@@ -11,7 +11,8 @@ type CategoryLike =
 
 export function formatCategoryLabel(
   category: CategoryLike,
-  fallback = 'No category'
+  fallback = 'No category',
+  locale: 'bg' | 'en' | 'ar' = 'bg'
 ): string {
   if (!category) {
     return fallback;
@@ -20,7 +21,11 @@ export function formatCategoryLabel(
   const rawLabel =
     typeof category === 'string'
       ? category
-      : category.nameBg || category.nameEn || category.name || category.key || '';
+      : locale === 'en'
+        ? category.nameEn || category.nameBg || category.name || category.key || ''
+        : locale === 'ar'
+          ? category.name || category.nameBg || category.nameEn || category.key || ''
+          : category.nameBg || category.nameEn || category.name || category.key || '';
 
   if (!rawLabel) {
     return fallback;

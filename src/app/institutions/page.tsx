@@ -15,16 +15,18 @@ interface ReportItem {
   district?: string | null;
 }
 
-const STATUS_LABELS: Record<string, string> = {
-  PENDING: 'В обработка',
-  IN_REVIEW: 'Преглеждан',
-  IN_PROGRESS: 'В процес',
-  RESOLVED: 'Решен',
-  REJECTED: 'Отхвърлен',
-};
-
 export default function InstitutionPortalPage() {
   const { locale } = useI18n();
+  const tr = (bg: string, en: string, ar: string) => (locale === 'ar' ? ar : locale === 'en' ? en : bg);
+  const getStatusLabel = (status: string) =>
+    ({
+      PENDING: tr('В обработка', 'Pending', 'قيد المعالجة'),
+      IN_REVIEW: tr('Преглеждан', 'In review', 'قيد المراجعة'),
+      IN_PROGRESS: tr('В процес', 'In progress', 'قيد التنفيذ'),
+      RESOLVED: tr('Решен', 'Resolved', 'تم الحل'),
+      REJECTED: tr('Отхвърлен', 'Rejected', 'مرفوض'),
+      NEW: tr('В обработка', 'Pending', 'قيد المعالجة'),
+    } as Record<string, string>)[status] || status;
   const router = useRouter();
   const copy = {
     title: locale === 'bg' ? 'Сигнали към вашата институция' : locale === 'en' ? 'Reports for your institution' : 'البلاغات المرسلة إلى مؤسستكم',
@@ -113,8 +115,8 @@ export default function InstitutionPortalPage() {
                     </p>
                   </div>
                   <div className="text-right">
-                    <p className="text-xs text-[var(--s-teal)] uppercase tracking-wider font-semibold">{STATUS_LABELS[report.status] || report.status}</p>
-                    <p className="text-xs text-[var(--s-muted)] mt-1">{new Date(report.updatedAt).toLocaleString('bg-BG')}</p>
+                    <p className="text-xs text-[var(--s-teal)] uppercase tracking-wider font-semibold">{getStatusLabel(report.status)}</p>
+                    <p className="text-xs text-[var(--s-muted)] mt-1">{new Date(report.updatedAt).toLocaleString(locale === 'bg' ? 'bg-BG' : locale === 'ar' ? 'ar-SA' : 'en-US')}</p>
                   </div>
                 </div>
               </Link>

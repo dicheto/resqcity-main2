@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { CheckCircle, XCircle, AlertCircle, Loader } from "lucide-react";
+import { useI18n } from "@/i18n";
 
 interface Photo {
   id: string;
@@ -44,6 +45,8 @@ interface Incident {
 }
 
 export function DispatcherVerificationDashboard() {
+  const { locale } = useI18n();
+  const tr = (bg: string, en: string, ar: string) => (locale === "ar" ? ar : locale === "en" ? en : bg);
   const [incidents, setIncidents] = useState<Incident[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedIncident, setSelectedIncident] = useState<Incident | null>(null);
@@ -110,13 +113,13 @@ export function DispatcherVerificationDashboard() {
 
       if (!response.ok) {
         if (response.status === 403) {
-          const errorMsg = "Нямате права за достъп до тази страница";
+          const errorMsg = tr("Нямате права за достъп до тази страница", "You do not have permission to access this page", "ليس لديك صلاحية للوصول إلى هذه الصفحة");
           console.error("[DashboardFetch] Access denied:", response.status);
           setError(errorMsg);
           return;
         }
         const errorData = await response.json().catch(() => ({}));
-        throw new Error(errorData.error || `HTTP ${response.status}: Неуспешно зареждане на сигналите`);
+        throw new Error(errorData.error || `HTTP ${response.status}: ${tr("Неуспешно зареждане на сигналите", "Failed to load reports", "فشل تحميل البلاغات")}`);
       }
 
       const data = await response.json();
@@ -138,7 +141,7 @@ export function DispatcherVerificationDashboard() {
       
         setIncidents(data.incidents);
       } catch (error) {
-      const errorMsg = error instanceof Error ? error.message : "Неуспешно зареждане на сигналите";
+      const errorMsg = error instanceof Error ? error.message : tr("Неуспешно зареждане на сигналите", "Failed to load reports", "فشل تحميل البلاغات");
       console.error("[DashboardFetch] Error:", errorMsg, error);
       setError(errorMsg);
     } finally {
@@ -168,10 +171,10 @@ export function DispatcherVerificationDashboard() {
 
       if (!response.ok) {
         const errorData = await response.json();
-        throw new Error(errorData.error || "Неуспешно потвърждение на сигнала");
+        throw new Error(errorData.error || tr("Неуспешно потвърждение на сигнала", "Failed to verify report", "فشل تأكيد البلاغ"));
       }
 
-      setSuccess("Сигналът е потвърден успешно. Изпратено е известие до собственика.");
+      setSuccess(tr("Сигналът е потвърден успешно. Изпратено е известие до собственика.", "Report verified successfully. A notification was sent to the owner.", "تم تأكيد البلاغ بنجاح. تم إرسال إشعار إلى المالك."));
       setVerificationNotes("");
       setSelectedIncident(null);
 
@@ -181,7 +184,7 @@ export function DispatcherVerificationDashboard() {
         fetchAllCounts();
       }, 1000);
     } catch (error) {
-      setError(error instanceof Error ? error.message : "Неуспешно потвърждение на сигнала");
+      setError(error instanceof Error ? error.message : tr("Неуспешно потвърждение на сигнала", "Failed to verify report", "فشل تأكيد البلاغ"));
     } finally {
       setVerifying(false);
     }
@@ -189,7 +192,7 @@ export function DispatcherVerificationDashboard() {
 
   const handleReject = async () => {
     if (!selectedIncident || !rejectionReason.trim()) {
-      setError("Моля, въведете причина за отхвърляне");
+      setError(tr("Моля, въведете причина за отхвърляне", "Please enter a rejection reason", "يرجى إدخال سبب الرفض"));
       return;
     }
 
@@ -213,10 +216,10 @@ export function DispatcherVerificationDashboard() {
 
       if (!response.ok) {
         const errorData = await response.json();
-        throw new Error(errorData.error || "Неуспешно отхвърляне на сигнала");
+        throw new Error(errorData.error || tr("Неуспешно отхвърляне на сигнала", "Failed to reject report", "فشل رفض البلاغ"));
       }
 
-      setSuccess("Сигналът е отхвърлен. Изпратено е известие до собственика.");
+      setSuccess(tr("Сигналът е отхвърлен. Изпратено е известие до собственика.", "Report rejected. A notification was sent to the owner.", "تم رفض البلاغ. تم إرسال إشعار إلى المالك."));
       setVerificationNotes("");
       setRejectionReason("");
       setSelectedIncident(null);
@@ -227,7 +230,7 @@ export function DispatcherVerificationDashboard() {
         fetchAllCounts();
       }, 1000);
     } catch (error) {
-      setError(error instanceof Error ? error.message : "Неуспешно отхвърляне на сигнала");
+      setError(error instanceof Error ? error.message : tr("Неуспешно отхвърляне на сигнала", "Failed to reject report", "فشل رفض البلاغ"));
     } finally {
       setVerifying(false);
     }
@@ -253,10 +256,10 @@ export function DispatcherVerificationDashboard() {
         {/* Header */}
         <div>
           <h2 className="text-3xl font-bold text-[var(--s-text)]">
-            🚨 Диспечерско табло за верификация
+            🚨 {tr("Диспечерско табло за верификация", "Dispatcher verification dashboard", "لوحة تحقق الموزع")}
           </h2>
           <p className="text-[var(--s-muted)] mt-2">
-            Преглед и потвърждение на сигнали за превозни средства
+            {tr("Преглед и потвърждение на сигнали за превозни средства", "Review and verify vehicle reports", "مراجعة وتأكيد بلاغات المركبات")}
           </p>
         </div>
 
@@ -270,7 +273,7 @@ export function DispatcherVerificationDashboard() {
                 : "border-transparent text-[var(--s-muted)] hover:text-[var(--s-text)]"
             }`}
           >
-            За преглед ({counts.UNDER_REVIEW})
+            {tr("За преглед", "For review", "للمراجعة")} ({counts.UNDER_REVIEW})
           </button>
           <button
             onClick={() => setFilter("VERIFIED")}
@@ -280,7 +283,7 @@ export function DispatcherVerificationDashboard() {
                 : "border-transparent text-[var(--s-muted)] hover:text-[var(--s-text)]"
             }`}
           >
-            Потвърдени ({counts.VERIFIED})
+            {tr("Потвърдени", "Verified", "تم التأكيد")} ({counts.VERIFIED})
           </button>
           <button
             onClick={() => setFilter("REJECTED")}
@@ -290,7 +293,7 @@ export function DispatcherVerificationDashboard() {
                 : "border-transparent text-[var(--s-muted)] hover:text-[var(--s-text)]"
             }`}
           >
-            Отхвърлени ({counts.REJECTED})
+            {tr("Отхвърлени", "Rejected", "مرفوضة")} ({counts.REJECTED})
           </button>
         </div>
 
@@ -318,10 +321,10 @@ export function DispatcherVerificationDashboard() {
             <CheckCircle size={48} className="mx-auto text-[var(--s-muted)] mb-4" />
             <p className="text-[var(--s-muted)] text-lg font-semibold">
               {filter === "UNDER_REVIEW"
-                ? "Няма сигнали за преглед"
+                ? tr("Няма сигнали за преглед", "No reports for review", "لا توجد بلاغات للمراجعة")
                 : filter === "VERIFIED"
-                ? "Няма потвърдени сигнали"
-                : "Няма отхвърлени сигнали"}
+                ? tr("Няма потвърдени сигнали", "No verified reports", "لا توجد بلاغات مؤكدة")
+                : tr("Няма отхвърлени сигнали", "No rejected reports", "لا توجد بلاغات مرفوضة")}
             </p>
           </div>
         ) : (
@@ -365,15 +368,15 @@ export function DispatcherVerificationDashboard() {
                 <div className="flex items-center justify-between">
                   <div className="text-sm text-[var(--s-muted)]">
                     <p>
-                      <strong className="text-[var(--s-text)]">Подаден от:</strong> {incident.user.firstName}{" "}
+                      <strong className="text-[var(--s-text)]">{tr("Подаден от:", "Submitted by:", "مقدم من:")}</strong> {incident.user.firstName}{" "}
                       {incident.user.lastName}
                     </p>
                     <p>
-                      <strong className="text-[var(--s-text)]">Снимки:</strong> {incident.photos.length}
+                      <strong className="text-[var(--s-text)]">{tr("Снимки:", "Photos:", "الصور:")}</strong> {incident.photos.length}
                     </p>
                   </div>
                   <div className="text-blue-400 font-semibold">
-                    Преглед → <span className="text-lg">›</span>
+                    {tr("Преглед", "Review", "مراجعة")} → <span className="text-lg">›</span>
                   </div>
                 </div>
               </button>
@@ -392,7 +395,7 @@ export function DispatcherVerificationDashboard() {
         onClick={() => setSelectedIncident(null)}
         className="text-blue-400 hover:text-blue-300 font-semibold transition"
       >
-        ← Назад към списъка
+        ← {tr("Назад към списъка", "Back to list", "العودة إلى القائمة")}
       </button>
 
       {/* Error/Success Messages */}
@@ -415,11 +418,11 @@ export function DispatcherVerificationDashboard() {
         <div className="lg:col-span-2 space-y-6">
           {/* Incident Info */}
           <div className="rounded-2xl border border-[var(--s-border)] p-6" style={{ background: 'var(--s-surface)' }}>
-            <h2 className="text-2xl font-bold mb-4 text-[var(--s-text)]">Детайли за сигнала</h2>
+            <h2 className="text-2xl font-bold mb-4 text-[var(--s-text)]">{tr("Детайли за сигнала", "Report details", "تفاصيل البلاغ")}</h2>
 
             <div className="grid grid-cols-2 gap-4 mb-4 pb-4 border-b border-[var(--s-border)]">
               <div>
-                <p className="text-sm text-[var(--s-muted)]">Превозно средство</p>
+                <p className="text-sm text-[var(--s-muted)]">{tr("Превозно средство", "Vehicle", "المركبة")}</p>
                 <p className="text-lg font-semibold text-[var(--s-text)]">
                   {selectedIncident.vehicle.brand}{" "}
                   {selectedIncident.vehicle.model}
@@ -429,7 +432,7 @@ export function DispatcherVerificationDashboard() {
                 </p>
               </div>
               <div>
-                <p className="text-sm text-[var(--s-muted)]">Тип сигнал</p>
+                <p className="text-sm text-[var(--s-muted)]">{tr("Тип сигнал", "Report type", "نوع البلاغ")}</p>
                 <span
                   className={`inline-block px-3 py-1 rounded-full text-sm font-semibold ${getIncidentTypeColor(
                     selectedIncident.type
@@ -441,7 +444,7 @@ export function DispatcherVerificationDashboard() {
             </div>
 
             <div className="mb-6">
-              <p className="text-sm text-[var(--s-muted)] mb-2">Описание</p>
+              <p className="text-sm text-[var(--s-muted)] mb-2">{tr("Описание", "Description", "الوصف")}</p>
               <p className="text-[var(--s-text)] leading-relaxed">
                 {selectedIncident.description}
               </p>
@@ -449,11 +452,11 @@ export function DispatcherVerificationDashboard() {
 
             {selectedIncident.address && (
               <div className="mb-4">
-                <p className="text-sm text-[var(--s-muted)]">Локация</p>
+                <p className="text-sm text-[var(--s-muted)]">{tr("Локация", "Location", "الموقع")}</p>
                 <p className="text-[var(--s-text)]">{selectedIncident.address}</p>
                 {selectedIncident.latitude &&selectedIncident.longitude && (
                   <p className="text-sm text-[var(--s-muted)]">
-                    Координати: {selectedIncident.latitude.toFixed(4)},{" "}
+                    {tr("Координати", "Coordinates", "الإحداثيات")}: {selectedIncident.latitude.toFixed(4)},{" "}
                     {selectedIncident.longitude.toFixed(4)}
                   </p>
                 )}
@@ -463,17 +466,17 @@ export function DispatcherVerificationDashboard() {
 
           {/* Reporter Info */}
           <div className="rounded-2xl border border-[var(--s-border)] p-6" style={{ background: 'var(--s-surface)' }}>
-            <h3 className="text-lg font-bold mb-4 text-[var(--s-text)]">Информация за подателя</h3>
+            <h3 className="text-lg font-bold mb-4 text-[var(--s-text)]">{tr("Информация за подателя", "Reporter information", "معلومات المبلّغ")}</h3>
             <div className="space-y-2">
               <p className="text-[var(--s-muted)]">
-                <strong className="text-[var(--s-text)]">Име:</strong> {selectedIncident.user.firstName}{" "}
+                <strong className="text-[var(--s-text)]">{tr("Име:", "Name:", "الاسم:")}</strong> {selectedIncident.user.firstName}{" "}
                 {selectedIncident.user.lastName}
               </p>
               <p className="text-[var(--s-muted)]">
-                <strong className="text-[var(--s-text)]">Имейл:</strong> {selectedIncident.user.email}
+                <strong className="text-[var(--s-text)]">{tr("Имейл:", "Email:", "البريد الإلكتروني:")}</strong> {selectedIncident.user.email}
               </p>
               <p className="text-[var(--s-muted)]">
-                <strong className="text-[var(--s-text)]">Телефон:</strong> {selectedIncident.user.phone}
+                <strong className="text-[var(--s-text)]">{tr("Телефон:", "Phone:", "الهاتف:")}</strong> {selectedIncident.user.phone}
               </p>
             </div>
           </div>
@@ -482,7 +485,7 @@ export function DispatcherVerificationDashboard() {
           {selectedIncident.photos.length > 0 && (
             <div className="rounded-2xl border border-[var(--s-border)] p-6" style={{ background: 'var(--s-surface)' }}>
               <h3 className="text-lg font-bold mb-4 text-[var(--s-text)]">
-                📸 Качени снимки ({selectedIncident.photos.length})
+                📸 {tr("Качени снимки", "Uploaded photos", "الصور المرفوعة")} ({selectedIncident.photos.length})
               </h3>
               <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
                 {selectedIncident.photos.map((photo) => (
@@ -495,7 +498,7 @@ export function DispatcherVerificationDashboard() {
                   >
                     <img
                       src={resolvePhotoUrl(photo.filePath)}
-                      alt="Снимка от сигнала"
+                      alt={tr("Снимка от сигнала", "Report photo", "صورة البلاغ")}
                       className="w-full h-40 object-cover rounded-lg border border-[var(--s-border)] group-hover:opacity-75 transition"
                     />
                     <p className="text-xs text-[var(--s-muted)] mt-1 group-hover:text-blue-400">
@@ -510,17 +513,17 @@ export function DispatcherVerificationDashboard() {
 
         {/* Verification Panel */}
         <div className="rounded-2xl border border-[var(--s-border)] p-6 h-fit sticky top-6" style={{ background: 'var(--s-surface)' }}>
-          <h3 className="text-lg font-bold mb-4 text-[var(--s-text)]">Верификация</h3>
+          <h3 className="text-lg font-bold mb-4 text-[var(--s-text)]">{tr("Верификация", "Verification", "التحقق")}</h3>
 
           <div className="space-y-4 mb-6">
             <div>
               <label className="block text-sm font-semibold mb-2 text-[var(--s-text)]">
-                Бележки за верификация (по избор)
+                {tr("Бележки за верификация (по избор)", "Verification notes (optional)", "ملاحظات التحقق (اختياري)")}
               </label>
               <textarea
                 value={verificationNotes}
                 onChange={(e) => setVerificationNotes(e.target.value)}
-                placeholder="Опишете констатациите си..."
+                placeholder={tr("Опишете констатациите си...", "Describe your findings...", "صف ملاحظاتك...")}
                 className="site-input w-full h-24 text-sm"
                 disabled={verifying}
               />
@@ -536,19 +539,19 @@ export function DispatcherVerificationDashboard() {
             >
               {verifying && <Loader size={18} className="animate-spin" />}
               <CheckCircle size={18} />
-              Потвърди сигнала
+              {tr("Потвърди сигнала", "Verify report", "تأكيد البلاغ")}
             </button>
           </div>
 
           <div className="border-t border-[var(--s-border)] pt-4">
             <div className="mb-4">
               <label className="block text-sm font-semibold mb-2 text-[var(--s-text)]">
-                Причина за отхвърляне (ако отхвърляте)
+                {tr("Причина за отхвърляне (ако отхвърляте)", "Reason for rejection (if rejecting)", "سبب الرفض (عند الرفض)")}
               </label>
               <textarea
                 value={rejectionReason}
                 onChange={(e) => setRejectionReason(e.target.value)}
-                placeholder="Защо този сигнал се отхвърля?"
+                placeholder={tr("Защо този сигнал се отхвърля?", "Why is this report rejected?", "لماذا تم رفض هذا البلاغ؟")}
                 className="site-input w-full h-20 text-sm"
                 disabled={verifying}
               />
@@ -561,7 +564,7 @@ export function DispatcherVerificationDashboard() {
             >
               {verifying && <Loader size={18} className="animate-spin" />}
               <XCircle size={18} />
-              Отхвърли сигнала
+              {tr("Отхвърли сигнала", "Reject report", "رفض البلاغ")}
             </button>
           </div>
         </div>
