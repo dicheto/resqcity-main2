@@ -1,5 +1,7 @@
 'use client';
 
+import { useI18n } from '@/i18n';
+
 export interface PasswordRequirementsProps {
   password: string;
   confirmPassword?: string;
@@ -23,6 +25,7 @@ const CheckIcon = ({ met }: { met: boolean }) => (
 );
 
 export function PasswordRequirements({ password, confirmPassword = '', showConfirm = true }: PasswordRequirementsProps) {
+  const { t } = useI18n();
   const atLeast8 = password.length >= 8;
   const hasUppercase = /[A-ZА-Я]/.test(password);
   const hasNumber = /\d/.test(password);
@@ -54,33 +57,33 @@ export function PasswordRequirements({ password, confirmPassword = '', showConfi
         className="text-sm font-semibold mb-3 pr-8 relative z-10"
         style={{ color: 'var(--s-teal)' }}
       >
-        Изисквания за парола:
+        {t('password.requirements')}
       </h4>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-2 relative z-10">
         <div className="flex items-center gap-2">
           <CheckIcon met={atLeast8} />
           <span style={{ color: atLeast8 ? 'var(--s-teal)' : 'var(--s-muted2)', fontSize: '0.8rem' }}>
-            Поне 8 символа
+            {t('password.minLength')}
           </span>
         </div>
         <div className="flex items-center gap-2">
           <CheckIcon met={hasUppercase} />
           <span style={{ color: hasUppercase ? 'var(--s-teal)' : 'var(--s-muted2)', fontSize: '0.8rem' }}>
-            Съдържа главна буква
+            {t('password.uppercase')}
           </span>
         </div>
         <div className="flex items-center gap-2">
           <CheckIcon met={hasNumber} />
           <span style={{ color: hasNumber ? 'var(--s-teal)' : 'var(--s-muted2)', fontSize: '0.8rem' }}>
-            Съдържа цифра
+            {t('password.number')}
           </span>
         </div>
         {showConfirm && (
           <div className="flex items-center gap-2">
             <CheckIcon met={passwordsMatch} />
             <span style={{ color: passwordsMatch ? 'var(--s-teal)' : 'var(--s-muted2)', fontSize: '0.8rem' }}>
-              Паролите съвпадат
+              {t('password.match')}
             </span>
           </div>
         )}

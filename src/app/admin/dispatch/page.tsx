@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react';
 import axios from 'axios';
 import { generateMockSignature, signPdfWithPades } from '@/hooks/lib/document-signing';
+import { useI18n } from '@/i18n';
 
 interface DispatchDocument {
   id: string;
@@ -72,6 +73,8 @@ interface BissPrepareResponse {
 type SigningMethod = 'mock' | 'biss' | 'manual';
 
 export default function DispatchPage() {
+  const { locale } = useI18n();
+  const tr = (bg: string, en: string, ar: string) => (locale === 'ar' ? ar : locale === 'en' ? en : bg);
   const [loading, setLoading] = useState(true);
   const [working, setWorking] = useState(false);
   const [batches, setBatches] = useState<DispatchBatch[]>([]);
@@ -230,7 +233,7 @@ export default function DispatchPage() {
       }
     }
 
-    throw new Error('BISS не е открит. Уверете се, че локалната BISS услуга е стартирана.');
+    throw new Error(tr('BISS не е открит. Уверете се, че локалната BISS услуга е стартирана.', 'BISS not found. Make sure the local BISS service is running.', 'لم يتم العثور على BISS. تأكد من تشغيل خدمة BISS المحلية.'));
   };
 
   const callBissGetSigner = async (bissBaseUrl: string): Promise<BissGetSignerResponse> => {
@@ -487,9 +490,9 @@ export default function DispatchPage() {
   return (
     <div className="px-6 py-10 max-w-7xl mx-auto">
       <div className="mb-8">
-        <p className="text-xs uppercase tracking-[0.4em] admin-muted">Изпращане</p>
+        <p className="text-xs uppercase tracking-[0.4em] admin-muted">{tr('Изпращане', 'Dispatch', 'الإرسال')}</p>
         <h1 className="text-3xl md:text-4xl font-semibold rc-display admin-text mt-3">
-          Управление на пакети
+          {tr('Управление на пакети', 'Batch management', 'إدارة الدُفعات')}
         </h1>
       </div>
 
@@ -497,7 +500,7 @@ export default function DispatchPage() {
       <div className="rounded-3xl data-card p-6 mb-6 border border-blue-500/30 bg-blue-500/10">
         <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
           <div>
-            <p className="text-sm font-medium admin-text mb-2">Метод на подписване:</p>
+            <p className="text-sm font-medium admin-text mb-2">{tr('Метод на подписване:', 'Signing method:', 'طريقة التوقيع:')}</p>
             <div className="flex gap-3">
               <button
                 type="button"
@@ -508,7 +511,7 @@ export default function DispatchPage() {
                     : 'border border-current bg-transparent admin-muted hover:admin-text'
                 }`}
               >
-                📦 Mock (Административна печат)
+                {tr('📦 Mock (Административна печат)', '📦 Mock (Administrative stamp)', '📦 وهمي (ختم إداري)')}
               </button>
               <button
                 type="button"
@@ -519,7 +522,7 @@ export default function DispatchPage() {
                     : 'border border-current bg-transparent admin-muted hover:admin-text'
                 }`}
               >
-                🔐 BISS (Локален)
+                {tr('🔐 BISS (Локален)', '🔐 BISS (Local)', '🔐 BISS (محلي)')}
               </button>
               <button
                 type="button"
@@ -530,17 +533,17 @@ export default function DispatchPage() {
                     : 'border border-current bg-transparent admin-muted hover:admin-text'
                 }`}
               >
-                💾 Ръчно (Сваляне)
+                {tr('💾 Ръчно (Сваляне)', '💾 Manual (Download)', '💾 يدوي (تنزيل)')}
               </button>
             </div>
           </div>
           <div className="text-xs admin-muted">
             {signingMethod === 'mock' ? (
-              <span className="text-green-400">Локално, ingen cyfri, PAdES</span>
+              <span className="text-green-400">{tr('Локално, ingen cyfri, PAdES', 'Local, no external cert, PAdES', 'محلي، بدون شهادة خارجية، PAdES')}</span>
             ) : signingMethod === 'biss' ? (
-              <span className="text-purple-400">Локален BISS сервис (портове 53952-53955)</span>
+              <span className="text-purple-400">{tr('Локален BISS сервис (портове 53952-53955)', 'Local BISS service (ports 53952-53955)', 'خدمة BISS محلية (المنافذ 53952-53955)')}</span>
             ) : (
-              <span className="text-blue-400">Сваляне → Външно подписване → Качване</span>
+              <span className="text-blue-400">{tr('Сваляне → Външно подписване → Качване', 'Download → External signing → Upload', 'تنزيل ← توقيع خارجي ← رفع')}</span>
             )}
           </div>
         </div>
@@ -554,7 +557,7 @@ export default function DispatchPage() {
             disabled={working}
             className="rounded-2xl border border-current bg-transparent admin-muted hover:admin-text transition-colors p-3 font-medium"
           >
-            🔄 Синхронизирай таксономия
+            {tr('🔄 Синхронизирай таксономия', '🔄 Sync taxonomy', '🔄 مزامنة التصنيف')}
           </button>
           <button
             type="button"
@@ -562,13 +565,13 @@ export default function DispatchPage() {
             disabled={working}
             className="rounded-2xl bg-gradient-to-br from-orange-500 to-orange-600 text-white hover:shadow-lg transition-all p-3 font-medium"
           >
-            📦 Генерирай пакети
+            {tr('📦 Генерирай пакети', '📦 Generate batches', '📦 إنشاء دفعات')}
           </button>
         </div>
       </div>
 
       {loading ? (
-        <div className="text-center py-8 admin-muted">Зареждане...</div>
+        <div className="text-center py-8 admin-muted">{tr('Зареждане...', 'Loading...', 'جار التحميل...')}</div>
       ) : batches.length > 0 ? (
         <>
           <div className="space-y-4">
@@ -689,7 +692,7 @@ export default function DispatchPage() {
           )}
         </>
       ) : (
-        <div className="text-center py-10 admin-muted">Няма генерирани пакети.</div>
+        <div className="text-center py-10 admin-muted">{tr('Няма генерирани пакети.', 'No generated batches.', 'لا توجد دفعات مُنشأة.')}</div>
       )}
     </div>
   );

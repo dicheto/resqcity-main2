@@ -3,8 +3,20 @@
 import { useEffect, useState } from 'react';
 import axios from 'axios';
 import Link from 'next/link';
+import { useI18n } from '@/i18n';
 
 export default function AdminReportsPage() {
+  const { locale } = useI18n();
+  const copy = {
+    mgmt: locale === 'bg' ? 'Управление на сигнали' : locale === 'en' ? 'Reports management' : 'إدارة البلاغات',
+    title: locale === 'bg' ? 'Всички сигнали' : locale === 'en' ? 'All reports' : 'كل البلاغات',
+    allStatuses: locale === 'bg' ? 'Всички статуси' : locale === 'en' ? 'All statuses' : 'كل الحالات',
+    allCategories: locale === 'bg' ? 'Всички категории' : locale === 'en' ? 'All categories' : 'كل الفئات',
+    loading: locale === 'bg' ? 'Зарежда се...' : locale === 'en' ? 'Loading...' : 'جار التحميل...',
+    none: locale === 'bg' ? 'Няма намерени сигнали' : locale === 'en' ? 'No reports found' : 'لا توجد بلاغات',
+    save: locale === 'bg' ? 'Запази' : locale === 'en' ? 'Save' : 'حفظ',
+    cancel: locale === 'bg' ? 'Отказ' : locale === 'en' ? 'Cancel' : 'إلغاء',
+  };
   const [reports, setReports] = useState<any[]>([]);
   const [categories, setCategories] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
@@ -135,8 +147,8 @@ export default function AdminReportsPage() {
   return (
     <div className="px-6 py-10 max-w-6xl mx-auto">
       <div className="mb-8">
-        <p className="text-xs uppercase tracking-[0.4em] admin-muted">Управление на сигнали</p>
-        <h1 className="text-3xl md:text-4xl font-semibold rc-display admin-text mt-3">Всички сигнали</h1>
+        <p className="text-xs uppercase tracking-[0.4em] admin-muted">{copy.mgmt}</p>
+        <h1 className="text-3xl md:text-4xl font-semibold rc-display admin-text mt-3">{copy.title}</h1>
       </div>
 
       <div className="rounded-2xl data-card p-4 mb-6">
@@ -146,7 +158,7 @@ export default function AdminReportsPage() {
             value={filter.status}
             onChange={(e) => handleFilterChange({ ...filter, status: e.target.value })}
           >
-            <option value="">Всички статуси</option>
+            <option value="">{copy.allStatuses}</option>
             <option value="PENDING">Изчакване</option>
             <option value="IN_REVIEW">На преглед</option>
             <option value="IN_PROGRESS">В процес</option>
@@ -159,7 +171,7 @@ export default function AdminReportsPage() {
             value={filter.category}
             onChange={(e) => handleFilterChange({ ...filter, category: e.target.value })}
           >
-            <option value="">Всички категории</option>
+            <option value="">{copy.allCategories}</option>
             {categories.map((category) => (
               <option key={category.id} value={category.id}>
                 {category.nameBg}
@@ -170,7 +182,7 @@ export default function AdminReportsPage() {
       </div>
 
       {loading ? (
-        <div className="text-center py-12 admin-muted">Зарежда се...</div>
+        <div className="text-center py-12 admin-muted">{copy.loading}</div>
       ) : reports.length > 0 ? (
         <>
           <div className="space-y-4">
@@ -286,7 +298,7 @@ export default function AdminReportsPage() {
         </>
       ) : (
         <div className="text-center py-12 text-[var(--a-muted)]">
-          <p className="text-lg">Няма намерени сигнали</p>
+          <p className="text-lg">{copy.none}</p>
         </div>
       )}
 
@@ -330,14 +342,14 @@ export default function AdminReportsPage() {
                 disabled={isSubmitting}
                 className="flex-1 px-4 py-3 rounded-xl border border-[var(--a-border)] bg-[var(--a-surface2)] admin-text text-sm font-medium hover:bg-[var(--a-surface3)] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                Отказ
+                {copy.cancel}
               </button>
               <button
                 onClick={handleStatusUpdate}
                 disabled={isSubmitting}
                 className="flex-1 px-4 py-3 rounded-xl bg-gradient-to-r from-violet-500 to-indigo-500 text-white text-sm font-semibold hover:shadow-lg hover:shadow-violet-500/30 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                {isSubmitting ? 'Записва се...' : 'Запази'}
+                {isSubmitting ? (locale === 'bg' ? 'Записва се...' : locale === 'en' ? 'Saving...' : 'جار الحفظ...') : copy.save}
               </button>
             </div>
           </div>

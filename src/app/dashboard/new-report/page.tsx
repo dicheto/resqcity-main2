@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import axios from 'axios';
 import dynamic from 'next/dynamic';
 import Link from 'next/link';
+import { useI18n } from '@/i18n';
 
 const LocationPicker = dynamic(() => import('@/components/LocationPicker'), {
   ssr: false,
@@ -44,7 +45,23 @@ const STEPS = [
 ];
 
 export default function NewReportPage() {
+  const { locale } = useI18n();
   const router = useRouter();
+  const copy = {
+    back: locale === 'bg' ? '← Назад към таблото' : locale === 'en' ? '← Back to dashboard' : '← العودة إلى لوحة التحكم',
+    badge: locale === 'bg' ? 'Нов сигнал' : locale === 'en' ? 'New report' : 'بلاغ جديد',
+    title: locale === 'bg' ? 'Подай сигнал' : locale === 'en' ? 'Submit report' : 'إرسال بلاغ',
+    subtitle: locale === 'bg' ? 'Опиши проблема и сподели точната локация.' : locale === 'en' ? 'Describe the issue and share the exact location.' : 'صف المشكلة وشارك الموقع بدقة.',
+    geolocFail: locale === 'bg' ? 'Не можахме да получим вашата локация. Моля, изберете от картата.' : locale === 'en' ? 'Could not get your location. Please select it from the map.' : 'تعذر الحصول على موقعك. يرجى اختياره من الخريطة.',
+    uploadTypeErr: locale === 'bg' ? 'Само изображения (JPEG, PNG, GIF, WEBP) са позволени.' : locale === 'en' ? 'Only images (JPEG, PNG, GIF, WEBP) are allowed.' : 'يسمح فقط بالصور (JPEG, PNG, GIF, WEBP).',
+    uploadSizeErr: locale === 'bg' ? 'Всяка снимка трябва да е под 10MB.' : locale === 'en' ? 'Each image must be under 10MB.' : 'يجب أن يكون كل ملف أقل من 10MB.',
+    uploadErr: locale === 'bg' ? 'Грешка при качване на снимките. Опитайте пак.' : locale === 'en' ? 'Error uploading images. Try again.' : 'خطأ أثناء رفع الصور. حاول مرة أخرى.',
+    send: locale === 'bg' ? 'Изпращане...' : locale === 'en' ? 'Submitting...' : 'جار الإرسال...',
+    submit: locale === 'bg' ? 'Подай сигнала' : locale === 'en' ? 'Submit report' : 'إرسال البلاغ',
+    next: locale === 'bg' ? 'Напред →' : locale === 'en' ? 'Next →' : 'التالي ←',
+    cancel: locale === 'bg' ? 'Отказ' : locale === 'en' ? 'Cancel' : 'إلغاء',
+    backBtn: locale === 'bg' ? '← Назад' : locale === 'en' ? '← Back' : '← رجوع',
+  };
   const [step, setStep] = useState(0);
   const [categories, setCategories] = useState<Category[]>([]);
   const [taxonomyCategories, setTaxonomyCategories] = useState<TaxonomyCategory[]>([]);
@@ -138,7 +155,7 @@ export default function NewReportPage() {
         },
         (error) => {
           console.error('Error getting location:', error);
-          alert('Не можахме да получим вашата локация. Моля, изберете от картата.');
+          alert(copy.geolocFail);
         }
       );
     }
@@ -162,11 +179,11 @@ export default function NewReportPage() {
     const maxSize = 10 * 1024 * 1024; // 10MB
     for (const file of files) {
       if (!allowedTypes.includes(file.type)) {
-        setImageError('Само изображения (JPEG, PNG, GIF, WEBP) са позволени.');
+        setImageError(copy.uploadTypeErr);
         return;
       }
       if (file.size > maxSize) {
-        setImageError('Всяка снимка трябва да е под 10MB.');
+        setImageError(copy.uploadSizeErr);
         return;
       }
     }
@@ -183,7 +200,7 @@ export default function NewReportPage() {
       const urls: string[] = res.data.images.map((img: { url: string }) => img.url);
       setUploadedImages((prev) => [...prev, ...urls]);
     } catch {
-      setImageError('Грешка при качване на снимките. Опитайте пак.');
+      setImageError(copy.uploadErr);
     } finally {
       setUploadingImages(false);
       e.target.value = '';
@@ -221,14 +238,14 @@ export default function NewReportPage() {
         <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[600px] h-48 glow-orb-violet opacity-15" />
         <div className="max-w-3xl mx-auto relative">
           <Link href="/dashboard" className="inline-flex items-center gap-2 text-xs text-[var(--s-muted)] hover:text-[var(--s-text)] transition mb-5">
-            ← Назад към таблото
+            {copy.back}
           </Link>
           <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full border border-[var(--s-border)] bg-[var(--s-surface)] mb-4">
             <span className="w-2 h-2 rounded-full bg-[var(--s-violet)] animate-pulse" />
-            <span className="text-[9px] font-bold uppercase tracking-[0.5em] text-[var(--s-violet)]">Нов сигнал</span>
+            <span className="text-[9px] font-bold uppercase tracking-[0.5em] text-[var(--s-violet)]">{copy.badge}</span>
           </div>
-          <h1 className="rc-display font-extrabold text-3xl md:text-4xl text-[var(--s-text)]">Подай сигнал</h1>
-          <p className="text-[var(--s-muted)] text-sm mt-2">Опиши проблема и сподели точната локация.</p>
+          <h1 className="rc-display font-extrabold text-3xl md:text-4xl text-[var(--s-text)]">{copy.title}</h1>
+          <p className="text-[var(--s-muted)] text-sm mt-2">{copy.subtitle}</p>
         </div>
       </div>
 
@@ -566,7 +583,7 @@ export default function NewReportPage() {
               onClick={() => (step === 0 ? router.back() : setStep(step - 1))}
               className="flex-1 btn-site-ghost py-3 text-sm uppercase tracking-[0.3em] rounded-2xl"
             >
-              {step === 0 ? 'Отказ' : '← Назад'}
+              {step === 0 ? copy.cancel : copy.backBtn}
             </button>
 
             {step < STEPS.length - 1 ? (
@@ -580,7 +597,9 @@ export default function NewReportPage() {
                   (step === 2 && (!formData.title || !formData.description))
                 }
               >
-                {formData.skipToDescription && step === 0 ? 'Към описание →' : 'Напред →'}
+                {formData.skipToDescription && step === 0
+                  ? (locale === 'bg' ? 'Към описание →' : locale === 'en' ? 'To description →' : 'إلى الوصف ←')
+                  : copy.next}
               </button>
             ) : (
               <button
@@ -588,7 +607,7 @@ export default function NewReportPage() {
                 className="flex-1 btn-site-primary py-3 text-sm uppercase tracking-[0.3em] rounded-2xl disabled:opacity-40"
                 disabled={loading}
               >
-                {loading ? 'Изпращане...' : 'Подай сигнала'}
+                {loading ? copy.send : copy.submit}
               </button>
             )}
           </div>

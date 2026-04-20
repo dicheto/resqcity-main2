@@ -5,6 +5,7 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { useState, useEffect, useRef } from 'react';
 import { Menu, X, Accessibility, Moon, Sun } from 'lucide-react';
+import { Locale, useI18n } from '@/i18n';
 
 const FULL_LAYOUT_EXCLUDED = ['/admin', '/dispatcher'];
 
@@ -15,69 +16,69 @@ type AuthUser = {
 };
 
 const NAV_LABELS = {
-  map: 'Карта',
-  reportIncident: 'Подай сигнал',
-  citizenSignal: 'Подай граждански сигнал',
-  vehicleSignal: 'Подай сигнал - автопарк',
-  stats: 'Статистики',
-  dashboard: 'Табло',
-  myReports: 'Моите сигнали',
-  companySearch: 'Търсене на фирми',
-  newReport: 'Нов сигнал',
-  myFleet: 'Моят автопарк',
-  myVehicles: 'Моите коли',
-  autoIncidents: 'Авто сигнали',
-  admin: 'Администрация',
-  reports: 'Сигнали',
-  routing: 'Маршрутизация',
-  verification: 'Верификация',
+  map: 'nav.map',
+  reportIncident: 'nav.reportIncident',
+  citizenSignal: 'nav.citizenSignal',
+  vehicleSignal: 'nav.vehicleSignal',
+  stats: 'nav.stats',
+  dashboard: 'nav.dashboard',
+  myReports: 'nav.myReports',
+  companySearch: 'nav.companySearch',
+  newReport: 'nav.newReport',
+  myFleet: 'nav.myFleet',
+  myVehicles: 'nav.myFleet',
+  autoIncidents: 'nav.autoIncidents',
+  admin: 'nav.admin',
+  reports: 'nav.reports',
+  routing: 'nav.routing',
+  verification: 'nav.verification',
 } as const;
 
 type NavLabelKey = keyof typeof NAV_LABELS;
 
-const UI_COPY = {
-  brandAlt: 'ResQ София',
-  sofia: 'София',
-  accessibility: 'Достъпност',
-  accessibilitySub: 'Достъпност',
-  textSize: 'Размер на текст',
-  normal: 'Нормален',
-  large: 'Голям',
-  xlarge: 'Много голям',
-  highContrast: '◑ Висок контраст',
-  dyslexic: '𝔸 Дислексия-приятелски',
-  reducedMotion: '◎ Без анимации',
-  readableText: '☰ По-четим текст',
-  underlineLinks: '🔗 Подчертай линковете',
-  focusHighlight: '⌨ Подсили фокуса',
-  resetAccessibility: '↺ Възстанови настройките',
-  switchToLight: 'Светла тема',
-  switchToDark: 'Тъмна тема',
-  logout: 'Изход',
-  login: 'Вход',
-  register: 'Регистрация',
-  menu: 'Меню',
-  platform: 'Платформа',
-  access: 'Достъп',
-  footerDesc: 'Суперприложението, което свързва гражданите на София с общинската администрация. Бързо, прозрачно, ефективно.',
-  systemsOnline: 'Всички системи активни',
-  institutionPortalTitle: 'Институционален портал',
-  institutionPortalCta: 'Вход с Passkey',
-  institutionPortalHint: 'Достъп за институции със защитен вход',
-  footerLegal: '© 2026 ResQ София. Всички права запазени.',
-  footerDev: 'Разработено с визия и страст от Деян Хабаба и Стилян Близнашки',
-  adminAccess: '⚙️ Администрация',
-  dispatcherAccess: '📡 Диспечер',
-  mapInteractive: '🗺 Интерактивна карта',
-  myReportsIcon: '📋 Моите сигнали',
-  companySearchIcon: '🏢 Търсене на фирми',
-  reportIcon: '📮 Подай сигнал',
-  citizenSignalIcon: '📮 Подай граждански сигнал',
-  vehicleSignalIcon: '🚗 Подай сигнал - автопарк',
-  autoIncidentsIcon: '🚗 Авто сигнали',
-  loginIcon: '🔑 Вход',
-  registerIcon: '✨ Регистрация',
-} as const;
+function getUICopy(t: (key: string, fallback?: string) => string) {
+  return {
+    brandAlt: t('ui.brandAlt'),
+    accessibility: t('ui.accessibility'),
+    accessibilitySub: t('ui.accessibilitySub'),
+    textSize: t('ui.textSize'),
+    normal: t('ui.normal'),
+    large: t('ui.large'),
+    xlarge: t('ui.xlarge'),
+    highContrast: t('ui.highContrast'),
+    dyslexic: t('ui.dyslexic'),
+    reducedMotion: t('ui.reducedMotion'),
+    readableText: t('ui.readableText'),
+    underlineLinks: t('ui.underlineLinks'),
+    focusHighlight: t('ui.focusHighlight'),
+    resetAccessibility: t('ui.resetAccessibility'),
+    switchToLight: t('ui.switchToLight'),
+    switchToDark: t('ui.switchToDark'),
+    logout: t('ui.logout'),
+    login: t('ui.login'),
+    register: t('ui.register'),
+    menu: t('ui.menu'),
+    platform: t('ui.platform'),
+    access: t('ui.access'),
+    footerDesc: t('ui.footerDesc'),
+    systemsOnline: t('ui.systemsOnline'),
+    institutionPortalTitle: t('ui.institutionPortalTitle'),
+    institutionPortalCta: t('ui.institutionPortalCta'),
+    institutionPortalHint: t('ui.institutionPortalHint'),
+    footerLegal: t('ui.footerLegal'),
+    footerDev: t('ui.footerDev'),
+    adminAccess: t('ui.adminAccess'),
+    dispatcherAccess: t('ui.dispatcherAccess'),
+    mapInteractive: t('ui.mapInteractive'),
+    myReportsIcon: t('ui.myReportsIcon'),
+    companySearchIcon: t('ui.companySearchIcon'),
+    reportIcon: t('ui.reportIcon'),
+    autoIncidentsIcon: t('ui.autoIncidentsIcon'),
+    loginIcon: t('ui.loginIcon'),
+    registerIcon: t('ui.registerIcon'),
+    institutionPortalIcon: t('ui.institutionPortalIcon'),
+  } as const;
+}
 
 const GUEST_NAV: Array<{ href: string; label: NavLabelKey }> = [
   { href: '/map', label: 'map' },
@@ -110,9 +111,9 @@ const DISPATCHER_NAV: Array<{ href: string; label: NavLabelKey }> = [
   { href: '/dispatcher/incidents', label: 'verification' },
 ];
 
-function getNavLinks(user: AuthUser | null) {
+function getNavLinks(user: AuthUser | null, t: (key: string, fallback?: string) => string) {
   const withLabels = (items: Array<{ href: string; label: NavLabelKey }>) =>
-    items.map((item) => ({ href: item.href, label: NAV_LABELS[item.label] }));
+    items.map((item) => ({ href: item.href, label: t(NAV_LABELS[item.label]) }));
 
   if (!user) return withLabels(GUEST_NAV);
   const role = user.role ?? '';
@@ -126,6 +127,7 @@ const A11Y_FONT_SIZES = ['normal', 'large', 'xlarge'] as const;
 type FontSize = typeof A11Y_FONT_SIZES[number];
 
 function AccessibilityPanel({ onClose }: { onClose: () => void }) {
+  const { t, dir } = useI18n();
   const [fontSize, setFontSize] = useState<FontSize>('normal');
   const [highContrast, setHighContrast] = useState(false);
   const [dyslexic, setDyslexic] = useState(false);
@@ -163,10 +165,10 @@ function AccessibilityPanel({ onClose }: { onClose: () => void }) {
     </button>
   );
 
-  const copy = UI_COPY;
+  const copy = getUICopy(t);
 
   return (
-    <div className="fixed bottom-6 right-6 z-[10000] w-72 animate-fade-up select-none"
+    <div className={`fixed bottom-6 z-[10000] w-72 animate-fade-up select-none ${dir === 'rtl' ? 'left-6' : 'right-6'}`}
       style={{ background: 'var(--s-surface)', border: '1px solid var(--s-border)', borderRadius: '1.25rem', boxShadow: '0 24px 64px rgba(0,0,0,0.55), 0 0 0 1px rgba(255,107,43,0.1)' }}>
 
       {/* Header */}
@@ -250,6 +252,7 @@ function AccessibilityPanel({ onClose }: { onClose: () => void }) {
 }
 
 function SiteHeader() {
+  const { t, locale, setLocale } = useI18n();
   const pathname = usePathname();
   const [open, setOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
@@ -352,7 +355,12 @@ function SiteHeader() {
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
-  const copy = UI_COPY;
+  const copy = getUICopy(t);
+  const localeOptions: Array<{ value: Locale; label: string }> = [
+    { value: 'bg', label: t('common.bulgarian') },
+    { value: 'en', label: t('common.english') },
+    { value: 'ar', label: t('common.arabic') },
+  ];
   const brandLogoSrc = scrolled 
     ? '/branding/logo-cut.png' 
     : (dark ? '/branding/logo-full-dark.png' : '/branding/logo-full-light.png');
@@ -394,7 +402,7 @@ function SiteHeader() {
             </Link>
 
             <nav className="hidden md:flex items-center gap-0.5 flex-1 justify-center">
-              {getNavLinks(authUser).map(({ href, label }) => {
+              {getNavLinks(authUser, t).map(({ href, label }) => {
                 const active = pathname === href || (href !== '/' && pathname.startsWith(href));
                 return (
                   <Link
@@ -422,6 +430,20 @@ function SiteHeader() {
               >
                 {dark ? <Sun size={16} /> : <Moon size={16} />}
               </button>
+
+              <select
+                aria-label={t('common.language')}
+                value={locale}
+                onChange={(event) => setLocale(event.target.value as Locale)}
+                className="text-[11px] px-2.5 py-2 rounded-xl border bg-transparent"
+                style={{ borderColor: 'var(--s-border)', color: 'var(--s-muted2)' }}
+              >
+                {localeOptions.map((option) => (
+                  <option key={option.value} value={option.value}>
+                    {option.label}
+                  </option>
+                ))}
+              </select>
 
               <button
                 onClick={() => setA11yOpen(v => !v)}
@@ -487,7 +509,7 @@ function SiteHeader() {
               
               {/* Navigation links */}
               <nav className="space-y-1.5 mb-5">
-                {getNavLinks(authUser).map(({ href, label }, idx) => {
+                {getNavLinks(authUser, t).map(({ href, label }, idx) => {
                   const active = pathname === href || (href !== '/' && pathname.startsWith(href));
                   return (
                     <Link
@@ -562,7 +584,8 @@ function SiteHeader() {
 }
 
 function SiteFooter() {
-  const copy = UI_COPY;
+  const { t } = useI18n();
+  const copy = getUICopy(t);
 
   return (
     <footer className="site-footer">
@@ -637,7 +660,7 @@ function SiteFooter() {
               {[
                 { href: '/auth/login',     label: copy.loginIcon, loupe: true },
                 { href: '/auth/register',  label: copy.registerIcon, loupe: true },
-                { href: '/institutions/auth/login', label: '🏛 Институционален портал', loupe: true },
+                { href: '/institutions/auth/login', label: copy.institutionPortalIcon, loupe: true },
                 { href: '/admin',          label: copy.adminAccess },
                 { href: '/dispatcher',     label: copy.dispatcherAccess },
               ].map(({ href, label, loupe }) => (

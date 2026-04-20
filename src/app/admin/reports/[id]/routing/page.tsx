@@ -3,6 +3,7 @@
 import { useEffect, useMemo, useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import axios from 'axios';
+import { useI18n } from '@/i18n';
 
 type Recommendation = 'SITUATION' | 'SUBCATEGORY' | 'CATEGORY' | 'OTHER';
 
@@ -79,6 +80,8 @@ function authHeader() {
 }
 
 export default function ReportRoutingPage() {
+  const { locale } = useI18n();
+  const tr = (bg: string, en: string, ar: string) => (locale === 'ar' ? ar : locale === 'en' ? en : bg);
   const params = useParams<{ id: string }>();
   const router = useRouter();
   const reportId = params.id;
@@ -169,7 +172,7 @@ export default function ReportRoutingPage() {
   };
 
   if (loading) {
-    return <div className="text-center py-12 text-slate-500">Зареждане...</div>;
+    return <div className="text-center py-12 text-slate-500">{tr('Зареждане...', 'Loading...', 'جار التحميل...')}</div>;
   }
 
   return (
@@ -184,7 +187,7 @@ export default function ReportRoutingPage() {
       </div>
 
       <div className="mb-8">
-        <p className="text-xs uppercase tracking-[0.4em] admin-muted">Маршрутизация</p>
+        <p className="text-xs uppercase tracking-[0.4em] admin-muted">{tr('Маршрутизация', 'Routing', 'التوجيه')}</p>
         <h1 className="text-3xl md:text-4xl font-semibold rc-display admin-text mt-3">
           {reportTitle}
         </h1>
@@ -192,18 +195,22 @@ export default function ReportRoutingPage() {
           <p className="admin-muted mt-2 text-sm">{reportDescription}</p>
         )}
         <p className="text-[var(--a-muted)] text-xs mt-2">
-          Избери институции по произход от таксономията. Активните избори се отличават по цвят; бележките са по избор.
+          {tr(
+            'Избери институции по произход от таксономията. Активните избори се отличават по цвят; бележките са по избор.',
+            'Select institutions by taxonomy origin. Active selections are color-highlighted; notes are optional.',
+            'اختر المؤسسات حسب تصنيف المصدر. الاختيارات النشطة مميزة بالألوان؛ والملاحظات اختيارية.'
+          )}
         </p>
         {(taxonomySubcategory || taxonomySituation) && (
           <div className="mt-3 flex flex-wrap gap-2 text-xs">
             {taxonomySubcategory && (
               <span className="rounded-lg border border-[var(--a-border)] bg-[var(--a-surface2)]/50 px-2.5 py-1 admin-muted backdrop-blur-sm">
-                Подкатегория: <span className="admin-text font-medium">{taxonomySubcategory}</span>
+                {tr('Подкатегория', 'Subcategory', 'الفئة الفرعية')}: <span className="admin-text font-medium">{taxonomySubcategory}</span>
               </span>
             )}
             {taxonomySituation && (
               <span className="rounded-lg border border-[var(--a-border)] bg-[var(--a-surface2)]/50 px-2.5 py-1 admin-muted backdrop-blur-sm">
-                Ситуация: <span className="admin-text font-medium">{taxonomySituation}</span>
+                {tr('Ситуация', 'Situation', 'الحالة')}: <span className="admin-text font-medium">{taxonomySituation}</span>
               </span>
             )}
           </div>
@@ -212,7 +219,7 @@ export default function ReportRoutingPage() {
 
       {reportImages.length > 0 && (
         <div className="rounded-3xl data-card border border-[var(--a-border)] p-6 mb-6">
-          <p className="text-xs uppercase tracking-[0.3em] admin-muted mb-4">Снимки ({reportImages.length})</p>
+          <p className="text-xs uppercase tracking-[0.3em] admin-muted mb-4">{tr('Снимки', 'Images', 'الصور')} ({reportImages.length})</p>
           <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
             {reportImages.map((url, idx) => (
               <a
@@ -222,7 +229,7 @@ export default function ReportRoutingPage() {
                 rel="noopener noreferrer"
                 className="block rounded-xl overflow-hidden border border-[var(--a-border)] aspect-square hover:opacity-80 transition"
               >
-                <img src={url} alt={`Снимка ${idx + 1}`} className="w-full h-full object-cover" />
+                <img src={url} alt={`${tr('Снимка', 'Image', 'صورة')} ${idx + 1}`} className="w-full h-full object-cover" />
               </a>
             ))}
           </div>
@@ -231,7 +238,7 @@ export default function ReportRoutingPage() {
 
       <div className="space-y-5">
         <p className="text-xs uppercase tracking-[0.3em] admin-muted">
-          Институции по произход · {totalRecipients} общо в списъците
+          {tr('Институции по произход', 'Institutions by origin', 'المؤسسات حسب المصدر')} · {totalRecipients} {tr('общо в списъците', 'total in lists', 'إجمالي في القوائم')}
         </p>
 
         {groups.map((group) => {
@@ -252,12 +259,12 @@ export default function ReportRoutingPage() {
                   </h2>
                   <span className="text-xs admin-muted tabular-nums">
                     {group.recipients.length}{' '}
-                    {group.recipients.length === 1 ? 'институция' : 'институции'}
+                    {group.recipients.length === 1 ? tr('институция', 'institution', 'مؤسسة') : tr('институции', 'institutions', 'مؤسسات')}
                   </span>
                 </div>
 
                 {group.recipients.length === 0 ? (
-                  <p className="text-sm admin-muted italic py-2">Няма институции в тази група за този сигнал.</p>
+                  <p className="text-sm admin-muted italic py-2">{tr('Няма институции в тази група за този сигнал.', 'No institutions in this group for this report.', 'لا توجد مؤسسات في هذه المجموعة لهذا البلاغ.')}</p>
                 ) : (
                   <>
                     <div
@@ -297,7 +304,7 @@ export default function ReportRoutingPage() {
                     {group.recipients.some((r) => selectedIds.has(r.id)) && (
                       <div className="mt-5 rounded-xl bg-[var(--a-surface2)]/20 p-4 backdrop-blur-md sm:p-5">
                         <p className="mb-3 text-[0.65rem] font-semibold uppercase tracking-[0.28em] admin-muted">
-                          Бележки към избраните
+                          {tr('Бележки към избраните', 'Notes for selected', 'ملاحظات للمختارين')}
                         </p>
                         <div className="flex flex-wrap gap-3">
                           {group.recipients
@@ -320,7 +327,7 @@ export default function ReportRoutingPage() {
                                       [institution.id]: e.target.value,
                                     }))
                                   }
-                                  placeholder="По избор…"
+                                  placeholder={tr('По избор…', 'Optional…', 'اختياري…')}
                                 />
                               </label>
                             ))}
@@ -341,7 +348,7 @@ export default function ReportRoutingPage() {
           onClick={() => router.push('/admin/reports')}
           className="flex-1 rounded-2xl border border-[var(--a-border)] admin-input py-3 text-sm uppercase tracking-[0.3em] admin-muted backdrop-blur-sm"
         >
-          Назад
+          {tr('Назад', 'Back', 'رجوع')}
         </button>
         <button
           type="button"
@@ -349,7 +356,7 @@ export default function ReportRoutingPage() {
           disabled={saving}
           className="flex-1 rounded-2xl bg-[var(--a-text)] text-[var(--a-bg)] py-3 text-sm uppercase tracking-[0.3em] font-medium shadow-lg shadow-black/10 transition hover:opacity-95 disabled:opacity-50"
         >
-          {saving ? 'Запис...' : 'Запиши маршрутизация'}
+          {saving ? tr('Запис...', 'Saving...', 'جار الحفظ...') : tr('Запиши маршрутизация', 'Save routing', 'حفظ التوجيه')}
         </button>
       </div>
     </div>

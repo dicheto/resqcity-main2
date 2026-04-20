@@ -4,6 +4,7 @@ import { Suspense, useEffect, useMemo, useState } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import axios from 'axios';
+import { useI18n } from '@/i18n';
 
 type VerifyState = 'loading' | 'success' | 'already' | 'error';
 
@@ -22,13 +23,16 @@ interface VerifyResponse {
 }
 
 function VerifyEmailContent() {
+  const { locale } = useI18n();
   const router = useRouter();
   const searchParams = useSearchParams();
 
   const token = useMemo(() => searchParams.get('token') || '', [searchParams]);
 
   const [state, setState] = useState<VerifyState>('loading');
-  const [message, setMessage] = useState('Проверяваме потвърдителния линк...');
+  const [message, setMessage] = useState(
+    locale === 'bg' ? 'Проверяваме потвърдителния линк...' : locale === 'en' ? 'Verifying confirmation link...' : 'جار التحقق من رابط التأكيد...'
+  );
 
   useEffect(() => {
     const verifyEmail = async () => {
@@ -116,7 +120,7 @@ function VerifyEmailContent() {
                 <span className="text-3xl">⏳</span>
               </div>
               <h1 className="text-2xl font-extrabold rc-display text-[var(--s-text)] mb-3">
-                Потвърждаваме имейла...
+                {locale === 'bg' ? 'Потвърждаваме имейла...' : locale === 'en' ? 'Verifying email...' : 'جار تأكيد البريد الإلكتروني...'}
               </h1>
             </>
           )}
@@ -133,7 +137,7 @@ function VerifyEmailContent() {
                 <span className="text-4xl">✅</span>
               </div>
               <h1 className="text-2xl font-extrabold rc-display text-[var(--s-text)] mb-3">
-                Успешно потвърждение
+                {locale === 'bg' ? 'Успешно потвърждение' : locale === 'en' ? 'Verification successful' : 'تم التأكيد بنجاح'}
               </h1>
             </>
           )}
@@ -150,7 +154,7 @@ function VerifyEmailContent() {
                 <span className="text-4xl">ℹ️</span>
               </div>
               <h1 className="text-2xl font-extrabold rc-display text-[var(--s-text)] mb-3">
-                Имейлът вече е потвърден
+                {locale === 'bg' ? 'Имейлът вече е потвърден' : locale === 'en' ? 'Email already verified' : 'تم تأكيد البريد الإلكتروني مسبقا'}
               </h1>
             </>
           )}
@@ -167,7 +171,7 @@ function VerifyEmailContent() {
                 <span className="text-4xl">⚠️</span>
               </div>
               <h1 className="text-2xl font-extrabold rc-display text-[var(--s-text)] mb-3">
-                Потвърждението е неуспешно
+                {locale === 'bg' ? 'Потвърждението е неуспешно' : locale === 'en' ? 'Verification failed' : 'فشل التأكيد'}
               </h1>
             </>
           )}
@@ -184,7 +188,7 @@ function VerifyEmailContent() {
                 boxShadow: '0 0 28px var(--s-glow-v)',
               }}
             >
-              Продължи към платформата
+              {locale === 'bg' ? 'Продължи към платформата' : locale === 'en' ? 'Continue to platform' : 'المتابعة إلى المنصة'}
             </button>
           )}
 
@@ -197,7 +201,7 @@ function VerifyEmailContent() {
                 boxShadow: '0 0 28px rgba(239,68,68,0.35)',
               }}
             >
-              Към регистрация
+              {locale === 'bg' ? 'Към регистрация' : locale === 'en' ? 'Go to registration' : 'الذهاب إلى التسجيل'}
             </Link>
           )}
 
@@ -205,7 +209,7 @@ function VerifyEmailContent() {
             href="/auth/login"
             className="inline-block mt-5 text-sm text-[var(--s-muted)] hover:text-[var(--s-text)] transition-colors"
           >
-            Към вход
+            {locale === 'bg' ? 'Към вход' : locale === 'en' ? 'Back to login' : 'العودة إلى تسجيل الدخول'}
           </Link>
         </div>
       </div>
@@ -214,8 +218,9 @@ function VerifyEmailContent() {
 }
 
 export default function VerifyEmailPage() {
+  const { locale } = useI18n();
   return (
-    <Suspense fallback={<div className="min-h-screen flex items-center justify-center">Зареждане...</div>}>
+    <Suspense fallback={<div className="min-h-screen flex items-center justify-center">{locale === 'bg' ? 'Зареждане...' : locale === 'en' ? 'Loading...' : 'جار التحميل...'}</div>}>
       <VerifyEmailContent />
     </Suspense>
   );

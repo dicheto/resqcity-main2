@@ -6,8 +6,10 @@ import Link from 'next/link';
 import axios from 'axios';
 import { startAuthentication } from '@simplewebauthn/browser';
 import SixDigitCodeInput from '@/components/SixDigitCodeInput';
+import { useI18n } from '@/i18n';
 
 export default function LoginPage() {
+  const { t } = useI18n();
   const router = useRouter();
   const [formData, setFormData] = useState({
     email: '',
@@ -20,6 +22,20 @@ export default function LoginPage() {
   const [mfaMethods, setMfaMethods] = useState<string[]>([]);
   const [selectedMethod, setSelectedMethod] = useState<'TOTP' | 'PASSKEY' | ''>('');
   const [mfaCode, setMfaCode] = useState('');
+  const localizeMessage = (value: string) => {
+    const map: Record<string, string> = {
+      MFA_REQUIRED: 'Потвърди входа си с втори фактор.',
+      LOGIN_FAILED: 'Неуспешен вход',
+      ENTER_TOTP_CODE: 'Въведи код от приложението за удостоверяване.',
+      INVALID_TOTP: 'Невалиден TOTP код',
+      MFA_CHALLENGE_MISSING: 'Липсва MFA предизвикателство. Опитай отново вход.',
+      PASSKEY_VERIFY_FAILED: 'Неуспешна верификация с ключ за вход',
+      EMAIL_REQUIRED_FOR_PASSKEY: 'Въведи имейл, за да влезеш с ключ за вход.',
+      PASSKEY_LOGIN_FAILED: 'Входът с ключ за вход е неуспешен',
+    };
+    const fallback = map[value] ?? value;
+    return t(`authmsg.${value}`, fallback);
+  };
 
   const finalizeLogin = async (token: string, user: any) => {
     // Save auth data to localStorage
@@ -63,13 +79,13 @@ export default function LoginPage() {
         } else if ((response.data.methods || []).includes('PASSKEY')) {
           setSelectedMethod('PASSKEY');
         }
-        setInfo('Потвърди входа си с втори фактор.');
+        setInfo('MFA_REQUIRED');
         return;
       }
 
       await finalizeLogin(response.data.token, response.data.user);
     } catch (err: any) {
-      setError(err.response?.data?.error || 'Неуспешен вход');
+      setError(err.response?.data?.error || 'LOGIN_FAILED');
     } finally {
       setLoading(false);
     }
@@ -77,7 +93,7 @@ export default function LoginPage() {
 
   const verifyTotp = async () => {
     if (!mfaChallengeId || !mfaCode) {
-      setError('Въведи код от приложението за удостоверяване.');
+      setError('ENTER_TOTP_CODE');
       return;
     }
 
@@ -93,7 +109,7 @@ export default function LoginPage() {
 
       await finalizeLogin(response.data.token, response.data.user);
     } catch (err: any) {
-      setError(err.response?.data?.error || 'Невалиден TOTP код');
+      setError(err.response?.data?.error || 'INVALID_TOTP');
     } finally {
       setLoading(false);
     }
@@ -101,7 +117,7 @@ export default function LoginPage() {
 
   const verifyPasskey = async () => {
     if (!mfaChallengeId) {
-      setError('Липсва MFA предизвикателство. Опитай отново вход.');
+      setError('MFA_CHALLENGE_MISSING');
       return;
     }
 
@@ -125,7 +141,7 @@ export default function LoginPage() {
 
       await finalizeLogin(finishResponse.data.token, finishResponse.data.user);
     } catch (err: any) {
-      setError(err.response?.data?.error || err?.message || 'Неуспешна верификация с ключ за вход');
+      setError(err.response?.data?.error || err?.message || 'PASSKEY_VERIFY_FAILED');
     } finally {
       setLoading(false);
     }
@@ -133,7 +149,7 @@ export default function LoginPage() {
 
   const passwordlessPasskeyLogin = async () => {
     if (!formData.email) {
-      setError('Въведи имейл, за да влезеш с ключ за вход.');
+      setError('EMAIL_REQUIRED_FOR_PASSKEY');
       return;
     }
 
@@ -158,7 +174,7 @@ export default function LoginPage() {
       await finalizeLogin(finishResponse.data.token, finishResponse.data.user);
     } catch (err: any) {
       setError(
-        err.response?.data?.error || err?.message || 'Входът с ключ за вход е неуспешен'
+        err.response?.data?.error || err?.message || 'PASSKEY_LOGIN_FAILED'
       );
     } finally {
       setLoading(false);
@@ -192,16 +208,16 @@ export default function LoginPage() {
           <div className="relative">
             <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full border border-[var(--s-border)] bg-[var(--s-surface2)] mb-8">
               <span className="w-2 h-2 rounded-full bg-[var(--s-orange)] animate-pulse shadow-[0_0_8px_var(--s-orange)]" />
-              <span className="text-[10px] font-bold uppercase tracking-[0.4em] text-[var(--s-orange)]">Сигурен достъп</span>
+              <span className="text-[10px] font-bold uppercase tracking-[0.4em] text-[var(--s-orange)]">{t('auth.secureAccess')}</span>
             </div>
 
             <h1 className="rc-display font-extrabold text-4xl text-[var(--s-text)] leading-tight mb-4">
-              Добре<br />
-              <span className="grad-orange">дошъл</span><br />
-              обратно!
+              {t('auth.welcomeBack1')}<br />
+              <span className="grad-orange">{t('auth.welcomeBack2')}</span><br />
+              {t('auth.welcomeBack3')}
             </h1>
             <p className="text-[var(--s-muted2)] text-sm leading-relaxed">
-              Управлявай сигналите, следи статусите и координирай действията в реално време.
+              {t('auth.loginLead')}
             </p>
           </div>
 
@@ -228,26 +244,26 @@ export default function LoginPage() {
           <div className="flex items-center justify-between mb-8">
             <div>
               <p className="text-[10px] uppercase tracking-[0.5em] text-[var(--s-orange)] font-bold">ResQCity</p>
-              <h2 className="text-2xl font-bold rc-display text-[var(--s-text)] mt-1">Вход в платформата</h2>
+              <h2 className="text-2xl font-bold rc-display text-[var(--s-text)] mt-1">{t('auth.signIn')}</h2>
             </div>
-            <span className="chip chip-live">На живо</span>
+            <span className="chip chip-live">{t('home.live')}</span>
           </div>
 
           {error && (
             <div className="mb-5 px-4 py-3 rounded-xl border border-[var(--s-red)]/30 bg-[var(--s-red)]/10 text-[var(--s-red)] text-sm">
-              {error}
+              {localizeMessage(error)}
             </div>
           )}
           {info && (
             <div className="mb-5 px-4 py-3 rounded-xl border border-[var(--s-teal)]/30 bg-[var(--s-teal)]/10 text-[var(--s-teal)] text-sm">
-              {info}
+              {localizeMessage(info)}
             </div>
           )}
 
           {!mfaChallengeId ? (
             <form onSubmit={handleSubmit} className="space-y-4">
               <div>
-                <label className="block text-[10px] font-semibold uppercase tracking-[0.4em] text-[var(--s-muted)] mb-2">Имейл</label>
+                <label className="block text-[10px] font-semibold uppercase tracking-[0.4em] text-[var(--s-muted)] mb-2">{t('auth.email')}</label>
                 <input
                   type="email"
                   className="site-input"
@@ -259,9 +275,9 @@ export default function LoginPage() {
               </div>
               <div>
                 <div className="flex items-center justify-between mb-2">
-                  <label className="block text-[10px] font-semibold uppercase tracking-[0.4em] text-[var(--s-muted)]">Парола</label>
+                  <label className="block text-[10px] font-semibold uppercase tracking-[0.4em] text-[var(--s-muted)]">{t('auth.password')}</label>
                   <Link href="/auth/forgot-password" className="text-[10px] text-[var(--s-orange)] hover:underline font-medium">
-                    Забравена парола?
+                    {t('auth.forgotPassword')}
                   </Link>
                 </div>
                 <input
@@ -278,7 +294,7 @@ export default function LoginPage() {
                 disabled={loading}
                 className="btn-site-primary w-full justify-center py-3.5 rounded-2xl text-sm"
               >
-                {loading ? 'Влизане...' : 'Вход в платформата'}
+                {loading ? t('auth.signingIn') : t('auth.signIn')}
               </button>
               <button
                 type="button"
@@ -286,7 +302,7 @@ export default function LoginPage() {
                 disabled={loading}
                 className="btn-site-ghost w-full justify-center py-3.5 rounded-2xl text-sm"
               >
-                🔑 Вход с ключ за вход
+                {t('auth.passkeyLogin')}
               </button>
             </form>
           ) : (
@@ -352,9 +368,9 @@ export default function LoginPage() {
           )}
 
           <p className="text-center mt-6 text-sm text-[var(--s-muted)]">
-            Нямаш акаунт?{' '}
+            {t('auth.noAccount')}{' '}
             <Link href="/auth/register" className="text-[var(--s-orange)] font-semibold hover:underline">
-              Регистрация
+              {t('auth.register')}
             </Link>
           </p>
         </div>

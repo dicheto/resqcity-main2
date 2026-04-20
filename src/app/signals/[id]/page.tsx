@@ -4,15 +4,16 @@ import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { useParams } from 'next/navigation';
 import { formatCategoryLabel } from '@/hooks/lib/report-format';
+import { useI18n } from '@/i18n';
 
-function getStatusLabel(status: string): string {
+function getStatusLabel(status: string, locale: 'bg' | 'en' | 'ar'): string {
   const labels: Record<string, string> = {
-    PENDING: 'В обработка',
-    IN_REVIEW: 'Преглеждан',
-    IN_PROGRESS: 'В процес',
-    RESOLVED: 'Решен',
-    REJECTED: 'Отхвърлен',
-    NEW: 'В обработка',
+    PENDING: locale === 'bg' ? 'В обработка' : locale === 'en' ? 'Pending' : 'قيد المعالجة',
+    IN_REVIEW: locale === 'bg' ? 'Преглеждан' : locale === 'en' ? 'In review' : 'قيد المراجعة',
+    IN_PROGRESS: locale === 'bg' ? 'В процес' : locale === 'en' ? 'In progress' : 'قيد التنفيذ',
+    RESOLVED: locale === 'bg' ? 'Решен' : locale === 'en' ? 'Resolved' : 'تم الحل',
+    REJECTED: locale === 'bg' ? 'Отхвърлен' : locale === 'en' ? 'Rejected' : 'مرفوض',
+    NEW: locale === 'bg' ? 'В обработка' : locale === 'en' ? 'Pending' : 'قيد المعالجة',
   };
   return labels[status] || status;
 }
@@ -36,7 +37,21 @@ interface PublicSignalDetail {
 }
 
 export default function PublicSignalDetailPage() {
+  const { locale } = useI18n();
   const params = useParams<{ id: string }>();
+  const copy = {
+    loading: locale === 'bg' ? 'Зареждане...' : locale === 'en' ? 'Loading...' : 'جار التحميل...',
+    notFound: locale === 'bg' ? 'Сигналът не е намерен.' : locale === 'en' ? 'Report not found.' : 'لم يتم العثور على البلاغ.',
+    backToMap: locale === 'bg' ? 'Назад към картата' : locale === 'en' ? 'Back to map' : 'العودة إلى الخريطة',
+    backLabel: locale === 'bg' ? '← Обратно към картата' : locale === 'en' ? '← Back to map' : '← العودة إلى الخريطة',
+    publicSignal: locale === 'bg' ? 'Публичен сигнал' : locale === 'en' ? 'Public report' : 'بلاغ عام',
+    category: locale === 'bg' ? 'Категория' : locale === 'en' ? 'Category' : 'الفئة',
+    date: locale === 'bg' ? 'Дата' : locale === 'en' ? 'Date' : 'التاريخ',
+    location: locale === 'bg' ? 'Локация' : locale === 'en' ? 'Location' : 'الموقع',
+    address: locale === 'bg' ? 'Адрес' : locale === 'en' ? 'Address' : 'العنوان',
+    noAddress: locale === 'bg' ? 'Няма посочен адрес' : locale === 'en' ? 'No address provided' : 'لا يوجد عنوان',
+    description: locale === 'bg' ? 'Описание' : locale === 'en' ? 'Description' : 'الوصف',
+  };
   const [report, setReport] = useState<PublicSignalDetail | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -72,7 +87,7 @@ export default function PublicSignalDetailPage() {
       <div className="min-h-screen flex items-center justify-center" style={{ background: 'var(--s-bg)' }}>
         <div className="text-center">
           <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-orange-500 to-rose-500 animate-pulse mx-auto" />
-          <p className="mt-4 text-xs uppercase tracking-[0.4em] text-[var(--s-muted)]">Зареждане...</p>
+          <p className="mt-4 text-xs uppercase tracking-[0.4em] text-[var(--s-muted)]">{copy.loading}</p>
         </div>
       </div>
     );
@@ -82,13 +97,13 @@ export default function PublicSignalDetailPage() {
     return (
       <div className="min-h-screen flex items-center justify-center px-6" style={{ background: 'var(--s-bg)' }}>
         <div className="max-w-md w-full rounded-2xl p-6 text-center" style={{ background: 'var(--s-surface)', border: '1px solid var(--s-border)' }}>
-          <p className="text-[var(--s-text)] font-semibold">{error || 'Сигналът не е намерен.'}</p>
+          <p className="text-[var(--s-text)] font-semibold">{error || copy.notFound}</p>
           <Link
             href="/map"
             className="inline-flex items-center justify-center mt-4 rounded-xl px-4 py-2 text-xs font-bold uppercase tracking-[0.25em]"
             style={{ background: 'var(--s-orange)', color: '#fff' }}
           >
-            Назад към картата
+            {copy.backToMap}
           </Link>
         </div>
       </div>
@@ -115,13 +130,13 @@ export default function PublicSignalDetailPage() {
     <div className="min-h-screen" style={{ background: 'var(--s-bg)' }}>
       <div className="max-w-4xl mx-auto px-6 py-12">
         <Link href="/map" className="text-xs uppercase tracking-[0.3em] text-[var(--s-muted)] hover:text-[var(--s-text)] transition">
-          ← Обратно към картата
+          {copy.backLabel}
         </Link>
 
         <div className="mt-4 rounded-3xl p-6 md:p-8" style={{ background: 'var(--s-surface)', border: '1px solid var(--s-border)' }}>
           <div className="flex items-start gap-4 flex-wrap justify-between">
             <div>
-              <p className="text-[10px] uppercase tracking-[0.45em] text-[var(--s-muted)]">Публичен сигнал</p>
+              <p className="text-[10px] uppercase tracking-[0.45em] text-[var(--s-muted)]">{copy.publicSignal}</p>
               <h1 className="rc-display text-2xl md:text-4xl font-extrabold text-[var(--s-text)] mt-2">{report.title}</h1>
             </div>
             <span
@@ -132,31 +147,31 @@ export default function PublicSignalDetailPage() {
                 borderColor: statusColorMap[report.status] || 'var(--s-border)',
               }}
             >
-              {getStatusLabel(report.status)}
+              {getStatusLabel(report.status, locale)}
             </span>
           </div>
 
           <div className="grid md:grid-cols-2 gap-3 mt-6 text-sm">
             <div className="rounded-xl p-3" style={{ background: 'var(--s-surface2)' }}>
-              <p className="text-[10px] uppercase tracking-[0.25em] text-[var(--s-muted)]">Категория</p>
+              <p className="text-[10px] uppercase tracking-[0.25em] text-[var(--s-muted)]">{copy.category}</p>
               <p className="text-[var(--s-text)] font-semibold mt-1">{formatCategoryLabel(report.category || null, 'Без категория')}</p>
             </div>
             <div className="rounded-xl p-3" style={{ background: 'var(--s-surface2)' }}>
-              <p className="text-[10px] uppercase tracking-[0.25em] text-[var(--s-muted)]">Дата</p>
+              <p className="text-[10px] uppercase tracking-[0.25em] text-[var(--s-muted)]">{copy.date}</p>
               <p className="text-[var(--s-text)] font-semibold mt-1">{new Date(report.createdAt).toLocaleString('bg-BG')}</p>
             </div>
             <div className="rounded-xl p-3" style={{ background: 'var(--s-surface2)' }}>
-              <p className="text-[10px] uppercase tracking-[0.25em] text-[var(--s-muted)]">Локация</p>
+              <p className="text-[10px] uppercase tracking-[0.25em] text-[var(--s-muted)]">{copy.location}</p>
               <p className="text-[var(--s-text)] font-semibold mt-1">{report.latitude.toFixed(4)}, {report.longitude.toFixed(4)}</p>
             </div>
             <div className="rounded-xl p-3" style={{ background: 'var(--s-surface2)' }}>
-              <p className="text-[10px] uppercase tracking-[0.25em] text-[var(--s-muted)]">Адрес</p>
-              <p className="text-[var(--s-text)] font-semibold mt-1">{report.address || 'Няма посочен адрес'}</p>
+              <p className="text-[10px] uppercase tracking-[0.25em] text-[var(--s-muted)]">{copy.address}</p>
+              <p className="text-[var(--s-text)] font-semibold mt-1">{report.address || copy.noAddress}</p>
             </div>
           </div>
 
           <div className="mt-5 rounded-2xl p-4" style={{ background: 'var(--s-surface2)' }}>
-            <p className="text-[10px] uppercase tracking-[0.25em] text-[var(--s-muted)]">Описание</p>
+            <p className="text-[10px] uppercase tracking-[0.25em] text-[var(--s-muted)]">{copy.description}</p>
             <p className="text-[var(--s-muted2)] mt-2 whitespace-pre-wrap leading-relaxed">{report.description}</p>
           </div>
         </div>

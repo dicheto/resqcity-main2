@@ -10,8 +10,10 @@ import {
   Bell, ChevronRight, Activity, Building2, ArrowLeft,
 } from 'lucide-react';
 import AdminNotifications from '@/components/AdminNotifications';
+import { useI18n } from '@/i18n';
+import type { Locale } from '@/i18n';
 
-const ADMIN_COPY = {
+const ADMIN_COPY_BG = {
   groupCore: 'Основни',
   groupOps: 'Операции',
   groupSettings: 'Настройки',
@@ -33,11 +35,54 @@ const ADMIN_COPY = {
   site: 'Сайт',
 } as const;
 
+const ADMIN_COPY_EN = {
+  groupCore: 'Core',
+  groupOps: 'Operations',
+  groupSettings: 'Settings',
+  home: 'Home',
+  reports: 'Reports',
+  vehicleIncidents: 'Vehicle incidents',
+  routing: 'Routing',
+  heatmap: 'Heatmap',
+  categories: 'Categories',
+  institutions: 'Institutions',
+  responsible: 'Responsible persons',
+  security: 'Security',
+  loading: 'Loading...',
+  administration: 'Administration',
+  switchToLight: 'Light theme',
+  switchToDark: 'Dark theme',
+  logout: 'Logout',
+  panel: 'Control panel',
+  site: 'Site',
+} as const;
+
+const ADMIN_COPY_AR = {
+  groupCore: 'أساسي',
+  groupOps: 'عمليات',
+  groupSettings: 'إعدادات',
+  home: 'الرئيسية',
+  reports: 'البلاغات',
+  vehicleIncidents: 'بلاغات المركبات',
+  routing: 'التوجيه',
+  heatmap: 'الخريطة الحرارية',
+  categories: 'الفئات',
+  institutions: 'المؤسسات',
+  responsible: 'الأشخاص المسؤولون',
+  security: 'الأمان',
+  loading: 'جار التحميل...',
+  administration: 'الإدارة',
+  switchToLight: 'الوضع الفاتح',
+  switchToDark: 'الوضع الداكن',
+  logout: 'تسجيل الخروج',
+  panel: 'لوحة التحكم',
+  site: 'الموقع',
+} as const;
+
 type NavItem = { href: string; label: string; icon: any; exact?: boolean };
 type NavGroup = { label: string; items: NavItem[] };
 
-function getNavGroups(): NavGroup[] {
-  const t = ADMIN_COPY;
+function getNavGroups(t: typeof ADMIN_COPY_BG): NavGroup[] {
   return [
     {
       label: t.groupCore,
@@ -66,24 +111,30 @@ function getNavGroups(): NavGroup[] {
   ];
 }
 
-function getPageTitle(pathname: string): string {
-  const navGroups = getNavGroups();
+function getPageTitle(pathname: string, t: typeof ADMIN_COPY_BG): string {
+  const navGroups = getNavGroups(t);
   const flat = navGroups.flatMap(g => g.items);
   const match = [...flat].reverse().find(item =>
     item.exact ? pathname === item.href : pathname.startsWith(item.href)
   );
-  return match?.label ?? ADMIN_COPY.home;
+  return match?.label ?? t.home;
 }
 
 export default function AdminLayout({ children }: { children: React.ReactNode }) {
+  const { locale, setLocale } = useI18n();
   const router = useRouter();
   const pathname = usePathname();
-  const copy = ADMIN_COPY;
-  const navGroups = getNavGroups();
+  const copy = locale === 'bg' ? ADMIN_COPY_BG : locale === 'en' ? ADMIN_COPY_EN : ADMIN_COPY_AR;
+  const navGroups = getNavGroups(copy as typeof ADMIN_COPY_BG);
   const [user, setUser] = useState<any>(null);
   const [dark, setDark] = useState(false);
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [mounted, setMounted] = useState(false);
+  const localeOptions: Array<{ value: Locale; label: string }> = [
+    { value: 'bg', label: 'Български' },
+    { value: 'en', label: 'English' },
+    { value: 'ar', label: 'العربية' },
+  ];
 
   // Init theme before paint
   useEffect(() => {
@@ -297,11 +348,24 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
             </button>
             <div>
               <p className="text-[10px] admin-muted uppercase tracking-widest">{copy.panel}</p>
-              <p className="text-base font-bold rc-display admin-text">{getPageTitle(pathname)}</p>
+              <p className="text-base font-bold rc-display admin-text">{getPageTitle(pathname, copy as typeof ADMIN_COPY_BG)}</p>
             </div>
           </div>
 
           <div className="flex items-center gap-2">
+            <select
+              aria-label="Language"
+              value={locale}
+              onChange={(event) => setLocale(event.target.value as Locale)}
+              className="h-9 rounded-xl border px-2.5 text-xs admin-muted bg-transparent"
+              style={{ borderColor: 'var(--a-border)' }}
+            >
+              {localeOptions.map((option) => (
+                <option key={option.value} value={option.value}>
+                  {option.label}
+                </option>
+              ))}
+            </select>
             {mounted && (
               <button
                 onClick={toggleTheme}

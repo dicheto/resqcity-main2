@@ -17,6 +17,7 @@ import {
   searchCompanyByEikClient,
   searchSubjectsByNameClient,
 } from '@/hooks/lib/company-search-client';
+import { useI18n } from '@/i18n';
 
 const PAGE_SIZE = 25;
 
@@ -53,6 +54,8 @@ function getValidationMessage(mode: CompanySearchMode, value: string): string {
 }
 
 export default function CompanySearchPage() {
+  const { locale } = useI18n();
+  const tr = (bg: string, en: string, ar: string) => (locale === 'ar' ? ar : locale === 'en' ? en : bg);
   const [mode, setMode] = useState<CompanySearchMode>('company-name');
   const [query, setQuery] = useState('');
   const [debouncedQuery, setDebouncedQuery] = useState('');
@@ -337,7 +340,7 @@ export default function CompanySearchPage() {
                       handleShowCompanyDetails(item.ident);
                     }}
                   >
-                    Детайли
+                    {tr('Детайли', 'Details', 'التفاصيل')}
                   </button>
                 </td>
               </tr>
@@ -360,7 +363,7 @@ export default function CompanySearchPage() {
             <div key={subject.ident} className="rounded-2xl border border-[var(--s-border)] p-4">
               <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-3">
                 <div>
-                  <p className="font-semibold text-[var(--s-text)]">{subject.name || 'Без име'}</p>
+                  <p className="font-semibold text-[var(--s-text)]">{subject.name || tr('Без име', 'No name', 'بدون اسم')}</p>
                   <p className="text-xs text-[var(--s-muted)] mt-1 break-all">UID: {subject.ident}</p>
                 </div>
                 <button
@@ -369,7 +372,7 @@ export default function CompanySearchPage() {
                   disabled={relationLoading}
                   className="btn-site-ghost text-xs py-2 px-4 rounded-xl disabled:opacity-60 disabled:cursor-not-allowed"
                 >
-                  {relationLoading ? 'Зареждане...' : 'Покажи свързаните фирми'}
+                  {relationLoading ? tr('Зареждане...', 'Loading...', 'جار التحميل...') : tr('Покажи свързаните фирми', 'Show related companies', 'عرض الشركات المرتبطة')}
                 </button>
               </div>
 
@@ -400,7 +403,7 @@ export default function CompanySearchPage() {
                               className="btn-site-ghost text-[11px] py-1 px-2.5 rounded-md"
                               onClick={() => handleShowCompanyDetails(relation.uic)}
                             >
-                              Детайли
+                              {tr('Детайли', 'Details', 'التفاصيل')}
                             </button>
                           </td>
                         </tr>
@@ -427,8 +430,8 @@ export default function CompanySearchPage() {
           <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={closeCompanyDetailsModal} />
           <div className="relative w-full max-w-4xl site-card rounded-2xl p-5 max-h-[85vh] overflow-auto">
             <div className="flex items-center justify-between mb-3">
-              <p className="text-xs uppercase tracking-[0.2em] text-[var(--s-muted)]">Детайли за фирма</p>
-              <button type="button" className="btn-site-ghost text-xs py-1.5 px-3 rounded-lg" onClick={closeCompanyDetailsModal}>Затвори</button>
+              <p className="text-xs uppercase tracking-[0.2em] text-[var(--s-muted)]">{tr('Детайли за фирма', 'Company details', 'تفاصيل الشركة')}</p>
+              <button type="button" className="btn-site-ghost text-xs py-1.5 px-3 rounded-lg" onClick={closeCompanyDetailsModal}>{tr('Затвори', 'Close', 'إغلاق')}</button>
             </div>
             <div className="space-y-2">
               {[1, 2, 3, 4].map((row) => (
@@ -446,8 +449,8 @@ export default function CompanySearchPage() {
           <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={closeCompanyDetailsModal} />
           <div className="relative w-full max-w-3xl site-card rounded-2xl p-5 border border-[var(--s-red)]/30">
             <div className="flex items-center justify-between mb-3">
-              <p className="text-xs uppercase tracking-[0.2em] text-[var(--s-muted)]">Детайли за фирма</p>
-              <button type="button" className="btn-site-ghost text-xs py-1.5 px-3 rounded-lg" onClick={closeCompanyDetailsModal}>Затвори</button>
+              <p className="text-xs uppercase tracking-[0.2em] text-[var(--s-muted)]">{tr('Детайли за фирма', 'Company details', 'تفاصيل الشركة')}</p>
+              <button type="button" className="btn-site-ghost text-xs py-1.5 px-3 rounded-lg" onClick={closeCompanyDetailsModal}>{tr('Затвори', 'Close', 'إغلاق')}</button>
             </div>
             <p className="text-sm text-[var(--s-red)]">{companyDetailsError}</p>
           </div>
@@ -465,24 +468,24 @@ export default function CompanySearchPage() {
         <div className="relative w-full max-w-6xl site-card rounded-2xl p-5 max-h-[88vh] overflow-auto">
           <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-2 mb-4">
             <div>
-              <p className="text-xs uppercase tracking-[0.2em] text-[var(--s-muted)]">Детайли за фирма</p>
+              <p className="text-xs uppercase tracking-[0.2em] text-[var(--s-muted)]">{tr('Детайли за фирма', 'Company details', 'تفاصيل الشركة')}</p>
               <h3 className="rc-display font-bold text-xl text-[var(--s-text)] mt-1">
                 {companyDetails.fullName || companyDetails.companyName || companyDetails.uic}
               </h3>
             </div>
             <div className="flex items-center gap-2">
               <div className="text-xs text-[var(--s-muted)]">
-                <p>ЕИК: <span className="text-[var(--s-text)] font-semibold">{companyDetails.uic || '-'}</span></p>
+                  <p>{tr('ЕИК', 'UIC', 'الرقم الموحد')}: <span className="text-[var(--s-text)] font-semibold">{companyDetails.uic || '-'}</span></p>
                 {companyDetails.entryDate && (
-                  <p className="mt-1">Актуално към: {new Date(companyDetails.entryDate).toLocaleString('bg-BG')}</p>
+                  <p className="mt-1">{tr('Актуално към', 'Updated at', 'محدث في')}: {new Date(companyDetails.entryDate).toLocaleString(locale === 'bg' ? 'bg-BG' : locale === 'ar' ? 'ar-SA' : 'en-US')}</p>
                 )}
               </div>
-              <button type="button" className="btn-site-ghost text-xs py-1.5 px-3 rounded-lg" onClick={closeCompanyDetailsModal}>Затвори</button>
+              <button type="button" className="btn-site-ghost text-xs py-1.5 px-3 rounded-lg" onClick={closeCompanyDetailsModal}>{tr('Затвори', 'Close', 'إغلاق')}</button>
             </div>
           </div>
 
           {companyDetails.fields.length === 0 ? (
-            <p className="text-sm text-[var(--s-muted)]">Няма налични полета за визуализация.</p>
+            <p className="text-sm text-[var(--s-muted)]">{tr('Няма налични полета за визуализация.', 'No fields available for display.', 'لا توجد حقول متاحة للعرض.')}</p>
           ) : (
             <div className="overflow-x-auto">
               <table className="w-full text-sm">
@@ -515,10 +518,10 @@ export default function CompanySearchPage() {
       <div className="relative overflow-hidden py-12 px-6 border-b border-[var(--s-border)]">
         <div className="absolute inset-0 dot-grid-bg opacity-25" />
         <div className="max-w-6xl mx-auto relative">
-          <p className="text-xs uppercase tracking-[0.4em] text-[var(--s-muted)]">Справки</p>
-          <h1 className="rc-display font-extrabold text-3xl md:text-4xl text-[var(--s-text)] mt-2">Търсене на фирми</h1>
+          <p className="text-xs uppercase tracking-[0.4em] text-[var(--s-muted)]">{tr('Справки', 'Lookup', 'استعلامات')}</p>
+          <h1 className="rc-display font-extrabold text-3xl md:text-4xl text-[var(--s-text)] mt-2">{tr('Търсене на фирми', 'Company search', 'بحث الشركات')}</h1>
           <p className="text-sm text-[var(--s-muted)] mt-3 max-w-2xl">
-            Търси по име на фирма, ЕИК или име на физическо лице и зареди свързаните участия при нужда.
+            {tr('Търси по име на фирма, ЕИК или име на физическо лице и зареди свързаните участия при нужда.', 'Search by company name, UIC, or person name and load related links when needed.', 'ابحث باسم الشركة أو الرقم الموحد أو اسم الشخص وحمّل العلاقات المرتبطة عند الحاجة.')}
           </p>
         </div>
       </div>
@@ -527,7 +530,7 @@ export default function CompanySearchPage() {
         <form onSubmit={handleSubmit} className="site-card rounded-2xl p-5 space-y-4">
           <div className="grid md:grid-cols-4 gap-3">
             <div className="md:col-span-1">
-              <label className="block text-xs uppercase tracking-[0.25em] text-[var(--s-muted)] mb-2">Тип търсене</label>
+              <label className="block text-xs uppercase tracking-[0.25em] text-[var(--s-muted)] mb-2">{tr('Тип търсене', 'Search type', 'نوع البحث')}</label>
               <select
                 className="site-input w-full"
                 value={mode}
@@ -544,7 +547,7 @@ export default function CompanySearchPage() {
             </div>
 
             <div className="md:col-span-2">
-              <label className="block text-xs uppercase tracking-[0.25em] text-[var(--s-muted)] mb-2">Търсене</label>
+              <label className="block text-xs uppercase tracking-[0.25em] text-[var(--s-muted)] mb-2">{tr('Търсене', 'Search', 'بحث')}</label>
               <input
                 className="site-input w-full"
                 type="text"
@@ -569,7 +572,7 @@ export default function CompanySearchPage() {
                 className="btn-site-primary text-xs py-3 px-5 rounded-xl w-full disabled:opacity-70 disabled:cursor-not-allowed"
                 disabled={loading || !query.trim()}
               >
-                {loading ? 'Търсене...' : 'Търси'}
+                {loading ? tr('Търсене...', 'Searching...', 'جار البحث...') : tr('Търси', 'Search', 'بحث')}
               </button>
             </div>
           </div>
@@ -579,13 +582,13 @@ export default function CompanySearchPage() {
           )}
 
           <p className="text-xs text-[var(--s-muted)]">
-            Заявките се изпращат след пауза от 500 ms или при натискане на бутона Търси.
+            {tr('Заявките се изпращат след пауза от 500 ms или при натискане на бутона Търси.', 'Queries are sent after 500 ms pause or when pressing Search.', 'يتم إرسال الاستعلام بعد توقف 500 مللي ثانية أو عند الضغط على زر البحث.')}
           </p>
         </form>
 
         <div className="site-card rounded-2xl p-5">
           <div className="flex items-center justify-between mb-4">
-            <h2 className="rc-display font-bold text-xl text-[var(--s-text)]">Резултати</h2>
+            <h2 className="rc-display font-bold text-xl text-[var(--s-text)]">{tr('Резултати', 'Results', 'النتائج')}</h2>
             {hasSearched && !loading && (
               <span className="text-xs uppercase tracking-[0.2em] text-[var(--s-muted)]">{results.length} записа</span>
             )}
@@ -604,12 +607,12 @@ export default function CompanySearchPage() {
           ) : hasSearched && results.length === 0 ? (
             <div className="text-center py-10 text-[var(--s-muted)]">
               <p className="text-3xl mb-2">🔎</p>
-              <p className="font-semibold text-[var(--s-muted2)]">Няма намерени резултати</p>
-              <p className="text-sm mt-1">Променете заявката и опитайте отново.</p>
+              <p className="font-semibold text-[var(--s-muted2)]">{tr('Няма намерени резултати', 'No results found', 'لا توجد نتائج')}</p>
+              <p className="text-sm mt-1">{tr('Променете заявката и опитайте отново.', 'Change the query and try again.', 'غيّر الاستعلام وحاول مرة أخرى.')}</p>
             </div>
           ) : !hasSearched ? (
             <div className="text-center py-10 text-[var(--s-muted)]">
-              <p className="text-sm">Въведете заявка и стартирайте търсене.</p>
+              <p className="text-sm">{tr('Въведете заявка и стартирайте търсене.', 'Enter a query and start searching.', 'أدخل استعلامًا وابدأ البحث.')}</p>
             </div>
           ) : mode === 'person' ? (
             renderPersonRows()
@@ -625,7 +628,7 @@ export default function CompanySearchPage() {
                 disabled={loadingMore}
                 className="btn-site-ghost text-xs py-2.5 px-5 rounded-xl disabled:opacity-70"
               >
-                {loadingMore ? 'Зареждане...' : 'Зареди още'}
+                {loadingMore ? tr('Зареждане...', 'Loading...', 'جار التحميل...') : tr('Зареди още', 'Load more', 'تحميل المزيد')}
               </button>
             </div>
           )}

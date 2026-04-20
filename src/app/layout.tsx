@@ -3,6 +3,7 @@ import { Fraunces, Manrope } from 'next/font/google'
 import { SiteLayout } from '@/components/SiteLayout'
 import { CustomCursor } from '@/components/CustomCursor'
 import { LenisProvider } from '@/components/LenisProvider'
+import { LocaleProvider } from '@/i18n'
 import Script from 'next/script'
 import './globals.css'
 
@@ -127,10 +128,12 @@ export default function RootLayout({
         />
       </head>
       <body className={`${fraunces.variable} ${manrope.variable} font-sans`}>
-        <LenisProvider>
-          <CustomCursor />
-          <SiteLayout>{children}</SiteLayout>
-        </LenisProvider>
+        <LocaleProvider>
+          <LenisProvider>
+            <CustomCursor />
+            <SiteLayout>{children}</SiteLayout>
+          </LenisProvider>
+        </LocaleProvider>
       </body>
     </html>
   )

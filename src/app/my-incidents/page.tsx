@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
+import { useI18n } from "@/i18n";
 
 type Incident = {
   id: string;
@@ -15,7 +16,14 @@ type Incident = {
 };
 
 export default function MyIncidentsPage() {
+  const { locale } = useI18n();
   const router = useRouter();
+  const copy = {
+    badge: locale === 'bg' ? 'Авто сигнали' : locale === 'en' ? 'Vehicle incidents' : 'بلاغات المركبات',
+    title: locale === 'bg' ? 'Моите авто сигнали' : locale === 'en' ? 'My vehicle incidents' : 'بلاغات مركباتي',
+    subtitle: locale === 'bg' ? 'Всички сигнали за нередности с превозни средства, подадени от теб.' : locale === 'en' ? 'All vehicle issue reports submitted by you.' : 'جميع بلاغات مشاكل المركبات التي أرسلتها.',
+    empty: locale === 'bg' ? 'Нямаш подадени авто сигнали.' : locale === 'en' ? 'You have no submitted vehicle incidents.' : 'ليس لديك بلاغات مركبات مرسلة.',
+  };
   const [incidents, setIncidents] = useState<Incident[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -85,10 +93,10 @@ export default function MyIncidentsPage() {
         <div className="max-w-4xl mx-auto relative">
           <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full border border-[var(--s-border)] bg-[var(--s-surface)] mb-4">
             <span className="w-2 h-2 rounded-full bg-[var(--s-teal)] animate-pulse" />
-            <span className="text-[9px] font-bold uppercase tracking-[0.5em] text-[var(--s-teal)]">Авто сигнали</span>
+            <span className="text-[9px] font-bold uppercase tracking-[0.5em] text-[var(--s-teal)]">{copy.badge}</span>
           </div>
-          <h1 className="rc-display font-extrabold text-3xl md:text-4xl text-[var(--s-text)]">Моите авто сигнали</h1>
-          <p className="text-[var(--s-muted)] text-sm mt-2">Всички сигнали за нередности с превозни средства, подадени от теб.</p>
+          <h1 className="rc-display font-extrabold text-3xl md:text-4xl text-[var(--s-text)]">{copy.title}</h1>
+          <p className="text-[var(--s-muted)] text-sm mt-2">{copy.subtitle}</p>
         </div>
       </div>
 
@@ -108,7 +116,7 @@ export default function MyIncidentsPage() {
 
         {!loading && !error && incidents.length === 0 && (
           <div className="rounded-2xl border border-[var(--s-border)] p-12 text-center">
-            <p className="text-[var(--s-muted)] text-sm">Нямаш подадени авто сигнали.</p>
+            <p className="text-[var(--s-muted)] text-sm">{copy.empty}</p>
           </div>
         )}
 

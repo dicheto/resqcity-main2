@@ -4,15 +4,16 @@ import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { MapPin, Calendar, AlertCircle, CheckCircle, Clock, TrendingUp } from 'lucide-react';
 import { formatCategoryLabel } from '@/hooks/lib/report-format';
+import { useI18n } from '@/i18n';
 
-function getStatusLabel(status: string): string {
+function getStatusLabel(status: string, locale: 'bg' | 'en' | 'ar'): string {
   const labels: Record<string, string> = {
-    PENDING: 'В обработка',
-    IN_REVIEW: 'Преглеждан',
-    IN_PROGRESS: 'В процес',
-    RESOLVED: 'Решен',
-    REJECTED: 'Отхвърлен',
-    NEW: 'В обработка',
+    PENDING: locale === 'bg' ? 'В обработка' : locale === 'en' ? 'Pending' : 'قيد المعالجة',
+    IN_REVIEW: locale === 'bg' ? 'Преглеждан' : locale === 'en' ? 'In review' : 'قيد المراجعة',
+    IN_PROGRESS: locale === 'bg' ? 'В процес' : locale === 'en' ? 'In progress' : 'قيد التنفيذ',
+    RESOLVED: locale === 'bg' ? 'Решен' : locale === 'en' ? 'Resolved' : 'تم الحل',
+    REJECTED: locale === 'bg' ? 'Отхвърлен' : locale === 'en' ? 'Rejected' : 'مرفوض',
+    NEW: locale === 'bg' ? 'В обработка' : locale === 'en' ? 'Pending' : 'قيد المعالجة',
   };
   return labels[status] || status;
 }
@@ -82,7 +83,16 @@ function timeAgo(dateString: string): string {
 }
 
 export default function SignalsPage() {
+  const { locale } = useI18n();
   const [signals, setSignals] = useState<PublicSignal[]>([]);
+  const copy = {
+    title: locale === 'bg' ? 'Всички сигнали' : locale === 'en' ? 'All reports' : 'جميع البلاغات',
+    subtitle: locale === 'bg' ? 'Преглед на всички активни сигнали на град София' : locale === 'en' ? 'Overview of all active reports in Sofia' : 'نظرة عامة على جميع البلاغات النشطة في صوفيا',
+    add: locale === 'bg' ? '➕ Подай сигнал' : locale === 'en' ? '➕ Submit report' : '➕ إرسال بلاغ',
+    search: locale === 'bg' ? 'Търси сигнали...' : locale === 'en' ? 'Search reports...' : 'ابحث في البلاغات...',
+    loading: locale === 'bg' ? 'Зареждане на сигналите...' : locale === 'en' ? 'Loading reports...' : 'جار تحميل البلاغات...',
+    noData: locale === 'bg' ? 'Няма намерени сигнали с текущите филтри.' : locale === 'en' ? 'No reports found with current filters.' : 'لا توجد بلاغات بهذه الفلاتر.',
+  };
   const [filteredSignals, setFilteredSignals] = useState<PublicSignal[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -180,9 +190,9 @@ export default function SignalsPage() {
         <div className="max-w-7xl mx-auto px-4 py-8">
           <div className="flex items-center justify-between gap-4 mb-4">
             <div>
-              <h1 className="text-3xl font-bold mb-2">Всички сигнали</h1>
+              <h1 className="text-3xl font-bold mb-2">{copy.title}</h1>
               <p className="text-[var(--s-muted2)]">
-                Преглед на всички активни сигнали на град София
+                {copy.subtitle}
               </p>
             </div>
             <Link
@@ -193,17 +203,17 @@ export default function SignalsPage() {
                 color: 'white',
               }}
             >
-              <span>➕ Подай сигнал</span>
+              <span>{copy.add}</span>
             </Link>
           </div>
 
           {/* Stats Cards */}
           <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
             {[
-              { label: 'Всички', value: signals.length, color: 'var(--s-orange)' },
-              { label: 'Решен', value: statusCounts.RESOLVED, color: 'var(--s-teal)' },
-              { label: 'В процес', value: statusCounts.IN_PROGRESS, color: 'var(--s-orange)' },
-              { label: 'Преглеждан', value: statusCounts.IN_REVIEW, color: 'var(--s-violet)' },
+              { label: locale === 'bg' ? 'Всички' : locale === 'en' ? 'All' : 'الكل', value: signals.length, color: 'var(--s-orange)' },
+              { label: getStatusLabel('RESOLVED', locale), value: statusCounts.RESOLVED, color: 'var(--s-teal)' },
+              { label: getStatusLabel('IN_PROGRESS', locale), value: statusCounts.IN_PROGRESS, color: 'var(--s-orange)' },
+              { label: getStatusLabel('IN_REVIEW', locale), value: statusCounts.IN_REVIEW, color: 'var(--s-violet)' },
             ].map((stat) => (
               <div
                 key={stat.label}
@@ -226,7 +236,7 @@ export default function SignalsPage() {
           {/* Search */}
           <input
             type="text"
-            placeholder="Търси сигнали..."
+            placeholder={copy.search}
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             className="w-full px-4 py-2.5 rounded-lg border border-[var(--s-border)]"
@@ -242,11 +252,11 @@ export default function SignalsPage() {
               className="px-3 py-2 rounded-lg border border-[var(--s-border)]"
               style={{ background: 'var(--s-bg)', color: 'var(--s-text)' }}
             >
-              <option value="">Всички статуси</option>
-              <option value="RESOLVED">Решен</option>
-              <option value="IN_PROGRESS">В процес</option>
-              <option value="IN_REVIEW">Преглеждан</option>
-              <option value="REJECTED">Отхвърлен</option>
+              <option value="">{locale === 'bg' ? 'Всички статуси' : locale === 'en' ? 'All statuses' : 'كل الحالات'}</option>
+              <option value="RESOLVED">{getStatusLabel('RESOLVED', locale)}</option>
+              <option value="IN_PROGRESS">{getStatusLabel('IN_PROGRESS', locale)}</option>
+              <option value="IN_REVIEW">{getStatusLabel('IN_REVIEW', locale)}</option>
+              <option value="REJECTED">{getStatusLabel('REJECTED', locale)}</option>
             </select>
 
             {/* Category Filter */}
@@ -256,7 +266,7 @@ export default function SignalsPage() {
               className="px-3 py-2 rounded-lg border border-[var(--s-border)]"
               style={{ background: 'var(--s-bg)', color: 'var(--s-text)' }}
             >
-              <option value="">Всички категории</option>
+              <option value="">{locale === 'bg' ? 'Всички категории' : locale === 'en' ? 'All categories' : 'كل الفئات'}</option>
               {categories.map((cat) => (
                 <option key={cat.id} value={cat.nameBg}>
                   {cat.nameBg}
@@ -271,9 +281,9 @@ export default function SignalsPage() {
               className="px-3 py-2 rounded-lg border border-[var(--s-border)]"
               style={{ background: 'var(--s-bg)', color: 'var(--s-text)' }}
             >
-              <option value="newest">Най-нови</option>
-              <option value="oldest">Най-стари</option>
-              <option value="status">По статус</option>
+              <option value="newest">{locale === 'bg' ? 'Най-нови' : locale === 'en' ? 'Newest' : 'الأحدث'}</option>
+              <option value="oldest">{locale === 'bg' ? 'Най-стари' : locale === 'en' ? 'Oldest' : 'الأقدم'}</option>
+              <option value="status">{locale === 'bg' ? 'По статус' : locale === 'en' ? 'By status' : 'حسب الحالة'}</option>
             </select>
 
             {/* Clear Filters */}
@@ -287,7 +297,7 @@ export default function SignalsPage() {
                 className="px-3 py-2 rounded-lg border border-[var(--s-border)] text-xs font-medium"
                 style={{ color: 'var(--s-orange)' }}
               >
-                Изчисти филтрите
+                {locale === 'bg' ? 'Изчисти филтрите' : locale === 'en' ? 'Clear filters' : 'مسح الفلاتر'}
               </button>
             )}
           </div>
@@ -307,7 +317,7 @@ export default function SignalsPage() {
                   borderTopColor: 'var(--s-orange)',
                 }}
               />
-              <p className="text-[var(--s-muted2)]">Зареждане на сигналите...</p>
+              <p className="text-[var(--s-muted2)]">{copy.loading}</p>
             </div>
           </div>
         ) : error ? (
@@ -321,13 +331,13 @@ export default function SignalsPage() {
         ) : filteredSignals.length === 0 ? (
           <div className="text-center py-12">
             <div className="text-5xl mb-4">🔍</div>
-            <p className="text-[var(--s-muted2)]">Няма намерени сигнали с текущите филтри.</p>
+            <p className="text-[var(--s-muted2)]">{copy.noData}</p>
           </div>
         ) : (
           <div className="space-y-3">
             {filteredSignals.map((signal) => {
               const statusInfo = getStatusColor(signal.status);
-              const statusLabel = getStatusLabel(signal.status);
+              const statusLabel = getStatusLabel(signal.status, locale);
               return (
                 <Link key={signal.id} href={`/signals/${signal.id}`}>
                   <div

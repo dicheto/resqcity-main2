@@ -6,6 +6,7 @@ import Link from 'next/link';
 import { formatCategoryLabel } from '@/hooks/lib/report-format';
 import type { TaxObligation, TaxPaymentTransaction } from '@/types/tax-payments';
 import type { IrisBank } from '@/hooks/lib/irispay';
+import { useI18n } from '@/i18n';
 
 function getStatusLabel(status: string): string {
   const labels: Record<string, string> = {
@@ -20,6 +21,7 @@ function getStatusLabel(status: string): string {
 }
 
 export default function DashboardPage() {
+  const { t } = useI18n();
   const [reports, setReports] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [moreMenuOpen, setMoreMenuOpen] = useState(false);
@@ -398,19 +400,19 @@ export default function DashboardPage() {
         <div className="max-w-6xl mx-auto relative">
           <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full border border-[var(--s-border)] bg-[var(--s-surface)] mb-5">
             <span className="w-2 h-2 rounded-full bg-[var(--s-orange)] animate-pulse shadow-[0_0_6px_var(--s-orange)]" />
-            <span className="text-[9px] font-bold uppercase tracking-[0.5em] text-[var(--s-orange)]">Гражданин</span>
+            <span className="text-[9px] font-bold uppercase tracking-[0.5em] text-[var(--s-orange)]">{t('dash.citizen')}</span>
           </div>
           <h1 className="rc-display font-extrabold text-4xl md:text-5xl text-[var(--s-text)] leading-tight mb-3">
-            Твоето <span className="grad-orange">табло</span>
+            {t('dash.title')}
           </h1>
-          <p className="text-[var(--s-muted2)] text-sm max-w-lg">Управлявай сигналите си и следи статуса им в реално време.</p>
+          <p className="text-[var(--s-muted2)] text-sm max-w-lg">{t('dash.subtitle')}</p>
 
           <div className="flex items-center gap-3 mt-7">
             <Link href="/dashboard/new-report" className="btn-site-primary text-xs py-2.5 px-5 rounded-2xl">
-              + Нов сигнал
+              {t('dash.newReport')}
             </Link>
             <Link href="/map" className="btn-site-ghost text-xs py-2.5 px-5 rounded-2xl">
-              🗺 Картата
+              {t('dash.map')}
             </Link>
           </div>
         </div>
@@ -589,7 +591,7 @@ export default function DashboardPage() {
             onClick={() => setMoreMenuOpen((prev) => !prev)}
             className="btn-site-primary px-5 py-3 rounded-2xl text-sm font-semibold shadow-xl"
           >
-            Още
+            {t('dash.more')}
           </button>
         </div>
       </div>

@@ -5,6 +5,7 @@ import type React from 'react';
 import axios from 'axios';
 import Link from 'next/link';
 import { formatCategoryLabel } from '@/hooks/lib/report-format';
+import { useI18n } from '@/i18n';
 
 function getStatusLabel(status: string): string {
   const labels: Record<string, string> = {
@@ -19,7 +20,16 @@ function getStatusLabel(status: string): string {
 }
 
 export default function ReportsPage() {
+  const { locale } = useI18n();
   const [reports, setReports] = useState<any[]>([]);
+  const copy = {
+    section: locale === 'bg' ? 'Сигнали' : locale === 'en' ? 'Reports' : 'البلاغات',
+    title: locale === 'bg' ? 'Моите сигнали' : locale === 'en' ? 'My reports' : 'بلاغاتي',
+    newReport: locale === 'bg' ? '+ Нов сигнал' : locale === 'en' ? '+ New report' : '+ بلاغ جديد',
+    allStatuses: locale === 'bg' ? 'Всички статуси' : locale === 'en' ? 'All statuses' : 'كل الحالات',
+    allCategories: locale === 'bg' ? 'Всички категории' : locale === 'en' ? 'All categories' : 'كل الفئات',
+    noFound: locale === 'bg' ? 'Няма открити сигнали' : locale === 'en' ? 'No reports found' : 'لا توجد بلاغات',
+  };
   const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState({ status: '', category: '' });
 
@@ -63,11 +73,11 @@ export default function ReportsPage() {
         <div className="absolute inset-0 dot-grid-bg opacity-20" />
         <div className="max-w-6xl mx-auto relative flex flex-col md:flex-row md:items-end md:justify-between gap-4">
           <div>
-            <p className="text-xs uppercase tracking-[0.4em] text-[var(--s-muted)]">Сигнали</p>
-            <h1 className="rc-display font-extrabold text-3xl md:text-4xl text-[var(--s-text)] mt-2">Моите сигнали</h1>
+            <p className="text-xs uppercase tracking-[0.4em] text-[var(--s-muted)]">{copy.section}</p>
+            <h1 className="rc-display font-extrabold text-3xl md:text-4xl text-[var(--s-text)] mt-2">{copy.title}</h1>
           </div>
           <Link href="/dashboard/new-report" className="btn-site-primary text-xs py-2.5 px-5 rounded-2xl self-start md:self-auto">
-            + Нов сигнал
+            {copy.newReport}
           </Link>
         </div>
       </div>
@@ -81,7 +91,7 @@ export default function ReportsPage() {
               value={filter.status}
               onChange={(e) => setFilter({ ...filter, status: e.target.value })}
             >
-              <option value="">Всички статуси</option>
+              <option value="">{copy.allStatuses}</option>
               <option value="PENDING">В обработка</option>
               <option value="IN_REVIEW">Преглеждан</option>
               <option value="IN_PROGRESS">В процес</option>
@@ -93,7 +103,7 @@ export default function ReportsPage() {
               value={filter.category}
               onChange={(e) => setFilter({ ...filter, category: e.target.value })}
             >
-              <option value="">Всички категории</option>
+              <option value="">{copy.allCategories}</option>
               <option value="POTHOLE">Дупки по пътя</option>
               <option value="STREET_LIGHT">Улично осветление</option>
               <option value="GARBAGE">Отпадъци</option>
@@ -117,10 +127,10 @@ export default function ReportsPage() {
         ) : reports.length === 0 ? (
           <div className="site-card rounded-2xl p-12 text-center">
             <p className="text-4xl mb-3">📭</p>
-            <p className="font-semibold text-[var(--s-muted2)]">Няма открити сигнали</p>
+            <p className="font-semibold text-[var(--s-muted2)]">{copy.noFound}</p>
             <p className="text-sm text-[var(--s-muted)] mt-1">Смени филтрите или подай нов сигнал</p>
             <Link href="/dashboard/new-report" className="inline-block mt-5 btn-site-primary text-xs py-2.5 px-5 rounded-2xl">
-              + Нов сигнал
+              {copy.newReport}
             </Link>
           </div>
         ) : (

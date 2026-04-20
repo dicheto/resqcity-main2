@@ -10,6 +10,7 @@ import {
   Shield, TrendingUp, AlertTriangle, Wifi, Database,
   Mail, Server,
 } from 'lucide-react';
+import { useI18n } from '@/i18n';
 
 /* ── Animated counter ──────────────────────────── */
 function useCounter(target: number, duration = 1100) {
@@ -127,7 +128,23 @@ const BAR_COLORS = [
    PAGE
 ═══════════════════════════════════════════════════ */
 export default function AdminDashboardPage() {
+  const { locale } = useI18n();
   const [stats, setStats] = useState<any>(null);
+  const copy = {
+    panel: locale === 'bg' ? 'Контролен панел' : locale === 'en' ? 'Control panel' : 'لوحة التحكم',
+    allReports: locale === 'bg' ? 'Всички сигнали' : locale === 'en' ? 'All reports' : 'كل البلاغات',
+    heatmap: locale === 'bg' ? 'Топлинна карта' : locale === 'en' ? 'Heatmap' : 'خريطة حرارية',
+    total: locale === 'bg' ? 'Общо сигнали' : locale === 'en' ? 'Total reports' : 'إجمالي البلاغات',
+    waiting: locale === 'bg' ? 'Изчакване' : locale === 'en' ? 'Pending' : 'بانتظار المعالجة',
+    inProgress: locale === 'bg' ? 'В процес' : locale === 'en' ? 'In progress' : 'قيد التنفيذ',
+    resolved: locale === 'bg' ? 'Решени' : locale === 'en' ? 'Resolved' : 'تم الحل',
+    quick: locale === 'bg' ? 'Бърз достъп' : locale === 'en' ? 'Quick access' : 'وصول سريع',
+    recent: locale === 'bg' ? 'Последни сигнали' : locale === 'en' ? 'Recent reports' : 'آخر البلاغات',
+    system: locale === 'bg' ? 'Статус на системата' : locale === 'en' ? 'System status' : 'حالة النظام',
+    systemsOn: locale === 'bg' ? 'Всички системи активни' : locale === 'en' ? 'All systems online' : 'كل الأنظمة تعمل',
+    security: locale === 'bg' ? 'Сигурност на акаунта' : locale === 'en' ? 'Account security' : 'أمان الحساب',
+    securityBtn: locale === 'bg' ? 'Настройки за сигурност' : locale === 'en' ? 'Security settings' : 'إعدادات الأمان',
+  };
   const [loading, setLoading] = useState(true);
 
   useEffect(() => { fetchStats(); }, []);
@@ -183,7 +200,7 @@ export default function AdminDashboardPage() {
           <p className="text-xs uppercase tracking-[0.5em] admin-muted font-semibold">{getGreeting()},</p>
           <h1 className="text-3xl md:text-5xl font-extrabold rc-display admin-text mt-2 leading-none">
             Контролен<br />
-            <span className="text-gradient-orange">панел</span>
+            <span className="text-gradient-orange">{copy.panel}</span>
           </h1>
           <p className="admin-muted mt-3 max-w-lg text-sm leading-relaxed">
             Мониторинг на градските сигнали, управление на ресурси и диспечиране в реално време.
@@ -194,13 +211,13 @@ export default function AdminDashboardPage() {
               href="/admin/reports"
               className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-gradient-to-r from-orange-500 to-rose-500 text-white text-sm font-semibold shadow-lg shadow-orange-500/25 hover:shadow-orange-500/40 hover:-translate-y-0.5 transition-all duration-200"
             >
-              <FileText size={15} /> Всички сигнали
+              <FileText size={15} /> {copy.allReports}
             </Link>
             <Link
               href="/admin/heatmap"
               className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl topbar-btn text-sm font-medium admin-text hover:-translate-y-0.5 transition-all duration-200"
             >
-              <MapPin size={15} /> Топлинна карта
+              <MapPin size={15} /> {copy.heatmap}
             </Link>
           </div>
         </div>
@@ -208,15 +225,15 @@ export default function AdminDashboardPage() {
 
       {/* ── STATS ──────────────────────────────────── */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-        <StatCard label="Общо сигнали" value={total} iconBg="stat-total" icon={Layers} delay={0} />
-        <StatCard label="Изчакване" value={pending} iconBg="stat-pending" icon={Clock} delay={80} />
-        <StatCard label="В процес" value={inProgress} iconBg="stat-progress" icon={Activity} delay={160} />
-        <StatCard label="Решени" value={resolved} iconBg="stat-resolved" icon={CheckCircle2} delay={240} />
+        <StatCard label={copy.total} value={total} iconBg="stat-total" icon={Layers} delay={0} />
+        <StatCard label={copy.waiting} value={pending} iconBg="stat-pending" icon={Clock} delay={80} />
+        <StatCard label={copy.inProgress} value={inProgress} iconBg="stat-progress" icon={Activity} delay={160} />
+        <StatCard label={copy.resolved} value={resolved} iconBg="stat-resolved" icon={CheckCircle2} delay={240} />
       </div>
 
       {/* ── QUICK ACTIONS ──────────────────────────── */}
       <div>
-        <p className="text-[11px] uppercase tracking-[0.45em] admin-muted font-semibold mb-4">Бърз достъп</p>
+        <p className="text-[11px] uppercase tracking-[0.45em] admin-muted font-semibold mb-4">{copy.quick}</p>
         <div className="grid grid-cols-2 sm:grid-cols-3 xl:grid-cols-6 gap-3">
           <QuickAction href="/admin/categories"          icon={Tags}        label="Категории"        desc="Управление"                  gradient="from-violet-500 to-indigo-500 text-white" delay={300} />
           <QuickAction href="/admin/responsible-persons" icon={Users}       label="Отговорни лица"   desc="Управление на лица"          gradient="from-blue-500 to-cyan-500 text-white"    delay={360} />
@@ -279,7 +296,7 @@ export default function AdminDashboardPage() {
           style={{ animationDelay: '480ms', animationFillMode: 'backwards' }}
         >
           <div className="flex items-center justify-between mb-6">
-            <h2 className="text-lg font-bold rc-display admin-text">Последни сигнали</h2>
+            <h2 className="text-lg font-bold rc-display admin-text">{copy.recent}</h2>
             <Link href="/admin/reports" className="text-[11px] admin-muted hover:text-orange-400 flex items-center gap-1 transition-colors">
               Всички <ArrowUpRight size={11} />
             </Link>
@@ -316,10 +333,10 @@ export default function AdminDashboardPage() {
         style={{ animationDelay: '560ms', animationFillMode: 'backwards' }}
       >
         <div className="flex items-center justify-between mb-6">
-          <h2 className="text-lg font-bold rc-display admin-text">Статус на системата</h2>
+          <h2 className="text-lg font-bold rc-display admin-text">{copy.system}</h2>
           <span className="flex items-center gap-1.5 text-[11px] font-semibold text-emerald-500">
             <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
-            Всички системи активни
+            {copy.systemsOn}
           </span>
         </div>
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
@@ -352,7 +369,7 @@ export default function AdminDashboardPage() {
             <Shield size={22} className="text-white" />
           </div>
           <div>
-            <p className="font-bold admin-text text-sm">Сигурност на акаунта</p>
+            <p className="font-bold admin-text text-sm">{copy.security}</p>
             <p className="text-xs admin-muted mt-0.5">Управлявайте MFA, пасключове и достъп.</p>
           </div>
         </div>
@@ -360,7 +377,7 @@ export default function AdminDashboardPage() {
           href="/admin/security"
           className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-gradient-to-r from-indigo-500 to-violet-600 text-white text-xs font-semibold shadow-md hover:-translate-y-0.5 transition-all duration-200"
         >
-          Настройки за сигурност <ArrowUpRight size={13} />
+          {copy.securityBtn} <ArrowUpRight size={13} />
         </Link>
       </div>
 

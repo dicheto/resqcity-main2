@@ -1343,6 +1343,18 @@ select.site-input option {
   animation: dropDownBackdrop 0.35s ease-out;
 }
 
+/* ── RTL support (Arabic locale) ─────────────────── */
+[dir="rtl"] body {
+  text-align: right;
+}
+[dir="rtl"] .site-nav-link::after {
+  left: auto;
+  right: 0;
+}
+[dir="rtl"] .site-footer-hero {
+  direction: rtl;
+}
+
 /* ── Stagger helpers ─────────────────────────────── */
 .delay-75  { animation-delay: 75ms;  animation-fill-mode: backwards; }
 .delay-150 { animation-delay: 150ms; animation-fill-mode: backwards; }

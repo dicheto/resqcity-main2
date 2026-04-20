@@ -3,13 +3,18 @@
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useWebSocket } from '@/hooks/useWebSocket';
+import { useI18n } from '@/i18n';
 
 export default function DashboardLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
+  const { locale } = useI18n();
   const router = useRouter();
+  const notifyTitle = locale === 'bg' ? 'ResQCity известие' : locale === 'en' ? 'ResQCity notification' : 'إشعار ResQCity';
+  const notifyBody = locale === 'bg' ? 'Имате нова актуализация по сигнал.' : locale === 'en' ? 'You have a new report update.' : 'لديك تحديث جديد على البلاغ.';
+
   const [user, setUser] = useState<any>(null);
   const { isConnected, joinUserRoom, onIncidentNotification } = useWebSocket();
 
@@ -54,14 +59,14 @@ export default function DashboardLayout({
     const unsubscribe = onIncidentNotification((payload: { title?: string; message?: string }) => {
       if (typeof window !== 'undefined' && 'Notification' in window) {
         if (Notification.permission === 'granted') {
-          new Notification(payload.title || 'ResQCity известие', {
-            body: payload.message || 'Имате нова актуализация по сигнал.',
+          new Notification(payload.title || notifyTitle, {
+            body: payload.message || notifyBody,
           });
         } else if (Notification.permission !== 'denied') {
           Notification.requestPermission().then((permission) => {
             if (permission === 'granted') {
-              new Notification(payload.title || 'ResQCity известие', {
-                body: payload.message || 'Имате нова актуализация по сигнал.',
+              new Notification(payload.title || notifyTitle, {
+                body: payload.message || notifyBody,
               });
             }
           });
@@ -70,7 +75,7 @@ export default function DashboardLayout({
     });
 
     return () => { if (unsubscribe) unsubscribe(); };
-  }, [user, isConnected, joinUserRoom, onIncidentNotification]);
+  }, [user, isConnected, joinUserRoom, onIncidentNotification, notifyTitle, notifyBody]);
 
   if (!user) {
     return (

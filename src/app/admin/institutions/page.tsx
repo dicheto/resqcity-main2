@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import dynamic from 'next/dynamic';
 import axios from 'axios';
 import { Eye, EyeOff, Plus, Edit2, Trash2, Save, X, Phone, Mail, FileText, MapPin } from 'lucide-react';
+import { useI18n } from '@/i18n';
 
 const LocationPicker = dynamic(() => import('@/components/LocationPicker'), { ssr: false });
 
@@ -46,6 +47,14 @@ interface Category {
 }
 
 export default function InstitutionsManagementPage() {
+  const { locale } = useI18n();
+  const copy = {
+    loading: locale === 'bg' ? 'Зареждане...' : locale === 'en' ? 'Loading...' : 'جار التحميل...',
+    admin: locale === 'bg' ? 'Администрация' : locale === 'en' ? 'Administration' : 'الإدارة',
+    title: locale === 'bg' ? 'Управление на институции' : locale === 'en' ? 'Institutions management' : 'إدارة المؤسسات',
+    subtitle: locale === 'bg' ? 'Добавяйте и редактирайте институции с техните контактни данни' : locale === 'en' ? 'Add and edit institutions and their contact details' : 'إضافة وتعديل المؤسسات وبيانات الاتصال الخاصة بها',
+    add: locale === 'bg' ? 'Добави институция' : locale === 'en' ? 'Add institution' : 'إضافة مؤسسة',
+  };
   const [institutions, setInstitutions] = useState<Institution[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
   const [institutionAccounts, setInstitutionAccounts] = useState<InstitutionAccount[]>([]);
@@ -240,7 +249,7 @@ export default function InstitutionsManagementPage() {
   if (loading) {
     return (
       <div className="px-6 py-10 max-w-7xl mx-auto">
-        <div className="text-center py-8 admin-muted">Зареждане...</div>
+        <div className="text-center py-8 admin-muted">{copy.loading}</div>
       </div>
     );
   }
@@ -248,12 +257,12 @@ export default function InstitutionsManagementPage() {
   return (
     <div className="px-6 py-10 max-w-7xl mx-auto">
       <div className="mb-10">
-        <p className="text-xs uppercase tracking-[0.4em] admin-muted">Администрация</p>
+        <p className="text-xs uppercase tracking-[0.4em] admin-muted">{copy.admin}</p>
         <h1 className="text-3xl md:text-4xl font-semibold rc-display admin-text mt-3">
-          Управление на институции
+          {copy.title}
         </h1>
         <p className="admin-muted mt-2 text-sm">
-          Добавяйте и редактирайте институции с техните контактни данни
+          {copy.subtitle}
         </p>
       </div>
 
@@ -276,7 +285,7 @@ export default function InstitutionsManagementPage() {
           className="rounded-full bg-slate-900 dark:bg-white text-white dark:text-slate-900 px-5 py-2.5 text-xs uppercase tracking-[0.35em] hover:opacity-80 transition disabled:opacity-40 disabled:cursor-not-allowed flex items-center gap-2"
         >
           <Plus size={16} />
-          Добави институция
+          {copy.add}
         </button>
 
         <button

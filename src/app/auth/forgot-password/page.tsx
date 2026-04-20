@@ -3,8 +3,10 @@
 import { useState } from 'react';
 import Link from 'next/link';
 import axios from 'axios';
+import { useI18n } from '@/i18n';
 
 export default function ForgotPasswordPage() {
+  const { t } = useI18n();
   const [email, setEmail] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
@@ -39,7 +41,7 @@ export default function ForgotPasswordPage() {
               <span className="text-4xl">✉️</span>
             </div>
             <p className="text-[10px] uppercase tracking-[0.5em] text-[var(--s-orange)] font-bold mb-3">ResQCity</p>
-            <h2 className="text-2xl font-extrabold rc-display text-[var(--s-text)] mb-3">Провери имейла си</h2>
+            <h2 className="text-2xl font-extrabold rc-display text-[var(--s-text)] mb-3">{t('auth.checkEmail')}</h2>
             <p className="text-[var(--s-muted2)] text-sm leading-relaxed mb-2">
               Ако акаунт с имейл <strong className="text-[var(--s-orange)]">{email}</strong> съществува, ще получиш линк за смяна на парола.
             </p>
@@ -49,7 +51,7 @@ export default function ForgotPasswordPage() {
             <Link href="/auth/login"
               className="btn-site-primary w-full justify-center py-3 rounded-2xl text-sm inline-flex"
               style={{ background: 'linear-gradient(135deg, #f97316, #ea580c)' }}>
-              Към вход
+              {t('auth.login')}
             </Link>
           </div>
         </div>
@@ -67,7 +69,7 @@ export default function ForgotPasswordPage() {
         <div className="site-card-glass rounded-3xl p-8" data-cursor-loupe>
           <div className="mb-8">
             <p className="text-[10px] uppercase tracking-[0.5em] text-[var(--s-orange)] font-bold">ResQCity</p>
-            <h2 className="text-2xl font-bold rc-display text-[var(--s-text)] mt-1">Забравена парола</h2>
+            <h2 className="text-2xl font-bold rc-display text-[var(--s-text)] mt-1">{t('auth.forgotPassword')}</h2>
             <p className="text-[var(--s-muted2)] text-sm mt-2">Въведи имейла си и ще ти изпратим линк за смяна.</p>
           </div>
 
@@ -79,7 +81,7 @@ export default function ForgotPasswordPage() {
 
           <form onSubmit={handleSubmit} className="space-y-4">
             <div>
-              <label className="block text-[10px] font-semibold uppercase tracking-[0.4em] text-[var(--s-muted)] mb-2">Имейл</label>
+              <label className="block text-[10px] font-semibold uppercase tracking-[0.4em] text-[var(--s-muted)] mb-2">{t('auth.email')}</label>
               <input
                 type="email"
                 className="site-input"
@@ -100,9 +102,9 @@ export default function ForgotPasswordPage() {
           </form>
 
           <p className="text-center mt-6 text-sm text-[var(--s-muted)]">
-            Помниш си паролата?{' '}
+            {t('auth.haveAccount')}{' '}
             <Link href="/auth/login" className="text-[var(--s-orange)] font-semibold hover:underline">
-              Вход
+              {t('auth.login')}
             </Link>
           </p>
         </div>

@@ -10,6 +10,7 @@ import {
   RefreshCw, TrendingUp, CheckCircle2, Clock, AlertCircle,
   XCircle, ArrowLeft, BarChart2, MapPin, Activity,
 } from 'lucide-react';
+import { useI18n } from '@/i18n';
 
 /* ─── Types ─────────────────────────────────────────────── */
 interface StatsData {
@@ -39,15 +40,15 @@ const STATUS_COLORS: Record<string, string> = {
 const CHART_PALETTE = ['#FF6B2B','#9F78FF','#06D6A0','#FFA726','#38bdf8','#fb7185','#a3e635','#f472b6'];
 
 /* ─── Helpers ────────────────────────────────────────────── */
-function fmtDate(iso: string) {
-  return new Date(iso).toLocaleDateString('bg-BG', { day: '2-digit', month: 'short' });
+function fmtDate(iso: string, locale: 'bg' | 'en' | 'ar') {
+  return new Date(iso).toLocaleDateString(locale === 'bg' ? 'bg-BG' : locale === 'ar' ? 'ar-SA' : 'en-US', { day: '2-digit', month: 'short' });
 }
-function timeAgo(iso: string) {
+function timeAgo(iso: string, locale: 'bg' | 'en' | 'ar') {
   const diff = Math.floor((Date.now() - new Date(iso).getTime()) / 1000);
-  if (diff < 60)    return `преди ${diff} сек.`;
-  if (diff < 3600)  return `преди ${Math.floor(diff / 60)} мин.`;
-  if (diff < 86400) return `преди ${Math.floor(diff / 3600)} ч.`;
-  return new Date(iso).toLocaleTimeString('bg-BG', { hour: '2-digit', minute: '2-digit' });
+  if (diff < 60) return locale === 'bg' ? `преди ${diff} сек.` : locale === 'ar' ? `قبل ${diff} ث` : `${diff}s ago`;
+  if (diff < 3600) return locale === 'bg' ? `преди ${Math.floor(diff / 60)} мин.` : locale === 'ar' ? `قبل ${Math.floor(diff / 60)} د` : `${Math.floor(diff / 60)}m ago`;
+  if (diff < 86400) return locale === 'bg' ? `преди ${Math.floor(diff / 3600)} ч.` : locale === 'ar' ? `قبل ${Math.floor(diff / 3600)} س` : `${Math.floor(diff / 3600)}h ago`;
+  return new Date(iso).toLocaleTimeString(locale === 'bg' ? 'bg-BG' : locale === 'ar' ? 'ar-SA' : 'en-US', { hour: '2-digit', minute: '2-digit' });
 }
 const STATUS_ICON: Record<string, React.ReactNode> = {
   PENDING:     <AlertCircle size={14} />,
@@ -64,7 +65,7 @@ function ChartTooltip({ active, payload, label }: any) {
     <div className="px-3 py-2 rounded-xl border border-[var(--s-border)] bg-[var(--s-surface)] shadow-xl text-xs">
       {label && <p className="text-[var(--s-muted)] mb-1">{label}</p>}
       {payload.map((p: any, i: number) => (
-        <p key={i} style={{ color: p.color ?? p.fill }} className="font-bold">{p.value} сигнала</p>
+        <p key={i} style={{ color: p.color ?? p.fill }} className="font-bold">{p.value}</p>
       ))}
     </div>
   );
@@ -89,6 +90,8 @@ function DistrictCell({ district, count, max }: { district: string; count: numbe
 
 /* ─── Page ───────────────────────────────────────────────── */
 export default function StatisticsPage() {
+  const { t, formatNumber, locale } = useI18n();
+  const tr = (bg: string, en: string, ar: string) => (locale === 'ar' ? ar : locale === 'en' ? en : bg);
   const [data, setData]         = useState<StatsData | null>(null);
   const [loading, setLoading]   = useState(true);
   const [error, setError]       = useState(false);
@@ -152,7 +155,7 @@ export default function StatisticsPage() {
     <div className="min-h-screen flex items-center justify-center" style={{ background: 'var(--s-bg)' }}>
       <div className="flex flex-col items-center gap-4">
         <div className="w-12 h-12 rounded-full border-2 border-[var(--s-orange)] border-t-transparent animate-spin" />
-        <p className="text-[var(--s-muted)] text-sm">Зареждане на статистики…</p>
+        <p className="text-[var(--s-muted)] text-sm">{t('stats.loading')}</p>
       </div>
     </div>
   );
@@ -160,8 +163,8 @@ export default function StatisticsPage() {
   if (error || !data) return (
     <div className="min-h-screen flex items-center justify-center" style={{ background: 'var(--s-bg)' }}>
       <div className="text-center">
-        <p className="text-[var(--s-muted)] mb-4">Грешка при зареждане на данните.</p>
-        <button onClick={fetchData} className="btn-site-primary text-xs px-6 py-3">Опитай отново</button>
+        <p className="text-[var(--s-muted)] mb-4">{t('stats.error')}</p>
+        <button onClick={fetchData} className="btn-site-primary text-xs px-6 py-3">{t('stats.retry')}</button>
       </div>
     </div>
   );
@@ -174,7 +177,7 @@ export default function StatisticsPage() {
 
   const trendData = data.dailyTrend.map((d) => ({
     ...d,
-    label: fmtDate(d.date),
+    label: fmtDate(d.date, locale),
   }));
 
   return (
@@ -185,31 +188,31 @@ export default function StatisticsPage() {
         <div className="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between gap-4">
           <div className="flex items-center gap-3">
             <Link href="/" className="flex items-center gap-1.5 text-[var(--s-muted)] hover:text-[var(--s-text)] transition-colors text-xs">
-              <ArrowLeft size={14} /> Начало
+              <ArrowLeft size={14} /> {t('stats.home')}
             </Link>
             <span className="text-[var(--s-border)]">/</span>
             <div className="flex items-center gap-2">
               <BarChart2 size={16} className="text-[var(--s-orange)]" />
-              <span className="font-bold text-[var(--s-text)] text-sm">Статистики</span>
+              <span className="font-bold text-[var(--s-text)] text-sm">{t('stats.title')}</span>
             </div>
           </div>
           <div className="flex items-center gap-4">
             <div className="hidden lg:block text-xs text-[var(--s-muted)]">
-              Последна актуализация:{' '}
+              {t('stats.lastUpdate')}{' '}
               <span className="font-bold text-[var(--s-text)] tabular-nums">
-                {new Date(data.generatedAt).toLocaleTimeString('bg-BG', { hour: '2-digit', minute: '2-digit', second: '2-digit' })}
+                {new Date(data.generatedAt).toLocaleTimeString(locale === 'bg' ? 'bg-BG' : locale === 'ar' ? 'ar-SA' : 'en-US', { hour: '2-digit', minute: '2-digit', second: '2-digit' })}
               </span>
             </div>
             <div className="hidden sm:flex items-center gap-2 text-xs text-[var(--s-muted)]">
               <span className="w-1.5 h-1.5 rounded-full bg-[var(--s-teal)] animate-pulse" />
-              Автообновяване след <span className="font-bold text-[var(--s-text)] tabular-nums">{countdown}s</span>
+              {t('stats.autorefreshIn')} <span className="font-bold text-[var(--s-text)] tabular-nums">{countdown}s</span>
             </div>
             <button
               onClick={fetchData}
               className="flex items-center gap-1.5 text-xs text-[var(--s-text)] hover:text-[var(--s-orange)] transition-colors border border-[var(--s-border)] px-3 py-1.5 rounded-lg"
               style={{ background: 'var(--s-surface)' }}
             >
-              <RefreshCw size={12} /> Обнови
+              <RefreshCw size={12} /> {t('common.refresh')}
             </button>
           </div>
         </div>
@@ -219,29 +222,29 @@ export default function StatisticsPage() {
 
         {/* ── Page title ── */}
         <div>
-          <p className="text-[10px] font-black uppercase tracking-[0.55em] text-[var(--s-orange)] mb-2">Реални данни</p>
+          <p className="text-[10px] font-black uppercase tracking-[0.55em] text-[var(--s-orange)] mb-2">{t('stats.liveData')}</p>
           <h1 className="rc-display font-extrabold text-3xl md:text-4xl text-[var(--s-text)]">
-            Статистики на <span className="grad-orange">сигналите</span>
+            {t('stats.signalsTitle')}
           </h1>
           <p className="text-[var(--s-muted)] text-sm mt-2 lg:hidden">
-            Актуализирано: {new Date(data.generatedAt).toLocaleTimeString('bg-BG', { hour: '2-digit', minute: '2-digit', second: '2-digit' })}
+            {tr('Актуализирано', 'Updated', 'محدث')}: {new Date(data.generatedAt).toLocaleTimeString(locale === 'bg' ? 'bg-BG' : locale === 'ar' ? 'ar-SA' : 'en-US', { hour: '2-digit', minute: '2-digit', second: '2-digit' })}
           </p>
         </div>
 
         {/* ── KPI cards ── */}
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
           {[
-            { label: 'Общо сигнали',    value: data.total,            color: 'var(--s-orange)',  icon: <BarChart2    size={18} /> },
-            { label: 'Решени',           value: resolved,              color: 'var(--s-teal)',    icon: <CheckCircle2 size={18} /> },
-            { label: 'Нови / Чакащи',   value: pending,               color: '#FFA726',          icon: <AlertCircle  size={18} /> },
-            { label: 'В процес',         value: inProgress,            color: 'var(--s-violet)',  icon: <Activity     size={18} /> },
+            { label: t('stats.total'),    value: data.total,            color: 'var(--s-orange)',  icon: <BarChart2    size={18} /> },
+            { label: t('stats.resolved'), value: resolved,              color: 'var(--s-teal)',    icon: <CheckCircle2 size={18} /> },
+            { label: t('stats.pending'),  value: pending,               color: '#FFA726',          icon: <AlertCircle  size={18} /> },
+            { label: t('stats.inProgress'), value: inProgress,          color: 'var(--s-violet)',  icon: <Activity     size={18} /> },
           ].map(({ label, value, color, icon }) => (
             <div key={label} className="site-card p-6 rounded-2xl flex items-start gap-4">
               <div className="w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0 mt-0.5" style={{ background: `${color}18`, color }}>
                 {icon}
               </div>
               <div>
-                <p className="text-2xl font-extrabold rc-display" style={{ color }}>{value.toLocaleString('bg-BG')}</p>
+                <p className="text-2xl font-extrabold rc-display" style={{ color }}>{formatNumber(value)}</p>
                 <p className="text-xs text-[var(--s-muted)] mt-0.5">{label}</p>
               </div>
             </div>
@@ -251,15 +254,15 @@ export default function StatisticsPage() {
         {/* ── Secondary KPIs ── */}
         <div className="grid grid-cols-2 lg:grid-cols-3 gap-4">
           <div className="site-card p-5 rounded-2xl">
-            <p className="text-[10px] uppercase tracking-[0.4em] text-[var(--s-muted)] mb-1">Решени днес</p>
+            <p className="text-[10px] uppercase tracking-[0.4em] text-[var(--s-muted)] mb-1">{tr('Решени днес', 'Resolved today', 'تم الحل اليوم')}</p>
             <p className="text-3xl font-extrabold rc-display grad-orange">{data.resolvedToday}</p>
           </div>
           <div className="site-card p-5 rounded-2xl">
-            <p className="text-[10px] uppercase tracking-[0.4em] text-[var(--s-muted)] mb-1">Решени тази седмица</p>
+            <p className="text-[10px] uppercase tracking-[0.4em] text-[var(--s-muted)] mb-1">{tr('Решени тази седмица', 'Resolved this week', 'تم الحل هذا الأسبوع')}</p>
             <p className="text-3xl font-extrabold rc-display grad-orange">{data.resolvedThisWeek}</p>
           </div>
           <div className="site-card p-5 rounded-2xl col-span-2 lg:col-span-1">
-            <p className="text-[10px] uppercase tracking-[0.4em] text-[var(--s-muted)] mb-1">Успеваемост</p>
+            <p className="text-[10px] uppercase tracking-[0.4em] text-[var(--s-muted)] mb-1">{tr('Успеваемост', 'Success rate', 'نسبة النجاح')}</p>
             <p className="text-3xl font-extrabold rc-display grad-orange">{successRate}%</p>
             <div className="mt-3 h-1.5 rounded-full bg-[var(--s-border)] overflow-hidden">
               <div className="h-full rounded-full transition-all duration-700" style={{ width: `${successRate}%`, background: 'var(--s-teal)' }} />
@@ -274,7 +277,7 @@ export default function StatisticsPage() {
           <div className="site-card p-6 rounded-2xl lg:col-span-2">
             <div className="flex items-center gap-2 mb-6">
               <TrendingUp size={16} className="text-[var(--s-orange)]" />
-              <h2 className="font-bold text-[var(--s-text)]">Сигнали последните 30 дни</h2>
+              <h2 className="font-bold text-[var(--s-text)]">{tr('Сигнали последните 30 дни', 'Reports in last 30 days', 'البلاغات خلال آخر 30 يومًا')}</h2>
             </div>
             <ResponsiveContainer width="100%" height={220}>
               <AreaChart data={trendData} margin={{ top: 5, right: 5, bottom: 0, left: -20 }}>
@@ -295,7 +298,7 @@ export default function StatisticsPage() {
 
           {/* Status donut */}
           <div className="site-card p-6 rounded-2xl">
-            <h2 className="font-bold text-[var(--s-text)] mb-5">Разпределение по статус</h2>
+            <h2 className="font-bold text-[var(--s-text)] mb-5">{tr('Разпределение по статус', 'Distribution by status', 'التوزيع حسب الحالة')}</h2>
             <ResponsiveContainer width="100%" height={170}>
               <PieChart>
                 <Pie data={data.byStatus} dataKey="count" nameKey="label" cx="50%" cy="50%" innerRadius={45} outerRadius={72} paddingAngle={3} stroke="none">
@@ -303,7 +306,7 @@ export default function StatisticsPage() {
                     <Cell key={entry.status} fill={STATUS_COLORS[entry.status] ?? '#555'} />
                   ))}
                 </Pie>
-                <Tooltip formatter={(val: any, name: any) => [`${val} бр.`, name]} contentStyle={{ background: 'var(--s-surface)', border: '1px solid var(--s-border)', borderRadius: 12, fontSize: 12 }} />
+                <Tooltip formatter={(val: any, name: any) => [tr(`${val} бр.`, `${val} pcs`, `${val} عنصر`), name]} contentStyle={{ background: 'var(--s-surface)', border: '1px solid var(--s-border)', borderRadius: 12, fontSize: 12 }} />
               </PieChart>
             </ResponsiveContainer>
             <div className="space-y-1.5 mt-3">
@@ -323,7 +326,7 @@ export default function StatisticsPage() {
         {/* ── By category bar chart ── */}
         {data.byCategory.length > 0 && (
           <div className="site-card p-6 rounded-2xl">
-            <h2 className="font-bold text-[var(--s-text)] mb-6">Сигнали по категория</h2>
+            <h2 className="font-bold text-[var(--s-text)] mb-6">{tr('Сигнали по категория', 'Reports by category', 'البلاغات حسب الفئة')}</h2>
             <ResponsiveContainer width="100%" height={260}>
               <BarChart data={data.byCategory} margin={{ top: 5, right: 5, bottom: 30, left: -20 }} barSize={32}>
                 <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.04)" vertical={false} />
@@ -351,10 +354,10 @@ export default function StatisticsPage() {
           <div className="site-card p-6 rounded-2xl">
             <div className="flex items-center gap-2 mb-6">
               <MapPin size={16} className="text-[var(--s-orange)]" />
-              <h2 className="font-bold text-[var(--s-text)]">Топлинна карта по район</h2>
+              <h2 className="font-bold text-[var(--s-text)]">{tr('Топлинна карта по район', 'District heatmap', 'خريطة حرارية حسب الحي')}</h2>
               <div className="ml-auto flex items-center gap-2 text-[10px] text-[var(--s-muted)]">
-                <span className="w-3 h-3 rounded bg-[rgba(255,107,43,0.12)] border border-[rgba(255,107,43,0.2)]" />по-малко
-                <span className="w-3 h-3 rounded bg-[rgba(255,107,43,0.65)] border border-[rgba(255,107,43,0.8)]" />повече
+                <span className="w-3 h-3 rounded bg-[rgba(255,107,43,0.12)] border border-[rgba(255,107,43,0.2)]" />{tr('по-малко', 'lower', 'أقل')}
+                <span className="w-3 h-3 rounded bg-[rgba(255,107,43,0.65)] border border-[rgba(255,107,43,0.8)]" />{tr('повече', 'higher', 'أكثر')}
               </div>
             </div>
             <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-6 xl:grid-cols-8 gap-2">
@@ -369,7 +372,7 @@ export default function StatisticsPage() {
         <div className="site-card rounded-2xl overflow-hidden">
           <div className="flex items-center gap-2 px-6 py-4 border-b border-[var(--s-border)]">
             <span className="w-2 h-2 rounded-full bg-[var(--s-orange)] animate-pulse" />
-            <h2 className="font-bold text-[var(--s-text)]">Последни сигнали</h2>
+            <h2 className="font-bold text-[var(--s-text)]">{tr('Последни сигнали', 'Latest reports', 'أحدث البلاغات')}</h2>
           </div>
           <div className="divide-y divide-[var(--s-border)]">
             {data.recentReports.slice(0, 12).map((r) => (
@@ -393,7 +396,7 @@ export default function StatisticsPage() {
                   >
                     {r.statusLabel}
                   </span>
-                  <p className="text-[10px] text-[var(--s-muted)] mt-1">{timeAgo(r.createdAt)}</p>
+                  <p className="text-[10px] text-[var(--s-muted)] mt-1">{timeAgo(r.createdAt, locale)}</p>
                 </div>
               </div>
             ))}
@@ -402,7 +405,7 @@ export default function StatisticsPage() {
 
         {/* ── Bottom refresh note ── */}
         <p className="text-center text-xs text-[var(--s-muted)] pb-8">
-          Страницата се самоактуализира автоматично на всеки {REFRESH_SEC} секунди.
+          {tr('Страницата се самоактуализира автоматично на всеки', 'This page auto-refreshes every', 'يتم تحديث الصفحة تلقائيًا كل')} {REFRESH_SEC} {tr('секунди.', 'seconds.', 'ثانية.')}
         </p>
       </div>
     </div>

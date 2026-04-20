@@ -7,6 +7,7 @@ import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
 import { formatCategoryLabel } from '@/hooks/lib/report-format';
 import { useWebSocket } from '@/hooks/useWebSocket';
+import { useI18n } from '@/i18n';
 
 interface Store {
   id: number;
@@ -187,6 +188,8 @@ interface SocialServiceGeoJsonFeature {
 
 function InteractiveMapComponent() {
   const router = useRouter();
+  const { locale } = useI18n();
+  const tr = (bg: string, en: string, ar: string) => (locale === 'ar' ? ar : locale === 'en' ? en : bg);
   const { isConnected, onVehicleUpdate } = useWebSocket();
   const mapRef = useRef<L.Map | null>(null);
   const reportMarkersRef = useRef<L.Layer[]>([]);
@@ -406,7 +409,7 @@ function InteractiveMapComponent() {
     const name = normalizeServiceText(props.name);
     const shortName = normalizeServiceText(props.s_name);
     const provider = normalizeServiceText(props.provider);
-    const displayName = shortName || name || provider || 'Социална услуга';
+    const displayName = shortName || name || provider || tr('Социална услуга', 'Social service', 'خدمة اجتماعية');
     const parsedCategory = Number(props.category);
     const parsedCapacity = Number(props.d_capacity);
 
@@ -586,7 +589,7 @@ function InteractiveMapComponent() {
           humidity: nearestPoint.humidity ?? 0,
           pressure: 1013,
           wind_speed: nearestPoint.wind_speed ?? 0,
-          description: nearestPoint.weather?.description || 'Без описание',
+          description: nearestPoint.weather?.description || tr('Без описание', 'No description', 'بدون وصف'),
           icon: nearestPoint.weather?.icon,
           city_name: nearestPoint.city_name,
         });
@@ -922,12 +925,12 @@ function InteractiveMapComponent() {
           <strong style="color: #f1f5f9;">${store.name}</strong><br/>
           <span style="color: #cbd5e1;">${store.address}</span><br/>
           <div style="margin-top: 8px; padding: 8px; background: rgba(30, 41, 59, 0.7); border-left: 3px solid #06d6a0; border-radius: 4px; font-size: 12px; color: #cbd5e1;">
-            <strong style="color: #f1f5f9;">Наличности:</strong><br/>
-            Хляб: ${store.products.bread}<br/>
-            Мляко: ${store.products.milk}<br/>
-            Яйца: ${store.products.eggs}<br/>
-            Ориз: ${store.products.rice}<br/>
-            Масло: ${store.products.oil}
+            <strong style="color: #f1f5f9;">${tr('Наличности', 'Stock', 'المخزون')}:</strong><br/>
+            ${tr('Хляб', 'Bread', 'خبز')}: ${store.products.bread}<br/>
+            ${tr('Мляко', 'Milk', 'حليب')}: ${store.products.milk}<br/>
+            ${tr('Яйца', 'Eggs', 'بيض')}: ${store.products.eggs}<br/>
+            ${tr('Ориз', 'Rice', 'أرز')}: ${store.products.rice}<br/>
+            ${tr('Масло', 'Oil', 'زيت')}: ${store.products.oil}
           </div>
         </div>
       `;
@@ -982,29 +985,29 @@ function InteractiveMapComponent() {
             <span style="font-size: 28px;">${icon}</span>
             <div>
               <strong style="font-size: 15px; color: ${markerColor};">${shelter.name}</strong><br/>
-              <span style="font-size: 11px; color: #666;">Район: ${shelter.district}</span>
+              <span style="font-size: 11px; color: #666;">${tr('Район', 'District', 'الحي')}: ${shelter.district}</span>
             </div>
           </div>
           
           <div style="font-size: 13px; margin-bottom: 10px;">
-            <strong>📍 Адрес:</strong> ${shelter.address}
+            <strong>📍 ${tr('Адрес', 'Address', 'العنوان')}:</strong> ${shelter.address}
           </div>
           
           <div style="background: ${markerColor}15; border-left: 3px solid ${markerColor}; padding: 8px; border-radius: 4px; margin-bottom: 10px;">
             <div style="font-size: 12px; margin-bottom: 4px;">
-              <strong style="color: ${markerColor};">Тип:</strong> ${shelter.type}
+              <strong style="color: ${markerColor};">${tr('Тип', 'Type', 'النوع')}:</strong> ${shelter.type}
             </div>
             <div style="font-size: 12px;">
-              <strong style="color: ${markerColor};">Категория:</strong> ${shelter.category}
+              <strong style="color: ${markerColor};">${tr('Категория', 'Category', 'الفئة')}:</strong> ${shelter.category}
             </div>
           </div>
           
           <div style="font-size: 11px; color: #666; margin-bottom: 8px;">
-            <strong>Управител:</strong> ${shelter.owner}
+            <strong>${tr('Управител', 'Manager', 'المسؤول')}:</strong> ${shelter.owner}
           </div>
           
           <div style="font-size: 11px; color: #555; background: #f5f5f5; padding: 8px; border-radius: 4px; line-height: 1.4;">
-            <strong>Състояние:</strong><br/>
+            <strong>${tr('Състояние', 'Condition', 'الحالة')}:</strong><br/>
             ${shelter.description}
           </div>
           
@@ -1061,13 +1064,13 @@ function InteractiveMapComponent() {
           <strong style="font-size: 14px; color: ${color};">🏥 ${title}</strong><br/>
           ${service.provider ? `<span style="font-size: 12px; color: #e2e8f0;">${service.provider}</span><br/>` : ''}
           ${details ? `<span style="font-size: 11px; color: #94a3b8;">${details}</span><br/>` : ''}
-          ${service.address ? `<div style="margin-top: 8px; font-size: 12px;"><strong>📍 Адрес:</strong> ${service.address}</div>` : ''}
-          ${service.phone ? `<div style="font-size: 12px;"><strong>📞 Телефон:</strong> ${service.phone}</div>` : ''}
+          ${service.address ? `<div style="margin-top: 8px; font-size: 12px;"><strong>📍 ${tr('Адрес', 'Address', 'العنوان')}:</strong> ${service.address}</div>` : ''}
+          ${service.phone ? `<div style="font-size: 12px;"><strong>📞 ${tr('Телефон', 'Phone', 'الهاتف')}:</strong> ${service.phone}</div>` : ''}
           ${service.email ? `<div style="font-size: 12px;"><strong>✉️ Email:</strong> ${service.email}</div>` : ''}
-          ${service.ageRange ? `<div style="font-size: 12px;"><strong>👤 Възраст:</strong> ${service.ageRange}</div>` : ''}
-          ${service.capacity !== null ? `<div style="font-size: 12px;"><strong>👥 Капацитет:</strong> ${service.capacity}</div>` : ''}
-          ${service.targetGroup ? `<div style="margin-top: 8px; padding-top: 8px; border-top: 1px solid rgba(148,163,184,0.25); font-size: 11px; color: #a1aec8;"><strong>Целева група:</strong> ${service.targetGroup}</div>` : ''}
-          ${service.web ? `<div style="margin-top: 8px; font-size: 11px;"><a href="${service.web}" target="_blank" rel="noopener noreferrer" style="color: #60A5FA; text-decoration: underline;">Официална страница</a></div>` : ''}
+          ${service.ageRange ? `<div style="font-size: 12px;"><strong>👤 ${tr('Възраст', 'Age', 'العمر')}:</strong> ${service.ageRange}</div>` : ''}
+          ${service.capacity !== null ? `<div style="font-size: 12px;"><strong>👥 ${tr('Капацитет', 'Capacity', 'السعة')}:</strong> ${service.capacity}</div>` : ''}
+          ${service.targetGroup ? `<div style="margin-top: 8px; padding-top: 8px; border-top: 1px solid rgba(148,163,184,0.25); font-size: 11px; color: #a1aec8;"><strong>${tr('Целева група', 'Target group', 'الفئة المستهدفة')}:</strong> ${service.targetGroup}</div>` : ''}
+          ${service.web ? `<div style="margin-top: 8px; font-size: 11px;"><a href="${service.web}" target="_blank" rel="noopener noreferrer" style="color: #60A5FA; text-decoration: underline;">${tr('Официална страница', 'Official page', 'الصفحة الرسمية')}</a></div>` : ''}
         </div>
       `;
 
@@ -1121,10 +1124,10 @@ function InteractiveMapComponent() {
           <div style="min-width: 220px; font-family: system-ui; color: #cbd5e1;">
             <strong style="color: ${markerColor};">🚗 ${accident.type}</strong><br/>
             <div style="margin-top: 8px; font-size: 12px; color: #a1aec8;">
-              <strong>Дата:</strong> ${accident.date}<br/>
-              <strong>Час:</strong> ${accident.time}<br/>
-              <strong>Ранени:</strong> ${accident.injured ? '✓ Да' : '✗ Не'}<br/>
-              <strong>Загинали:</strong> ${accident.died ? '✓ Да' : '✗ Не'}
+              <strong>${tr('Дата', 'Date', 'التاريخ')}:</strong> ${accident.date}<br/>
+              <strong>${tr('Час', 'Time', 'الوقت')}:</strong> ${accident.time}<br/>
+              <strong>${tr('Ранени', 'Injured', 'مصابون')}:</strong> ${accident.injured ? tr('✓ Да', '✓ Yes', '✓ نعم') : tr('✗ Не', '✗ No', '✗ لا')}<br/>
+              <strong>${tr('Загинали', 'Fatalities', 'وفيات')}:</strong> ${accident.died ? tr('✓ Да', '✓ Yes', '✓ نعم') : tr('✗ Не', '✗ No', '✗ لا')}
             </div>
           </div>
         `)
@@ -1158,16 +1161,16 @@ function InteractiveMapComponent() {
       })
         .bindPopup(`
           <div style="min-width: 200px; font-family: system-ui; color: #cbd5e1;">
-            <strong style="color: ${zone.color};">⚠️ Рискова зона - ${zone.riskLevel.toUpperCase()}</strong><br/>
+            <strong style="color: ${zone.color};">⚠️ ${tr('Рискова зона', 'Risk zone', 'منطقة خطرة')} - ${zone.riskLevel.toUpperCase()}</strong><br/>
             <div style="margin-top: 8px; font-size: 12px; color: #a1aec8;">
-              <strong>Брой катастрофи:</strong> ${zone.count}<br/>
-              <strong>Средна тежест:</strong> ${zone.severity.toFixed(1)}/3<br/>
-              <strong>Най-чест тип:</strong> ${zone.mostCommonType}<br/>
-              <strong>Ниво на риск:</strong> ${
-                zone.riskLevel === 'critical' ? '🟣 Критично' :
-                zone.riskLevel === 'high' ? '🔴 Високо' :
-                zone.riskLevel === 'medium' ? '🟡 Средно' :
-                '🟢 Ниско'
+              <strong>${tr('Брой катастрофи', 'Accident count', 'عدد الحوادث')}:</strong> ${zone.count}<br/>
+              <strong>${tr('Средна тежест', 'Average severity', 'متوسط الشدة')}:</strong> ${zone.severity.toFixed(1)}/3<br/>
+              <strong>${tr('Най-чест тип', 'Most common type', 'النوع الأكثر شيوعًا')}:</strong> ${zone.mostCommonType}<br/>
+              <strong>${tr('Ниво на риск', 'Risk level', 'مستوى الخطر')}:</strong> ${
+                zone.riskLevel === 'critical' ? tr('🟣 Критично', '🟣 Critical', '🟣 حرج') :
+                zone.riskLevel === 'high' ? tr('🔴 Високо', '🔴 High', '🔴 مرتفع') :
+                zone.riskLevel === 'medium' ? tr('🟡 Средно', '🟡 Medium', '🟡 متوسط') :
+                tr('🟢 Ниско', '🟢 Low', '🟢 منخفض')
               }
             </div>
           </div>
@@ -1192,11 +1195,11 @@ function InteractiveMapComponent() {
       const popupContent = `
         <div style="min-width: 220px; font-family: system-ui; color: #e2e8f0;">
           <strong style="font-size: 14px; color: #f1f5f9;">🚏 ${stop.stop_name}</strong><br/>
-          <small style="color: #a1aec8;">Код: ${stop.stop_code}</small><br/>
+          <small style="color: #a1aec8;">${tr('Код', 'Code', 'الرمز')}: ${stop.stop_code}</small><br/>
           <div style="margin-top: 8px;">
             <button onclick="window.showStopSchedule && window.showStopSchedule('${stop.stop_id}')" 
                     style="background: linear-gradient(135deg, #3B82F6, #60A5FA); color: white; border: none; padding: 6px 12px; border-radius: 6px; cursor: pointer; font-size: 12px; width: 100%; font-weight: 600; box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);">
-              📅 Виж разписание
+              📅 ${tr('Виж разписание', 'View schedule', 'عرض الجدول')}
             </button>
           </div>
         </div>
@@ -1616,18 +1619,22 @@ function InteractiveMapComponent() {
             <div>
               <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full border border-[var(--s-border)] bg-[var(--s-surface)] mb-4">
                 <span className="w-2 h-2 rounded-full bg-[var(--s-orange)] animate-pulse" />
-                <span className="text-[9px] font-bold uppercase tracking-[0.5em] text-[var(--s-orange)]">Интерактивна карта</span>
+                <span className="text-[9px] font-bold uppercase tracking-[0.5em] text-[var(--s-orange)]">{tr('Интерактивна карта', 'Interactive map', 'خريطة تفاعلية')}</span>
               </div>
               <h1 className="rc-display font-extrabold text-4xl md:text-5xl text-[var(--s-text)] leading-tight">
-                Карта на <span className="grad-orange">София</span>
+                {tr('Карта на', 'Map of', 'خريطة')} <span className="grad-orange">{tr('София', 'Sofia', 'صوفيا')}</span>
               </h1>
               <p className="text-[var(--s-muted)] mt-2 max-w-xl text-sm">
-                Реални метео данни, градски транспорт на живо и интелигентна visualizация. Кликни за детайлна прогноза.
+                {tr(
+                  'Реални метео данни, градски транспорт на живо и интелигентна visualizация. Кликни за детайлна прогноза.',
+                  'Live weather data, real-time transit and smart visualization. Click for detailed forecast.',
+                  'بيانات طقس مباشرة ونقل عام لحظي وعرض ذكي. انقر للحصول على توقع تفصيلي.'
+                )}
               </p>
             </div>
             <div className="inline-flex items-center gap-2 rounded-full px-4 py-2 text-xs uppercase tracking-[0.3em] font-semibold" style={{ background: 'rgba(6,214,160,0.1)', border: '1px solid rgba(6,214,160,0.2)', color: 'var(--s-teal)' }}>
               <span className="w-1.5 h-1.5 rounded-full bg-[var(--s-teal)] animate-pulse" />
-              Live Data
+              {tr('Данни на живо', 'Live Data', 'بيانات مباشرة')}
             </div>
           </div>
         </div>
@@ -1636,17 +1643,17 @@ function InteractiveMapComponent() {
       <div className="max-w-7xl mx-auto px-6 py-6 grid grid-cols-1 lg:grid-cols-4 gap-5">
         {/* Controls Sidebar */}
         <div className="lg:col-span-1 rounded-2xl p-5 h-fit sticky top-24 space-y-1 animate-fade-up-fast" style={{ background: 'var(--s-surface)', border: '1px solid var(--s-border)' }}>
-          <p className="text-[10px] uppercase tracking-[0.45em] text-[var(--s-muted)] font-semibold mb-4">Слоеве</p>
+          <p className="text-[10px] uppercase tracking-[0.45em] text-[var(--s-muted)] font-semibold mb-4">{tr('Слоеве', 'Layers', 'الطبقات')}</p>
 
           <div className="space-y-1.5">
             {([
-              { key: 'reports',  label: 'Сигнали',      count: reports.length,       emoji: '📍', active: showReports,  setter: setShowReports,  color: 'var(--s-orange)' },
-              { key: 'stores',   label: 'Магазини',     count: stores.length,        emoji: '🛒', active: showStores,   setter: setShowStores,   color: 'var(--s-teal)' },
-              { key: 'shelters', label: 'Убежища',      count: shelters.length,      emoji: '🛡️', active: showShelters, setter: setShowShelters, color: '#10b981' },
-              { key: 'social',   label: 'Соц. услуги',  count: socialServices.length, emoji: '🏥', active: showSocialServices, setter: setShowSocialServices, color: '#38BDF8' },
-              { key: 'weather',  label: 'Метео',        count: null,                 emoji: '🌦', active: showWeather,  setter: setShowWeather,  color: '#60A5FA' },
-              { key: 'transit',  label: 'Транспорт',    count: transitStops.length,  emoji: '🚌', active: showTransit,  setter: setShowTransit,  color: '#818CF8' },
-              { key: 'vehicles', label: 'Превозни',     count: vehicles.length,      emoji: '🚐', active: showVehicles, setter: setShowVehicles, color: '#F87171' },
+              { key: 'reports',  label: tr('Сигнали', 'Reports', 'البلاغات'),      count: reports.length,       emoji: '📍', active: showReports,  setter: setShowReports,  color: 'var(--s-orange)' },
+              { key: 'stores',   label: tr('Магазини', 'Stores', 'المتاجر'),     count: stores.length,        emoji: '🛒', active: showStores,   setter: setShowStores,   color: 'var(--s-teal)' },
+              { key: 'shelters', label: tr('Убежища', 'Shelters', 'الملاجئ'),      count: shelters.length,      emoji: '🛡️', active: showShelters, setter: setShowShelters, color: '#10b981' },
+              { key: 'social',   label: tr('Соц. услуги', 'Social services', 'الخدمات الاجتماعية'),  count: socialServices.length, emoji: '🏥', active: showSocialServices, setter: setShowSocialServices, color: '#38BDF8' },
+              { key: 'weather',  label: tr('Метео', 'Weather', 'الطقس'),        count: null,                 emoji: '🌦', active: showWeather,  setter: setShowWeather,  color: '#60A5FA' },
+              { key: 'transit',  label: tr('Транспорт', 'Transit', 'النقل'),    count: transitStops.length,  emoji: '🚌', active: showTransit,  setter: setShowTransit,  color: '#818CF8' },
+              { key: 'vehicles', label: tr('Превозни', 'Vehicles', 'المركبات'),     count: vehicles.length,      emoji: '🚐', active: showVehicles, setter: setShowVehicles, color: '#F87171' },
             ] as const).map(({ key, label, count, emoji, active, setter, color }) => (
               <button
                 key={key}
@@ -1669,10 +1676,10 @@ function InteractiveMapComponent() {
 
             {showVehicles && (
               <div className="mt-1 px-3 py-3 rounded-xl" style={{ background: 'var(--s-surface2)', border: '1px solid var(--s-border)' }}>
-                <p className="text-[10px] uppercase tracking-[0.3em] text-[var(--s-muted)] mb-2">Линия / Тип</p>
+                <p className="text-[10px] uppercase tracking-[0.3em] text-[var(--s-muted)] mb-2">{tr('Линия / Тип', 'Line / Type', 'الخط / النوع')}</p>
                 <input
                   type="text"
-                  placeholder="напр. 7, Тролейбус 7, Автобус 22"
+                  placeholder={tr('напр. 7, Тролейбус 7, Автобус 22', 'e.g. 7, Trolleybus 7, Bus 22', 'مثال: 7، ترولي 7، حافلة 22')}
                   value={routeFilter}
                   onChange={(e) => setRouteFilter(e.target.value)}
                   className="site-input text-xs"
@@ -1687,15 +1694,15 @@ function InteractiveMapComponent() {
                     }}
                     className="w-full mt-2 px-3 py-1.5 text-xs font-bold rounded-xl transition" style={{ background: 'rgba(255,71,87,0.15)', color: 'var(--s-red)', border: '1px solid rgba(255,71,87,0.25)' }}
                   >
-                    ✕ Затвори маршрута
+                    {tr('✕ Затвори маршрута', '✕ Close route', '✕ إغلاق المسار')}
                   </button>
                 )}
               </div>
             )}
 
             {([
-              { key: 'accidents', label: `Катастрофи`, count: accidentStats.total, emoji: '🚗', active: showAccidents, setter: setShowAccidents, loading: accidentsLoading, color: '#FB923C' },
-              { key: 'risk',      label: `Пътен риск`,  count: riskZones.length,   emoji: '⚠️', active: showRiskMap,  setter: setShowRiskMap,  loading: riskMapLoading,  color: 'var(--s-violet)' },
+              { key: 'accidents', label: tr('Катастрофи', 'Accidents', 'حوادث'), count: accidentStats.total, emoji: '🚗', active: showAccidents, setter: setShowAccidents, loading: accidentsLoading, color: '#FB923C' },
+              { key: 'risk',      label: tr('Пътен риск', 'Road risk', 'مخاطر الطريق'),  count: riskZones.length,   emoji: '⚠️', active: showRiskMap,  setter: setShowRiskMap,  loading: riskMapLoading,  color: 'var(--s-violet)' },
             ] as const).map(({ key, label, count, emoji, active, setter, loading: ld, color }) => (
               <button
                 key={key}
@@ -1718,14 +1725,14 @@ function InteractiveMapComponent() {
           </div>{/* end space-y-1.5 toggles */}
 
           <div className="mt-4 pt-4" style={{ borderTop: '1px solid var(--s-border)' }}>
-            <p className="text-[10px] uppercase tracking-[0.4em] text-[var(--s-muted)] mb-3">Статистика</p>
+            <p className="text-[10px] uppercase tracking-[0.4em] text-[var(--s-muted)] mb-3">{tr('Статистика', 'Statistics', 'الإحصاءات')}</p>
             <div className="grid grid-cols-2 gap-2">
               {[
-                { label: 'Сигнали',   value: reports.length,      color: 'var(--s-orange)' },
-                { label: 'Магазини',  value: stores.length,       color: 'var(--s-teal)' },
-                { label: 'Убежища',   value: shelters.length,     color: '#10b981' },
-                { label: 'Соц. услуги', value: socialServices.length, color: '#38BDF8' },
-                { label: 'Превозни',  value: vehicles.length,     color: '#F87171' },
+                { label: tr('Сигнали', 'Reports', 'البلاغات'),   value: reports.length,      color: 'var(--s-orange)' },
+                { label: tr('Магазини', 'Stores', 'المتاجر'),  value: stores.length,       color: 'var(--s-teal)' },
+                { label: tr('Убежища', 'Shelters', 'الملاجئ'),   value: shelters.length,     color: '#10b981' },
+                { label: tr('Соц. услуги', 'Social services', 'الخدمات الاجتماعية'), value: socialServices.length, color: '#38BDF8' },
+                { label: tr('Превозни', 'Vehicles', 'المركبات'),  value: vehicles.length,     color: '#F87171' },
               ].map(({ label, value, color }) => (
                 <div key={label} className="rounded-xl p-2.5 text-center" style={{ background: 'var(--s-surface2)' }}>
                   <p className="text-[9px] uppercase tracking-[0.3em] text-[var(--s-muted)] mb-1">{label}</p>
@@ -1738,29 +1745,29 @@ function InteractiveMapComponent() {
           {(weatherLoading || transitLoading || vehiclesLoading) && (
             <div className="flex items-center gap-2 px-3 py-2 rounded-xl text-xs text-[var(--s-muted)]" style={{ background: 'var(--s-surface2)' }}>
               <div className="w-3 h-3 rounded-full border border-[var(--s-orange)] border-t-transparent animate-spin" />
-              Зареждане...
+              {tr('Зареждане...', 'Loading...', 'جار التحميل...')}
             </div>
           )}
 
           {socialServicesLoading && (
             <div className="flex items-center gap-2 px-3 py-2 rounded-xl text-xs text-[var(--s-muted)]" style={{ background: 'var(--s-surface2)' }}>
               <div className="w-3 h-3 rounded-full border border-sky-400 border-t-transparent animate-spin" />
-              Зареждане на социални услуги...
+              {tr('Зареждане на социални услуги...', 'Loading social services...', 'جار تحميل الخدمات الاجتماعية...')}
             </div>
           )}
 
           {showWeather && !selectedWeather && !weatherLoading && (
             <div className="px-3 py-2 rounded-xl text-xs" style={{ background: 'rgba(96,165,250,0.1)', border: '1px solid rgba(96,165,250,0.2)', color: '#93C5FD' }}>
-              💡 Кликни на картата за прогноза
+              {tr('💡 Кликни на картата за прогноза', '💡 Click map for forecast', '💡 انقر على الخريطة للتنبؤ')}
             </div>
           )}
 
           {showVehicles && !vehiclesLoading && vehicles.length > 0 && (
             <div className="rounded-xl p-3" style={{ background: 'var(--s-surface2)', border: '1px solid var(--s-border)' }}>
               <div className="grid grid-cols-3 gap-1.5 text-center text-xs">
-                {[{icon:'🚋', label:'Трамв.', count: vehicles.filter(v=>v.vehicle_type==='tram').length, color:'#F87171'},
-                  {icon:'🚎', label:'Тролей', count: vehicles.filter(v=>v.vehicle_type==='trolley').length, color:'#818CF8'},
-                  {icon:'🚌', label:'Автоб.', count: vehicles.filter(v=>v.vehicle_type==='bus').length, color:'#86EFAC'}].map(it=>(
+                {[{icon:'🚋', label:tr('Трамв.', 'Tram', 'ترام'), count: vehicles.filter(v=>v.vehicle_type==='tram').length, color:'#F87171'},
+                  {icon:'🚎', label:tr('Тролей', 'Trolley', 'تروليباص'), count: vehicles.filter(v=>v.vehicle_type==='trolley').length, color:'#818CF8'},
+                  {icon:'🚌', label:tr('Автоб.', 'Bus', 'حافلة'), count: vehicles.filter(v=>v.vehicle_type==='bus').length, color:'#86EFAC'}].map(it=>(
                   <div key={it.label} className="rounded-lg p-2" style={{ background: 'var(--s-surface)' }}>
                     <div>{it.icon}</div>
                     <div className="font-bold" style={{ color: it.color }}>{it.count}</div>
@@ -1773,17 +1780,17 @@ function InteractiveMapComponent() {
 
           {alerts.length > 0 && (
             <div className="rounded-xl p-3 space-y-2" style={{ background: 'rgba(255,167,38,0.08)', border: '1px solid rgba(255,167,38,0.2)' }}>
-              <p className="text-[10px] uppercase tracking-[0.3em] text-amber-400 font-bold">⚠️ Алерти ({alerts.length})</p>
+              <p className="text-[10px] uppercase tracking-[0.3em] text-amber-400 font-bold">⚠️ {tr('Алерти', 'Alerts', 'تنبيهات')} ({alerts.length})</p>
               <div className="space-y-1.5 max-h-48 overflow-y-auto">
                 {alerts.slice(0, 10).map((alert, idx) => (
                   <div key={idx} className="rounded-lg p-2 text-xs" style={{ background: 'rgba(255,255,255,0.04)', borderLeft: '2px solid rgba(255,167,38,0.5)' }}>
                     <p className="font-semibold text-[var(--s-text)]">{alert.title || alert.effect_label}</p>
                     {alert.affected_lines.length > 0 ? (
-                      <p className="text-amber-300 mt-0.5 font-medium">Линии: {alert.affected_lines.join(', ')}</p>
+                      <p className="text-amber-300 mt-0.5 font-medium">{tr('Линии', 'Lines', 'الخطوط')}: {alert.affected_lines.join(', ')}</p>
                     ) : alert.description && alert.description !== alert.title && alert.description !== alert.effect_label ? (
                       <p className="text-[var(--s-muted)] mt-0.5 line-clamp-2">{alert.description}</p>
                     ) : (
-                      <p className="text-[var(--s-muted)] mt-0.5">Цялата мрежа</p>
+                      <p className="text-[var(--s-muted)] mt-0.5">{tr('Цялата мрежа', 'Entire network', 'الشبكة كاملة')}</p>
                     )}
                   </div>
                 ))}
@@ -1798,15 +1805,15 @@ function InteractiveMapComponent() {
             <div id="map" className="w-full rc-map" style={{ height: '680px' }} />
             {/* Dark overlay badges */}
             <div className="pointer-events-none absolute top-4 left-4 rounded-full px-3 py-1.5 text-[10px] uppercase tracking-[0.3em] font-semibold" style={{ background: 'var(--s-popup-bg)', color: 'var(--s-muted2)', border: '1px solid var(--s-border)', backdropFilter: 'blur(8px)' }}>
-              OSM Live
+              {tr('OSM На живо', 'OSM Live', 'OSM مباشر')}
             </div>
             <div className="pointer-events-none absolute top-4 right-4 flex items-center gap-1.5 rounded-full px-3 py-1.5 text-[10px] uppercase tracking-[0.3em] font-bold" style={{ background: 'rgba(6,214,160,0.15)', color: 'var(--s-teal)', border: '1px solid rgba(6,214,160,0.3)', backdropFilter: 'blur(8px)' }}>
               <span className="w-1.5 h-1.5 rounded-full bg-[var(--s-teal)] animate-pulse" />
-              Real-time
+              {tr('В реално време', 'Real-time', 'لحظي')}
             </div>
             {showWeather && (
               <div className="pointer-events-none absolute bottom-5 left-5 rounded-2xl px-4 py-3 animate-fade-in" style={{ background: 'var(--s-popup-label-bg)', border: '1px solid var(--s-border)', backdropFilter: 'blur(12px)' }}>
-                <p className="text-[10px] uppercase tracking-[0.35em] text-[var(--s-muted)] font-semibold mb-2">Температура</p>
+                <p className="text-[10px] uppercase tracking-[0.35em] text-[var(--s-muted)] font-semibold mb-2">{tr('Температура', 'Temperature', 'درجة الحرارة')}</p>
                 <div className="relative h-2.5 w-44 rounded-full overflow-hidden">
                   <div className="absolute inset-0 bg-gradient-to-r from-blue-500 via-green-400 via-yellow-400 to-red-500" />
                 </div>
@@ -1828,8 +1835,8 @@ function InteractiveMapComponent() {
                       )}
                     </div>
                     <div className="min-w-0 flex-1">
-                      <p className="text-[10px] uppercase tracking-[0.35em] text-[var(--s-muted)]">Метео информация</p>
-                      <h3 className="text-sm font-bold text-[var(--s-text)] leading-snug">{selectedWeather.city_name || 'Избрана локация'}</h3>
+                      <p className="text-[10px] uppercase tracking-[0.35em] text-[var(--s-muted)]">{tr('Метео информация', 'Weather info', 'معلومات الطقس')}</p>
+                      <h3 className="text-sm font-bold text-[var(--s-text)] leading-snug">{selectedWeather.city_name || tr('Избрана локация', 'Selected location', 'موقع محدد')}</h3>
                       <p className="text-[11px] text-[var(--s-muted)] capitalize mt-0.5">{selectedWeather.description}</p>
                     </div>
                     <button
@@ -1838,7 +1845,7 @@ function InteractiveMapComponent() {
                         setSelectedLocation(null);
                       }}
                       className="text-[var(--s-muted)] hover:text-[var(--s-text)] text-xs transition-colors"
-                      aria-label="Затвори метео прозореца"
+                      aria-label={tr('Затвори метео прозореца', 'Close weather panel', 'إغلاق نافذة الطقس')}
                     >
                       ✕
                     </button>
@@ -1846,28 +1853,28 @@ function InteractiveMapComponent() {
 
                   <div className="grid grid-cols-2 gap-2 text-xs">
                     <div className="rounded-xl p-2.5" style={{ background: 'rgba(96,165,250,0.08)', border: '1px solid rgba(96,165,250,0.15)' }}>
-                      <p className="text-[var(--s-muted)] text-[10px] mb-0.5">Температура</p>
+                      <p className="text-[var(--s-muted)] text-[10px] mb-0.5">{tr('Температура', 'Temperature', 'درجة الحرارة')}</p>
                       <p className="font-bold text-[var(--s-text)] text-2xl" style={{ color: '#60A5FA' }}>{selectedWeather.temp}°</p>
-                      <p className="text-[10px] text-[var(--s-muted)]">Усеща се {selectedWeather.feels_like}°</p>
+                      <p className="text-[10px] text-[var(--s-muted)]">{tr('Усеща се', 'Feels like', 'المحسوس')} {selectedWeather.feels_like}°</p>
                     </div>
                     <div className="rounded-xl p-2.5" style={{ background: 'rgba(96,165,250,0.08)', border: '1px solid rgba(96,165,250,0.15)' }}>
-                      <p className="text-[var(--s-muted)] text-[10px] mb-0.5">Локация</p>
+                      <p className="text-[var(--s-muted)] text-[10px] mb-0.5">{tr('Локация', 'Location', 'الموقع')}</p>
                       <p className="font-semibold text-[var(--s-text)] text-xs leading-tight">{selectedLocation ? `${selectedLocation.lat.toFixed(4)}, ${selectedLocation.lng.toFixed(4)}` : '—'}</p>
-                      <p className="text-[10px] text-[var(--s-muted)] mt-1">Клик за промяна</p>
+                      <p className="text-[10px] text-[var(--s-muted)] mt-1">{tr('Клик за промяна', 'Click to change', 'انقر للتغيير')}</p>
                     </div>
                   </div>
 
                   <div className="grid grid-cols-3 gap-2 text-center text-xs">
                     <div className="rounded-xl p-2" style={{ background: 'rgba(96,165,250,0.08)', border: '1px solid rgba(96,165,250,0.12)' }}>
-                      <p className="text-[10px] text-[var(--s-muted)] mb-1">Влажност</p>
+                      <p className="text-[10px] text-[var(--s-muted)] mb-1">{tr('Влажност', 'Humidity', 'الرطوبة')}</p>
                       <p className="font-bold text-[var(--s-text)]">💧 {selectedWeather.humidity}%</p>
                     </div>
                     <div className="rounded-xl p-2" style={{ background: 'rgba(96,165,250,0.08)', border: '1px solid rgba(96,165,250,0.12)' }}>
-                      <p className="text-[10px] text-[var(--s-muted)] mb-1">Вятър</p>
+                      <p className="text-[10px] text-[var(--s-muted)] mb-1">{tr('Вятър', 'Wind', 'الرياح')}</p>
                       <p className="font-bold text-[var(--s-text)]">💨 {Math.round(selectedWeather.wind_speed)}m/s</p>
                     </div>
                     <div className="rounded-xl p-2" style={{ background: 'rgba(96,165,250,0.08)', border: '1px solid rgba(96,165,250,0.12)' }}>
-                      <p className="text-[10px] text-[var(--s-muted)] mb-1">Налягане</p>
+                      <p className="text-[10px] text-[var(--s-muted)] mb-1">{tr('Налягане', 'Pressure', 'الضغط')}</p>
                       <p className="font-bold text-[var(--s-text)]">🎚 {selectedWeather.pressure}</p>
                     </div>
                   </div>
@@ -1883,7 +1890,7 @@ function InteractiveMapComponent() {
                       <span className="text-xl">📍</span>
                     </div>
                     <div className="min-w-0 flex-1">
-                      <p className="text-[10px] uppercase tracking-[0.35em] text-[var(--s-muted)]">Градски сигнал</p>
+                      <p className="text-[10px] uppercase tracking-[0.35em] text-[var(--s-muted)]">{tr('Градски сигнал', 'City report', 'بلاغ مدني')}</p>
                       <h3 className="text-sm font-bold text-[var(--s-text)] leading-snug">{selectedReport.title}</h3>
                     </div>
                     <button
@@ -1893,7 +1900,7 @@ function InteractiveMapComponent() {
                         setReportDetailsLoading(false);
                       }}
                       className="text-[var(--s-muted)] hover:text-[var(--s-text)] text-xs transition-colors"
-                      aria-label="Затвори сигнала"
+                      aria-label={tr('Затвори сигнала', 'Close report', 'إغلاق البلاغ')}
                     >
                       ✕
                     </button>
@@ -1902,26 +1909,26 @@ function InteractiveMapComponent() {
                   {reportDetailsLoading ? (
                     <div className="flex items-center gap-2 text-xs text-[var(--s-muted)] p-4">
                       <div className="w-4 h-4 rounded-full border-2 border-[var(--s-orange)] border-t-transparent animate-spin" />
-                      Зареждане на информация...
+                      {tr('Зареждане на информация...', 'Loading details...', 'جار تحميل المعلومات...')}
                     </div>
                   ) : (
                     <>
                       <div className="grid grid-cols-2 gap-2 text-xs">
                         <div className="rounded-xl p-2.5" style={{ background: 'rgba(255,107,43,0.08)', border: '1px solid rgba(255,107,43,0.15)' }}>
-                          <p className="text-[var(--s-muted)] text-[10px] mb-0.5">Статус</p>
+                          <p className="text-[var(--s-muted)] text-[10px] mb-0.5">{tr('Статус', 'Status', 'الحالة')}</p>
                           <p className="font-semibold text-[var(--s-text)]">{selectedReportDetails?.status || selectedReport.status}</p>
                         </div>
                         <div className="rounded-xl p-2.5" style={{ background: 'rgba(255,107,43,0.08)', border: '1px solid rgba(255,107,43,0.15)' }}>
-                          <p className="text-[var(--s-muted)] text-[10px] mb-0.5">Категория</p>
+                          <p className="text-[var(--s-muted)] text-[10px] mb-0.5">{tr('Категория', 'Category', 'الفئة')}</p>
                           <p className="font-semibold text-[var(--s-text)] text-[11px] leading-tight">
-                            {formatCategoryLabel(selectedReportDetails?.category || selectedReport.category || null, 'Без категория')}
+                            {formatCategoryLabel(selectedReportDetails?.category || selectedReport.category || null, tr('Без категория', 'No category', 'بدون فئة'))}
                           </p>
                         </div>
                       </div>
 
                       {selectedReportDetails?.description && (
                         <div className="rounded-xl p-2.5" style={{ background: 'rgba(255,107,43,0.08)', border: '1px solid rgba(255,107,43,0.15)' }}>
-                          <p className="text-[var(--s-muted)] text-[10px] mb-1">Описание</p>
+                          <p className="text-[var(--s-muted)] text-[10px] mb-1">{tr('Описание', 'Description', 'الوصف')}</p>
                           <p className="text-xs text-[var(--s-muted2)] leading-relaxed">
                             {selectedReportDetails.description}
                           </p>
@@ -1931,7 +1938,7 @@ function InteractiveMapComponent() {
                       <div className="text-[11px] text-[var(--s-muted)] space-y-1 rounded-xl p-2.5" style={{ background: 'rgba(255,107,43,0.08)', border: '1px solid rgba(255,107,43,0.15)' }}>
                         <p><span className="text-[var(--s-orange)]">📍</span> {(selectedReportDetails?.latitude ?? selectedReport.lat).toFixed(4)}, {(selectedReportDetails?.longitude ?? selectedReport.lng).toFixed(4)}</p>
                         {selectedReportDetails?.address && <p><span className="text-[var(--s-orange)]">🏠</span> {selectedReportDetails.address}</p>}
-                        {selectedReportDetails?.district && <p><span className="text-[var(--s-orange)]">🗺️</span> Район: {selectedReportDetails.district}</p>}
+                        {selectedReportDetails?.district && <p><span className="text-[var(--s-orange)]">🗺️</span> {tr('Район', 'District', 'الحي')}: {selectedReportDetails.district}</p>}
                       </div>
 
                       <Link
@@ -1943,7 +1950,7 @@ function InteractiveMapComponent() {
                         className="inline-flex items-center justify-center gap-2 w-full rounded-xl py-2.5 text-xs font-bold uppercase tracking-[0.2em] transition-all duration-200 hover:scale-[1.02]"
                         style={{ background: 'linear-gradient(135deg, #FF6B2B, #FF8B5B)', color: '#fff', boxShadow: '0 4px 12px rgba(255,107,43,0.3)' }}
                       >
-                        Виж повече →
+                        {tr('Виж повече →', 'See more →', 'عرض المزيد ←')}
                       </Link>
                     </>
                   )}
@@ -1959,16 +1966,16 @@ function InteractiveMapComponent() {
                       <span className="text-2xl">{selectedVehicle.icon}</span>
                     </div>
                     <div className="min-w-0 flex-1">
-                      <p className="text-[10px] uppercase tracking-[0.35em] text-[var(--s-muted)]">Градски транспорт</p>
+                      <p className="text-[10px] uppercase tracking-[0.35em] text-[var(--s-muted)]">{tr('Градски транспорт', 'Public transport', 'النقل العام')}</p>
                       <h3 className="text-sm font-bold text-[var(--s-text)] leading-snug">
-                        {selectedVehicle.vehicle_type === 'tram' ? 'Трамвай' : selectedVehicle.vehicle_type === 'trolley' ? 'Тролейбус' : 'Автобус'} {getVehicleRouteLabel(selectedVehicle)}
+                        {selectedVehicle.vehicle_type === 'tram' ? tr('Трамвай', 'Tram', 'ترام') : selectedVehicle.vehicle_type === 'trolley' ? tr('Тролейбус', 'Trolleybus', 'تروليباص') : tr('Автобус', 'Bus', 'حافلة')} {getVehicleRouteLabel(selectedVehicle)}
                       </h3>
                       <p className="text-[11px] text-[var(--s-muted)] mt-0.5">ID: {selectedVehicle.id}</p>
                     </div>
                     <button
                       onClick={() => setSelectedVehicle(null)}
                       className="text-[var(--s-muted)] hover:text-[var(--s-text)] text-xs transition-colors"
-                      aria-label="Затвори превозното средство"
+                      aria-label={tr('Затвори превозното средство', 'Close vehicle', 'إغلاق المركبة')}
                     >
                       ✕
                     </button>
@@ -1976,25 +1983,25 @@ function InteractiveMapComponent() {
 
                   <div className="grid grid-cols-2 gap-2 text-xs">
                     <div className="rounded-xl p-2.5" style={{ background: 'rgba(129,140,248,0.08)', border: '1px solid rgba(129,140,248,0.15)' }}>
-                      <p className="text-[var(--s-muted)] text-[10px] mb-0.5">Статус</p>
+                      <p className="text-[var(--s-muted)] text-[10px] mb-0.5">{tr('Статус', 'Status', 'الحالة')}</p>
                       <p className="font-semibold text-[var(--s-text)] text-[11px] leading-tight">{selectedVehicle.status}</p>
                     </div>
                     <div className="rounded-xl p-2.5" style={{ background: 'rgba(129,140,248,0.08)', border: '1px solid rgba(129,140,248,0.15)' }}>
-                      <p className="text-[var(--s-muted)] text-[10px] mb-0.5">Скорост</p>
-                      <p className="font-semibold text-[var(--s-text)]">{selectedVehicle.speed > 0 ? `${Math.round(selectedVehicle.speed)} км/ч` : '—'}</p>
+                      <p className="text-[var(--s-muted)] text-[10px] mb-0.5">{tr('Скорост', 'Speed', 'السرعة')}</p>
+                      <p className="font-semibold text-[var(--s-text)]">{selectedVehicle.speed > 0 ? `${Math.round(selectedVehicle.speed)} ${tr('км/ч', 'km/h', 'كم/س')}` : '—'}</p>
                     </div>
                   </div>
 
                   <div className="rounded-xl p-2.5" style={{ background: 'rgba(129,140,248,0.08)', border: '1px solid rgba(129,140,248,0.15)' }}>
-                    <p className="text-[var(--s-muted)] text-[10px] mb-1">Текуща спирка</p>
+                    <p className="text-[var(--s-muted)] text-[10px] mb-1">{tr('Текуща спирка', 'Current stop', 'المحطة الحالية')}</p>
                     <p className="text-xs text-[var(--s-text)] leading-relaxed">
-                      {selectedVehicle.current_stop_name ? `${selectedVehicle.current_stop} • ${selectedVehicle.current_stop_name}` : selectedVehicle.current_stop || 'Информация не е налична'}
+                      {selectedVehicle.current_stop_name ? `${selectedVehicle.current_stop} • ${selectedVehicle.current_stop_name}` : selectedVehicle.current_stop || tr('Информация не е налична', 'Information unavailable', 'المعلومات غير متاحة')}
                     </p>
                   </div>
 
                   {selectedVehicle.vehicle_model && (
                     <div className="rounded-xl p-2.5" style={{ background: 'rgba(129,140,248,0.08)', border: '1px solid rgba(129,140,248,0.15)' }}>
-                      <p className="text-[var(--s-muted)] text-[10px] mb-1">Модел</p>
+                      <p className="text-[var(--s-muted)] text-[10px] mb-1">{tr('Модел', 'Model', 'الطراز')}</p>
                       <p className="text-xs text-[var(--s-text)]">{selectedVehicle.vehicle_model}</p>
                     </div>
                   )}
@@ -2003,21 +2010,21 @@ function InteractiveMapComponent() {
                     <div className="grid grid-cols-2 gap-3 text-[11px]">
                       {selectedVehicle.delay !== undefined && (
                         <div>
-                          <p className="text-[var(--s-muted)] mb-0.5">Закъснение</p>
+                          <p className="text-[var(--s-muted)] mb-0.5">{tr('Закъснение', 'Delay', 'التأخير')}</p>
                           <p className="font-semibold" style={{ color: selectedVehicle.delay > 300 ? '#EF4444' : selectedVehicle.delay > 60 ? '#F59E0B' : '#10B981' }}>
-                            {Math.round(selectedVehicle.delay)} сек
+                            {Math.round(selectedVehicle.delay)} {tr('сек', 'sec', 'ث')}
                           </p>
                         </div>
                       )}
                       {selectedVehicle.occupancy_percentage !== undefined && (
                         <div>
-                          <p className="text-[var(--s-muted)] mb-0.5">Запълненост</p>
+                          <p className="text-[var(--s-muted)] mb-0.5">{tr('Запълненост', 'Occupancy', 'الإشغال')}</p>
                           <p className="font-semibold text-[var(--s-text)]">{selectedVehicle.occupancy_percentage}%</p>
                         </div>
                       )}
                       <div className="col-span-2">
-                        <p className="text-[var(--s-muted)] mb-0.5">Актуализирано</p>
-                        <p className="font-semibold text-[var(--s-text)]">{new Date(selectedVehicle.timestamp).toLocaleTimeString('bg-BG')}</p>
+                        <p className="text-[var(--s-muted)] mb-0.5">{tr('Актуализирано', 'Updated', 'تم التحديث')}</p>
+                        <p className="font-semibold text-[var(--s-text)]">{new Date(selectedVehicle.timestamp).toLocaleTimeString(locale === 'bg' ? 'bg-BG' : locale === 'ar' ? 'ar-SA' : 'en-US')}</p>
                       </div>
                     </div>
                   </div>
@@ -2031,7 +2038,7 @@ function InteractiveMapComponent() {
                     className="inline-flex items-center justify-center gap-2 w-full rounded-xl py-2.5 text-xs font-bold uppercase tracking-[0.2em] transition-all duration-200 hover:scale-[1.02]"
                     style={{ background: `linear-gradient(135deg, ${selectedVehicle.color}, ${selectedVehicle.color}dd)`, color: '#fff', boxShadow: `0 4px 12px ${selectedVehicle.color}40` }}
                   >
-                    🗺️ Виж маршрута
+                    🗺️ {tr('Виж маршрута', 'View route', 'عرض المسار')}
                   </button>
                 </div>
               </div>
@@ -2043,9 +2050,9 @@ function InteractiveMapComponent() {
       {/* Footer cards */}
       <div className="max-w-7xl mx-auto px-6 py-8 grid md:grid-cols-3 gap-4">
         {[
-          { emoji: '📍', title: 'Сигнали в реално', text: 'Виж всички докладени проблеми и техния статус на живо.' },
-          { emoji: '🛒', title: 'Магазини за храни', text: 'Намери магазини с наличности на ключови продукти.' },
-          { emoji: '🌦', title: 'Метео прогноза', text: 'Кликни на картата за прогноза и температура за днес и утре.' },
+          { emoji: '📍', title: tr('Сигнали в реално', 'Live reports', 'بلاغات مباشرة'), text: tr('Виж всички докладени проблеми и техния статус на живо.', 'See all reported issues and their live status.', 'اعرض كل المشكلات المبلّغ عنها وحالتها المباشرة.') },
+          { emoji: '🛒', title: tr('Магазини за храни', 'Food stores', 'متاجر الطعام'), text: tr('Намери магазини с наличности на ключови продукти.', 'Find stores with key product availability.', 'اعثر على متاجر فيها توفر للمنتجات الأساسية.') },
+          { emoji: '🌦', title: tr('Метео прогноза', 'Weather forecast', 'توقعات الطقس'), text: tr('Кликни на картата за прогноза и температура за днес и утре.', 'Click on the map for forecast and temperature today and tomorrow.', 'انقر على الخريطة لعرض توقعات ودرجات حرارة اليوم والغد.') },
         ].map(({ emoji, title, text }) => (
           <div key={title} className="rounded-2xl p-5 text-center animate-fade-up" style={{ background: 'var(--s-surface)', border: '1px solid var(--s-border)' }}>
             <div className="text-3xl mb-3">{emoji}</div>

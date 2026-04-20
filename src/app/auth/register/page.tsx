@@ -4,8 +4,10 @@ import { useState } from 'react';
 import Link from 'next/link';
 import axios from 'axios';
 import { PasswordRequirements } from '@/components/PasswordRequirements';
+import { useI18n } from '@/i18n';
 
 export default function RegisterPage() {
+  const { t } = useI18n();
   const [formData, setFormData] = useState({
     email: '',
     password: '',
@@ -143,9 +145,9 @@ export default function RegisterPage() {
           <div className="flex items-center justify-between mb-8">
             <div>
               <p className="text-[10px] uppercase tracking-[0.5em] text-[var(--s-teal)] font-bold">ResQCity</p>
-              <h2 className="text-2xl font-bold rc-display text-[var(--s-text)] mt-1">Регистрация</h2>
+              <h2 className="text-2xl font-bold rc-display text-[var(--s-text)] mt-1">{t('auth.register')}</h2>
             </div>
-            <span className="chip chip-resolved">Гражданин</span>
+            <span className="chip chip-resolved">{t('nav.citizenSignal')}</span>
           </div>
 
           {error && (
@@ -173,7 +175,7 @@ export default function RegisterPage() {
             </div>
 
             <div>
-              <label className="block text-[10px] font-semibold uppercase tracking-[0.4em] text-[var(--s-muted)] mb-2">Имейл</label>
+                <label className="block text-[10px] font-semibold uppercase tracking-[0.4em] text-[var(--s-muted)] mb-2">{t('auth.email')}</label>
               <input type="email" className="site-input"
                 value={formData.email}
                 onChange={(e) => setFormData({ ...formData, email: e.target.value })}
@@ -189,7 +191,7 @@ export default function RegisterPage() {
             </div>
 
             <div>
-              <label className="block text-[10px] font-semibold uppercase tracking-[0.4em] text-[var(--s-muted)] mb-2">Парола</label>
+              <label className="block text-[10px] font-semibold uppercase tracking-[0.4em] text-[var(--s-muted)] mb-2">{t('auth.password')}</label>
               <input type="password" className="site-input"
                 value={formData.password}
                 onChange={(e) => setFormData({ ...formData, password: e.target.value })}
@@ -254,9 +256,9 @@ export default function RegisterPage() {
           </form>
 
           <p className="text-center mt-6 text-sm text-[var(--s-muted)]">
-            Вече имаш акаунт?{' '}
+            {t('auth.haveAccount')}{' '}
             <Link href="/auth/login" className="text-[var(--s-orange)] font-semibold hover:underline">
-              Вход
+              {t('auth.login')}
             </Link>
           </p>
         </div>

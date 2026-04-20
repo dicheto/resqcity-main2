@@ -2,6 +2,7 @@
 
 import { useEffect, useMemo, useState } from 'react';
 import axios from 'axios';
+import { useI18n } from '@/i18n';
 
 interface InstitutionMapping {
   institution: {
@@ -30,6 +31,13 @@ interface TaxonomyCategory {
 }
 
 export default function CategoriesPage() {
+  const { locale } = useI18n();
+  const copy = {
+    admin: locale === 'bg' ? 'Администрация' : locale === 'en' ? 'Administration' : 'الإدارة',
+    title: locale === 'bg' ? 'Категории и отговорни институции' : locale === 'en' ? 'Categories and responsible institutions' : 'الفئات والمؤسسات المسؤولة',
+    subtitle: locale === 'bg' ? 'Показват се само активните категории от JSON и свързаните отговорни институции.' : locale === 'en' ? 'Only active JSON categories and their linked institutions are shown.' : 'يتم عرض الفئات النشطة فقط والمؤسسات المرتبطة بها.',
+    loading: locale === 'bg' ? 'Зареждане...' : locale === 'en' ? 'Loading...' : 'جار التحميل...',
+  };
   const [categories, setCategories] = useState<Category[]>([]);
   const [taxonomyCategories, setTaxonomyCategories] = useState<TaxonomyCategory[]>([]);
   const [loading, setLoading] = useState(true);
@@ -70,17 +78,17 @@ export default function CategoriesPage() {
   return (
     <div className="px-6 py-10 max-w-7xl mx-auto">
       <div className="mb-10">
-        <p className="text-xs uppercase tracking-[0.4em] admin-muted">Администрация</p>
+        <p className="text-xs uppercase tracking-[0.4em] admin-muted">{copy.admin}</p>
         <h1 className="text-3xl md:text-4xl font-semibold rc-display admin-text mt-3">
-          Категории и отговорни институции
+          {copy.title}
         </h1>
         <p className="admin-muted mt-2">
-          Показват се само активните категории от JSON и свързаните отговорни институции.
+          {copy.subtitle}
         </p>
       </div>
 
       {loading ? (
-        <div className="text-center py-8 admin-muted">Зареждане...</div>
+        <div className="text-center py-8 admin-muted">{copy.loading}</div>
       ) : (
         <div className="rounded-3xl data-card overflow-hidden">
           <div className="grid grid-cols-12 gap-4 px-6 py-4 border-b border-[var(--a-border)] bg-[var(--a-surface2)] text-xs uppercase tracking-[0.2em] admin-muted">

@@ -5,9 +5,23 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { Car, ArrowLeft } from "lucide-react";
 import { IncidentReportForm } from "@/components/IncidentReportForm";
+import { useI18n } from "@/i18n";
 
 export default function ReportIncidentPage() {
+  const { locale } = useI18n();
   const router = useRouter();
+  const copy = {
+    back: locale === 'bg' ? 'Назад към таблото' : locale === 'en' ? 'Back to dashboard' : 'العودة إلى لوحة التحكم',
+    incidents: locale === 'bg' ? 'Авто инциденти' : locale === 'en' ? 'Vehicle incidents' : 'حوادث المركبات',
+    title: locale === 'bg' ? 'Подай сигнал за инцидент' : locale === 'en' ? 'Submit incident report' : 'إرسال بلاغ حادث',
+    desc: locale === 'bg'
+      ? 'Сигнализирай за пътен инцидент с твоето превозно средство. Снимките са задължителни за всички сигнали.'
+      : locale === 'en'
+      ? 'Report a road incident involving your vehicle. Photos are required for all reports.'
+      : 'قم بالإبلاغ عن حادث مروري يتعلق بمركبتك. الصور مطلوبة لجميع البلاغات.',
+    loading: locale === 'bg' ? 'Зареждане...' : locale === 'en' ? 'Loading...' : 'جار التحميل...',
+  };
+
   const [isAllowed, setIsAllowed] = useState(false);
 
   useEffect(() => {
@@ -37,7 +51,7 @@ export default function ReportIncidentPage() {
         <div className="flex flex-col items-center gap-4">
           <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-orange-400 to-rose-500 animate-pulse shadow-lg shadow-orange-500/30" />
           <p className="text-xs text-[var(--s-muted)] uppercase tracking-[0.4em]">
-            Зареждане...
+            {copy.loading}
           </p>
         </div>
       </div>
@@ -59,7 +73,7 @@ export default function ReportIncidentPage() {
               size={14}
               className="group-hover:-translate-x-0.5 transition-transform"
             />
-            Назад към таблото
+            {copy.back}
           </Link>
 
           <div className="flex items-center gap-4 mb-4">
@@ -68,17 +82,16 @@ export default function ReportIncidentPage() {
             </div>
             <div>
               <p className="text-[10px] font-black uppercase tracking-[0.5em] text-[var(--s-orange)] mb-0.5">
-                Авто инциденти
+                {copy.incidents}
               </p>
               <h1 className="rc-display font-extrabold text-2xl md:text-3xl text-[var(--s-text)] leading-tight">
-                Подай сигнал за инцидент
+                {copy.title}
               </h1>
             </div>
           </div>
 
           <p className="text-[var(--s-muted2)] text-sm max-w-lg leading-relaxed">
-            Сигнализирай за пътен инцидент с твоето превозно средство. Снимките
-            са задължителни за всички сигнали.
+            {copy.desc}
           </p>
         </div>
       </div>

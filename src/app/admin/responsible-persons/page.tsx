@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import axios from 'axios';
+import { useI18n } from '@/i18n';
 
 interface Category {
   id: string;
@@ -82,6 +83,15 @@ const SOFIA_DISTRICTS = [
 ];
 
 export default function ResponsiblePersonsPage() {
+  const { locale } = useI18n();
+  const copy = {
+    admin: locale === 'bg' ? 'Администрация' : locale === 'en' ? 'Administration' : 'الإدارة',
+    title: locale === 'bg' ? 'Отговорни лица' : locale === 'en' ? 'Responsible persons' : 'الأشخاص المسؤولون',
+    filters: locale === 'bg' ? 'Филтри' : locale === 'en' ? 'Filters' : 'فلاتر',
+    loading: locale === 'bg' ? 'Зареждане...' : locale === 'en' ? 'Loading...' : 'جار التحميل...',
+    newPerson: locale === 'bg' ? '+ Ново лице' : locale === 'en' ? '+ New person' : '+ شخص جديد',
+    close: locale === 'bg' ? 'Затвори' : locale === 'en' ? 'Close' : 'إغلاق',
+  };
   const [persons, setPersons] = useState<ResponsiblePerson[]>([]);
   const [routingInstitutions, setRoutingInstitutions] = useState<RoutingInstitution[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
@@ -207,7 +217,7 @@ export default function ResponsiblePersonsPage() {
       fetchPersons();
     } catch (error) {
       console.error('Error creating/editing person:', error);
-      alert('Грешка при запазване');
+          alert(locale === 'bg' ? 'Грешка при запазване' : locale === 'en' ? 'Error while saving' : 'حدث خطأ أثناء الحفظ');
     }
   };
 
@@ -236,7 +246,7 @@ export default function ResponsiblePersonsPage() {
       fetchPersons();
     } catch (error) {
       console.error('Error deleting person:', error);
-      alert('Грешка при изтриване');
+      alert(locale === 'bg' ? 'Грешка при изтриване' : locale === 'en' ? 'Error while deleting' : 'حدث خطأ أثناء الحذف');
     }
   };
 
@@ -258,9 +268,9 @@ export default function ResponsiblePersonsPage() {
     <div className="px-6 py-10 max-w-7xl mx-auto">
       <div className="flex items-center justify-between mb-10">
         <div>
-          <p className="text-xs uppercase tracking-[0.4em] admin-muted">Администрация</p>
+          <p className="text-xs uppercase tracking-[0.4em] admin-muted">{copy.admin}</p>
           <h1 className="text-3xl md:text-4xl font-semibold rc-display admin-text mt-3">
-            Отговорни лица
+            {copy.title}
           </h1>
         </div>
         <button
@@ -282,12 +292,12 @@ export default function ResponsiblePersonsPage() {
           }}
           className="rounded-full bg-slate-900 text-white px-5 py-3 text-xs uppercase tracking-[0.35em] hover:bg-slate-800 transition"
         >
-          {showForm ? 'Затвори' : '+ Ново лице'}
+          {showForm ? copy.close : copy.newPerson}
         </button>
       </div>
 
       <div className="rounded-3xl data-card mb-8">
-        <h3 className="text-sm uppercase tracking-[0.3em] admin-muted mb-4">Филтри</h3>
+        <h3 className="text-sm uppercase tracking-[0.3em] admin-muted mb-4">{copy.filters}</h3>
         <div className="grid md:grid-cols-2 gap-4">
           <div>
             <label className="block text-xs uppercase tracking-[0.3em] admin-muted mb-2">
@@ -490,7 +500,7 @@ export default function ResponsiblePersonsPage() {
       )}
 
       {loading ? (
-        <div className="text-center py-8 admin-muted">Зареждане...</div>
+        <div className="text-center py-8 admin-muted">{copy.loading}</div>
       ) : (
         <div className="space-y-8">
           <div>

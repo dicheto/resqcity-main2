@@ -5,9 +5,22 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { AlertTriangle, ArrowLeft } from "lucide-react";
 import { IncidentReportForm } from "@/components/IncidentReportForm";
+import { useI18n } from "@/i18n";
 
 export default function NewVehicleSignalPage() {
+  const { locale } = useI18n();
   const router = useRouter();
+  const copy = {
+    loading: locale === 'bg' ? 'Зареждане...' : locale === 'en' ? 'Loading...' : 'جار التحميل...',
+    back: locale === 'bg' ? 'Назад към автопарка' : locale === 'en' ? 'Back to fleet' : 'العودة إلى الأسطول',
+    badge: locale === 'bg' ? 'Подай сигнал' : locale === 'en' ? 'Submit report' : 'إرسال بلاغ',
+    title: locale === 'bg' ? 'Нов сигнал за автопарк' : locale === 'en' ? 'New fleet incident report' : 'بلاغ جديد للأسطول',
+    desc: locale === 'bg'
+      ? 'Сигнализирай за пътен инцидент с твоето превозно средство. Снимките са задължителни за всички сигнали.'
+      : locale === 'en'
+      ? 'Report a road incident involving your vehicle. Photos are required for all reports.'
+      : 'أبلغ عن حادث مروري يتعلق بمركبتك. الصور مطلوبة لكل البلاغات.',
+  };
   const [isAllowed, setIsAllowed] = useState(false);
 
   useEffect(() => {
@@ -37,7 +50,7 @@ export default function NewVehicleSignalPage() {
         <div className="flex flex-col items-center gap-4">
           <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-orange-400 to-rose-500 animate-pulse shadow-lg shadow-orange-500/30" />
           <p className="text-xs text-[var(--s-muted)] uppercase tracking-[0.4em]">
-            Зареждане...
+            {copy.loading}
           </p>
         </div>
       </div>
@@ -59,7 +72,7 @@ export default function NewVehicleSignalPage() {
               size={14}
               className="group-hover:-translate-x-0.5 transition-transform"
             />
-            Назад към autопарка
+            {copy.back}
           </Link>
 
           <div className="flex items-center gap-4 mb-4">
@@ -68,17 +81,16 @@ export default function NewVehicleSignalPage() {
             </div>
             <div>
               <p className="text-[10px] font-black uppercase tracking-[0.5em] text-[var(--s-orange)] mb-0.5">
-                Подай сигнал
+                {copy.badge}
               </p>
               <h1 className="rc-display font-extrabold text-2xl md:text-3xl text-[var(--s-text)] leading-tight">
-                Нов сигнал за автопарк
+                {copy.title}
               </h1>
             </div>
           </div>
 
           <p className="text-[var(--s-muted2)] text-sm max-w-lg leading-relaxed">
-            Сигнализирай за пътен инцидент с твоето превозно средство. Снимките
-            са задължителни за всички сигнали.
+            {copy.desc}
           </p>
         </div>
       </div>

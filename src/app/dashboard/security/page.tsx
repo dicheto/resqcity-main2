@@ -4,6 +4,7 @@ import { useEffect, useMemo, useState } from 'react';
 import axios from 'axios';
 import { startRegistration } from '@simplewebauthn/browser';
 import SixDigitCodeInput from '@/components/SixDigitCodeInput';
+import { useI18n } from '@/i18n';
 
 type PasskeyItem = {
   id: string;
@@ -14,7 +15,14 @@ type PasskeyItem = {
 };
 
 export default function SecurityPage() {
+  const { locale } = useI18n();
   const [totpEnabled, setTotpEnabled] = useState(false);
+  const copy = {
+    security: locale === 'bg' ? 'Сигурност' : locale === 'en' ? 'Security' : 'الأمان',
+    title: locale === 'bg' ? 'Passkey и Google Authenticator' : locale === 'en' ? 'Passkey and Google Authenticator' : 'مفتاح المرور و Google Authenticator',
+    subtitle: locale === 'bg' ? 'Добави модерен вход с Passkey и двуфакторна защита чрез Google Authenticator.' : locale === 'en' ? 'Add modern sign-in with Passkey and two-factor protection via Google Authenticator.' : 'أضف تسجيل دخول حديثا بمفتاح المرور وحماية ثنائية عبر Google Authenticator.',
+    loading: locale === 'bg' ? 'Loading security settings...' : locale === 'en' ? 'Loading security settings...' : 'جار تحميل إعدادات الأمان...',
+  };
   const [passkeys, setPasskeys] = useState<PasskeyItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [busy, setBusy] = useState(false);
@@ -189,7 +197,7 @@ export default function SecurityPage() {
   };
 
   if (loading) {
-    return <div className="text-center py-20 text-slate-600">Loading security settings...</div>;
+    return <div className="text-center py-20 text-slate-600">{copy.loading}</div>;
   }
 
   return (
@@ -201,10 +209,10 @@ export default function SecurityPage() {
         <div className="max-w-4xl mx-auto relative">
           <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full border border-[var(--s-border)] bg-[var(--s-surface)] mb-4">
             <span className="w-2 h-2 rounded-full bg-[var(--s-violet)] animate-pulse" />
-            <span className="text-[9px] font-bold uppercase tracking-[0.5em] text-[var(--s-violet)]">Сигурност</span>
+            <span className="text-[9px] font-bold uppercase tracking-[0.5em] text-[var(--s-violet)]">{copy.security}</span>
           </div>
-          <h1 className="rc-display font-extrabold text-3xl md:text-4xl text-[var(--s-text)]">Passkey и Google Authenticator</h1>
-          <p className="text-[var(--s-muted)] text-sm mt-2">Добави модерен вход с Passkey и двуфакторна защита чрез Google Authenticator.</p>
+          <h1 className="rc-display font-extrabold text-3xl md:text-4xl text-[var(--s-text)]">{copy.title}</h1>
+          <p className="text-[var(--s-muted)] text-sm mt-2">{copy.subtitle}</p>
         </div>
       </div>
 
