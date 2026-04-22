@@ -244,7 +244,6 @@ export default function AdminDashboardPage() {
         <div className="relative">
           <p className="text-xs uppercase tracking-[0.5em] admin-muted font-semibold">{getLocalizedGreeting()},</p>
           <h1 className="text-3xl md:text-5xl font-extrabold rc-display admin-text mt-2 leading-none">
-            {tr('Контролен', 'Control', 'لوحة')}<br />
             <span className="text-gradient-orange">{copy.panel}</span>
           </h1>
           <p className="admin-muted mt-3 max-w-lg text-sm leading-relaxed">

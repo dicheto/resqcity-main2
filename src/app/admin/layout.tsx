@@ -130,10 +130,10 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
   const [dark, setDark] = useState(false);
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [mounted, setMounted] = useState(false);
-  const localeOptions: Array<{ value: Locale; label: string }> = [
-    { value: 'bg', label: locale === 'bg' ? 'Български' : locale === 'en' ? 'Bulgarian' : 'البلغارية' },
-    { value: 'en', label: locale === 'bg' ? 'Английски' : locale === 'en' ? 'English' : 'الإنجليزية' },
-    { value: 'ar', label: 'العربية' },
+  const localeOptions: Array<{ value: Locale; label: string; short: string }> = [
+    { value: 'bg', label: locale === 'bg' ? 'Български' : locale === 'en' ? 'Bulgarian' : 'البلغارية', short: 'BG' },
+    { value: 'en', label: locale === 'bg' ? 'Английски' : locale === 'en' ? 'English' : 'الإنجليزية', short: 'EN' },
+    { value: 'ar', label: 'العربية', short: 'AR' },
   ];
 
   // Init theme before paint
@@ -353,19 +353,35 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
           </div>
 
           <div className="flex items-center gap-2">
-            <select
-              aria-label={locale === 'bg' ? 'Език' : locale === 'en' ? 'Language' : 'اللغة'}
-              value={locale}
-              onChange={(event) => setLocale(event.target.value as Locale)}
-              className="h-9 rounded-xl border px-2.5 text-xs admin-muted bg-transparent"
-              style={{ borderColor: 'var(--a-border)' }}
+            <div
+              role="group"
+              aria-label={locale === 'bg' ? 'Избор на език' : locale === 'en' ? 'Language selection' : 'اختيار اللغة'}
+              className="flex items-center gap-1 p-1 rounded-xl topbar-btn"
             >
-              {localeOptions.map((option) => (
-                <option key={option.value} value={option.value}>
-                  {option.label}
-                </option>
-              ))}
-            </select>
+              {localeOptions.map((option) => {
+                const active = locale === option.value;
+                return (
+                  <button
+                    key={option.value}
+                    type="button"
+                    onClick={() => setLocale(option.value)}
+                    title={option.label}
+                    aria-pressed={active}
+                    aria-label={option.label}
+                    className={`
+                      h-7 min-w-[42px] px-2 rounded-lg text-[11px] font-bold tracking-wide transition-all duration-200
+                      ${active ? 'text-white shadow-sm' : 'admin-muted hover:admin-text'}
+                    `}
+                    style={active
+                      ? { background: 'linear-gradient(135deg, #f97316, #fb7185)' }
+                      : { background: 'transparent' }
+                    }
+                  >
+                    {option.short}
+                  </button>
+                );
+              })}
+            </div>
             {mounted && (
               <button
                 onClick={toggleTheme}
