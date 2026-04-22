@@ -20,8 +20,7 @@ export async function GET(
 
     if (!routeDetails) {
       return NextResponse.json(
-        { success: false, error: 'Route not found' },
-        { status: 404 }
+        { success: false, error: 'Route not found', data: null }
       );
     }
 

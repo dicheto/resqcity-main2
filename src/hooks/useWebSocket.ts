@@ -10,12 +10,31 @@ export function useWebSocket() {
   useEffect(() => {
     const configuredUrl = process.env.NEXT_PUBLIC_WEBSOCKET_URL;
     const realtimeMode = process.env.NEXT_PUBLIC_REALTIME_MODE || 'auto';
+    const websocketEnabledEnv = process.env.NEXT_PUBLIC_WEBSOCKET_ENABLED;
     const isProd = process.env.NODE_ENV === 'production';
+    const isVercelHost =
+      typeof window !== 'undefined' && window.location.hostname.endsWith('.vercel.app');
+
+    const websocketExplicitlyEnabled = websocketEnabledEnv === 'true';
+    const websocketExplicitlyDisabled = websocketEnabledEnv === 'false';
 
     let url = configuredUrl || 'http://localhost:3000';
 
     if (isProd && (!configuredUrl || configuredUrl.includes('localhost'))) {
       url = window.location.origin;
+    }
+
+    const shouldDisableSocket =
+      websocketExplicitlyDisabled ||
+      realtimeMode === 'polling' ||
+      realtimeMode === 'http' ||
+      (!websocketExplicitlyEnabled &&
+        isProd &&
+        (!configuredUrl || configuredUrl.includes('localhost') || isVercelHost));
+
+    if (shouldDisableSocket) {
+      setIsConnected(false);
+      return () => {};
     }
 
     const shouldForcePolling =

@@ -207,6 +207,7 @@ function InteractiveMapComponent() {
   const showWeatherRef = useRef(false);
   const realtimeFetchInFlightRef = useRef(false);
   const lastRealtimeFetchAtRef = useRef(0);
+  const vehiclePollingErrorCountRef = useRef(0);
 
   const [showReports, setShowReports] = useState(true);
   const [showStores, setShowStores] = useState(true);
@@ -778,7 +779,7 @@ function InteractiveMapComponent() {
   // Real-time vehicles: WebSocket when available, polling fallback for Vercel/serverless
   const refreshVehicles = useCallback(async (force = false) => {
     const now = Date.now();
-    const minFetchGapMs = 15_000;
+    const minFetchGapMs = 30_000;
 
     if (!force && realtimeFetchInFlightRef.current) {
       return;
@@ -800,8 +801,10 @@ function InteractiveMapComponent() {
         setVehicles(uniqueVehicles);
         setAlerts(data.data.alerts || []);
         setVehicleStats(data.data);
+        vehiclePollingErrorCountRef.current = 0;
       }
     } catch (err) {
+      vehiclePollingErrorCountRef.current += 1;
       console.error('Error fetching vehicles:', err);
     } finally {
       realtimeFetchInFlightRef.current = false;
@@ -810,6 +813,11 @@ function InteractiveMapComponent() {
   }, []);
 
   useEffect(() => {
+    if (!showVehicles) {
+      setVehiclesLoading(false);
+      return;
+    }
+
     setVehiclesLoading(true);
     refreshVehicles(true);
 
@@ -822,14 +830,15 @@ function InteractiveMapComponent() {
     return () => {
       if (unsubscribe) unsubscribe();
     };
-  }, [onVehicleUpdate, refreshVehicles]);
+  }, [onVehicleUpdate, refreshVehicles, showVehicles]);
 
   // Polling fallback when WebSocket unavailable (Vercel/serverless)
   useEffect(() => {
     if (isConnected) return;
     if (!showVehicles) return;
 
-    let interval: ReturnType<typeof setInterval> | null = null;
+    let timeout: ReturnType<typeof setTimeout> | null = null;
+    let isCancelled = false;
 
     const tick = () => {
       if (typeof document === 'undefined') return;
@@ -837,9 +846,24 @@ function InteractiveMapComponent() {
       refreshVehicles();
     };
 
+    const getPollingIntervalMs = () => {
+      const baseIntervalMs = 60_000;
+      const maxPenaltySteps = Math.min(vehiclePollingErrorCountRef.current, 4);
+      const errorPenaltyMs = maxPenaltySteps * 30_000;
+      return baseIntervalMs + errorPenaltyMs;
+    };
+
+    const scheduleNextTick = () => {
+      if (isCancelled) return;
+      timeout = setTimeout(() => {
+        tick();
+        scheduleNextTick();
+      }, getPollingIntervalMs());
+    };
+
     // First tick soon after enabling vehicles
     tick();
-    interval = setInterval(tick, 60_000);
+    scheduleNextTick();
 
     const onVis = () => {
       if (document.visibilityState === 'visible') tick();
@@ -847,8 +871,9 @@ function InteractiveMapComponent() {
     document.addEventListener('visibilitychange', onVis);
 
     return () => {
+      isCancelled = true;
       document.removeEventListener('visibilitychange', onVis);
-      if (interval) clearInterval(interval);
+      if (timeout) clearTimeout(timeout);
     };
   }, [isConnected, showVehicles, refreshVehicles]);
 
